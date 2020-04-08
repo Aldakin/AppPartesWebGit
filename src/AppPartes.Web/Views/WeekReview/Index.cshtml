@@ -1,0 +1,571 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+
+    List<AppPartes.Web.Controllers.LineaVisual> listPartes = ViewBag.Lineas;
+    List<AppPartes.Web.Controllers.LineaVisual> lSelect = ViewBag.LineasSelect;
+    //List<AppPartes.Data.Models.Lineas> lSelect = ViewBag.LineasSelect;
+    List<AppPartes.Data.Models.Pernoctaciones> listaPernocta = ViewBag.Pernoctas;
+    List<double> listaSemana = ViewBag.Semana;
+}
+
+    <body class="is-preload">
+
+        <!-- Wrapper -->
+        <div id="wrapper">
+
+            <!-- Main -->
+            <div id="main">
+                <div class="inner">
+
+                    <!-- Header -->
+                    <header id="header">
+                        <a href="" class="logo"><strong>Seleccione Semana</strong></a>
+                        <!--
+                    <ul class="icons">
+                        <li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
+                        <li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
+                        <li><a href="#" class="icon brands fa-snapchat-ghost"><span class="label">Snapchat</span></a></li>
+                        <li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
+                        <li><a href="#" class="icon brands fa-medium-m"><span class="label">Medium</span></a></li>
+                    </ul>-->
+                    </header>
+                    <section>
+                        @{
+                            if (!string.IsNullOrEmpty(ViewBag.Message))
+                            {
+                                <div class="alert alert-warning">@ViewBag.Message</div>
+                            }
+                        }
+                        <div class="col-12">
+                            <div class="col-12">
+                                <form asp-controller="WeekReview" asp-action="Index" method="POST">
+                                    <div id="datepicker">
+                                        @{
+                                            if (lSelect != null)
+                                            {
+                                                <input type="date" id="Calendario" name="strDate"
+                                                       value=" "
+                                                       min="@(DateTime.Now.Year - 2)-01-01"
+                                                       max="@(DateTime.Now.Year + 2)-12-31">
+                                                <input type="hidden" name="strAction" value="loadWeek" />
+                                            }
+                                            else
+                                            {
+                                                <input type="date" id="Calendario" name="strDate"
+                                                       value="@ViewBag.DateSelected"
+                                                       min="@(DateTime.Now.Year - 2)-01-01"
+                                                       max="@(DateTime.Now.Year + 2)-12-31">
+                                                <input type="hidden" name="strAction" value="loadWeek" />
+                                            }
+                                        }
+                                        <input type="submit" value="enviar" class="primary" />
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-12">
+                                @{
+                                    if (listaSemana != null)
+                                    {
+                                        <div class="table-wrapper">
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Lunes</th>
+                                                        <th>Martes</th>
+                                                        <th>Miércoles</th>
+                                                        <th>Jueves</th>
+                                                        <th>Viernes</th>
+                                                        <th>Sábado</th>
+                                                        <th>Domingo</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>@listaSemana[0]</td>
+                                                        <td>@listaSemana[1]</td>
+                                                        <td>@listaSemana[2]</td>
+                                                        <td>@listaSemana[3]</td>
+                                                        <td>@listaSemana[4]</td>
+                                                        <td>@listaSemana[5]</td>
+                                                        <td>@listaSemana[6]</td>
+
+                                                    </tr>
+
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colspan="2">Semana del :</td>
+                                                        <td>@ViewBag.DateSelected</td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                        @{
+                            if (lSelect != null)
+                            {
+                                <h3>Editar parte de trabajo</h3>
+                                @foreach (var dept in lSelect)
+                                {
+                    <form asp-action="EditLine" asp-controller="WeekReview" method="POST">
+                        <input type="hidden" id="ot" name="ot" value="@dept.Idot" readonly />
+                        <div class="row gtr-uniform">
+                            <!--<div class="col-6 col-12-xsmall">
+            <label for="start">Fecha actual parte:</label>
+            <input type="text" name="strCalendarioAnterior" id="demo-name" value="@dept.Inicio.Year-@dept.Inicio.Month-@dept.Inicio.Day" readonly />
+        </div>-->
+                            <div class="col-12">
+                                <label for="start">Fecha nueva parte(si procede cambiar):</label>
+                                <input type="date" id="Calendario" name="strCalendario"
+                                       value="@ViewBag.DateSelected"
+                                       min="@(DateTime.Now.Year - 2)-01-01"
+                                       max="@(DateTime.Now.Year + 2)-12-31">
+                                <!--<input type="text" name="demo-name" id="demo-name" value="" placeholder="Name" />-->
+                            </div>
+                            <div class="col-6 col-12-xsmall">
+                                <label for="start">Hora Inicio:</label>
+                                <table class="egt">
+                                    <tr>
+                                        <td>
+                                            <select id="strHoraInicio" name="strHoraInicio">
+                                                <option value="@dept.Inicio.Hour" selected>@dept.Inicio.Hour</option>
+                                                <option value="00">00</option>
+                                                <option value="01">01</option>
+                                                <option value="02">02</option>
+                                                <option value="03">03</option>
+                                                <option value="04">04</option>
+                                                <option value="05">05</option>
+                                                <option value="06">06</option>
+                                                <option value="07">07</option>
+                                                <option value="08">08</option>
+                                                <option value="09">09</option>
+                                                <option value="10">10</option>
+                                                <option value="11">11</option>
+                                                <option value="12">12</option>
+                                                <option value="13">13</option>
+                                                <option value="14">14</option>
+                                                <option value="15">15</option>
+                                                <option value="16">16</option>
+                                                <option value="17">17</option>
+                                                <option value="18">18</option>
+                                                <option value="19">19</option>
+                                                <option value="20">20</option>
+                                                <option value="21">21</option>
+                                                <option value="22">22</option>
+                                                <option value="23">23</option>
+                                            </select>
+                                        </td>
+                                        <td>:</td>
+                                        <td>
+                                            <select id="strMinutoInicio" name="strMinutoInicio">
+                                                <option value="@dept.Inicio.Minute" selected>@dept.Inicio.Minute</option>
+                                                <option value="00">00</option>
+                                                <option value="15">15</option>
+                                                <option value="30">30</option>
+                                                <option value="45">45</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <!--<input type="email" name="demo-email" id="demo-email" value="" placeholder="Email" />-->
+                            </div>
+                            <div class="col-6 col-12-xsmall">
+
+                                <label for="start">Hora Fin:</label>
+                                <table class="egt">
+                                    <tr>
+                                        <td>
+                                            <select id="strHoraFin" name="strHoraFin">
+                                                <option value="@dept.Fin.Hour" selected>@dept.Fin.Hour</option>
+                                                <option value="00">00</option>
+                                                <option value="01">01</option>
+                                                <option value="02">02</option>
+                                                <option value="03">03</option>
+                                                <option value="04">04</option>
+                                                <option value="05">05</option>
+                                                <option value="06">06</option>
+                                                <option value="07">07</option>
+                                                <option value="08">08</option>
+                                                <option value="09">09</option>
+                                                <option value="10">10</option>
+                                                <option value="11">11</option>
+                                                <option value="12">12</option>
+                                                <option value="13">13</option>
+                                                <option value="14">14</option>
+                                                <option value="15">15</option>
+                                                <option value="16">16</option>
+                                                <option value="17">17</option>
+                                                <option value="18">18</option>
+                                                <option value="19">19</option>
+                                                <option value="20">20</option>
+                                                <option value="21">21</option>
+                                                <option value="22">22</option>
+                                                <option value="23">23</option>
+                                            </select>
+                                        </td>
+                                        <td>:</td>
+                                        <td>
+                                            <select id="strMinutoFin" name="strMinutoFin">
+                                                <option value="@dept.Fin.Minute" selected>@dept.Fin.Minute</option>
+                                                <option value="00">00</option>
+                                                <option value="15">15</option>
+                                                <option value="30">30</option>
+                                                <option value="45">45</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <!--<input type="email" name="demo-email" id="demo-email" value="" placeholder="Email" />-->
+                            </div>
+                            <!-- Break -->
+                            <div class="col-6 col-12-small">
+                                @if (dept.Horasviaje > 0)
+                                {
+                                    <input type="checkbox" id="viaje" value="true" name="bHorasViaje" checked="checked"> <label for="viaje">Viaje</label>
+                                }
+                                else
+                                {
+                                    <input type="checkbox" id="viaje" value="true" name="bHorasViaje"> <label for="viaje">Viaje</label>
+                                }
+                            </div>
+                            <div class="col-6 col-12-small">
+                                <label for="start">NºParte:</label>
+                                <input type="text" name="strParte" value="@dept.Npartefirmado" />
+                            </div>
+                            <div class="col-6 col-12-small">
+                                @{
+                                    if ((dept.Horas == 0) && (dept.Horasviaje == 0))
+                                    {
+                                        <input type="checkbox" id="gastos" value="true" name="bGastos" checked="checked"> <label for="gastos">Solo gastos</label>
+                                    }
+                                    else
+                                    {
+                                        <input type="checkbox" id="gastos" value="true" name="bGastos"> <label for="gastos">Solo gastos</label>
+                                    }
+                                }
+                            </div>
+                            <div class="col-6 col-12-small">
+                                <label for="vehicle1">Pernoctación</label>
+                                <select name="strPernoctacion" required>
+                                    <option value="0">NO</option>
+                                    @foreach (var client in listaPernocta)
+                                    {
+                                        if (@client.Tipo == @dept.Facturable)
+                                        {
+                                            <option value="@client.Tipo" selected> @client.Descripcion </option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@client.Tipo"> @client.Descripcion </option>
+                                        }
+                                    }
+                                    <!--<option value="NACIONAL">NACIONAL</option>
+    <option value="INTERNACIONAL">INTERNACIONAL</option>-->
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <textarea name="strObservaciones" id="txtObservaciones" placeholder="Enter your message" value="@dept.Observaciones" rows="6" required>@dept.Observaciones</textarea>
+                            </div>
+                            <div class="col-12">
+                                <span class="button" onclick="viewLblGastos();" style="display: inline-block">Mostrar Gastos</span>
+                                <hr class="major" />
+                                <div class="col-12" id="lblGastos" name="lblGastos" style="display:none">
+                                    <input type="hidden" id="idGasto" name="idGasto" value="@dept.ContGastos" readonly />
+
+                                    <label for="start">Cantidad:</label>
+                                    <input type="text" id="strCantidad" name="strCantidad" value="0" />
+                                    <label for="start">Pagador:</label>
+                                    <select id="Pagador" name="Pagador">
+                                        <option value="0"></option>
+                                        <option value="TRABAJADOR">TRABAJADOR</option>
+                                        <option value="ALDAKIN">ALDAKIN</option>
+                                    </select>
+                                    <label id="lblTipo" for="start">Tipo Gasto:</label>
+                                    <select id="Tipo" name="Tipo" disabled>
+                                        <option value="0"></option>
+                                    </select>
+                                    <label for="start">Observaciones:</label>
+                                    <input type="text" id="strObservaciones" name="strObservaciones" value=" " />
+                                    <span class="button" onclick="insertText('idGasto','strCantidad','Pagador','Tipo','strGastos','strObservaciones');" style="display: inline-block">Añadir Gasto</span>
+                                    <label for="start">Lista de gastos:</label>
+                                    <textarea name="strGastos" id="strGastos" value="@dept.Gastos" rows="6">@dept.Gastos</textarea>
+                                    <hr class="major" />
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <input type="hidden" name="strIdLinea" value="@dept.Idlinea" />
+                                <input type="hidden" name="strAction" value="guardar" />
+                                <input type="submit" value="Modificar" />
+                            </div>
+                        </div>
+                    </form>
+                                }
+                            }
+
+                        }
+
+                        <!-- Content -->
+
+
+                        @if (listPartes != null)
+                        {
+                            <div class="col-12">
+                                @{
+                                    if (@ViewBag.SemanaCerrada)
+                                    {
+                                        <h4>Estado semana: Cerrada</h4>
+                                    }
+                                    else
+                                    {
+                                        <h4>Estado semana: Abierta</h4>
+                                    }
+                                }
+                                <hr class="major" />
+                                <p>Desea cerrar la semana?</p>
+
+                                <form asp-controller="WeekReview" asp-action="CloseWeek" method="POST">
+                                    <input type="hidden" name="strDataSelected" value="@ViewBag.DateSelected" />
+                                    <input type="submit" value="CerrarSemana" />
+                                </form>
+                            </div>
+                            <header id="header">
+                            </header>
+                            <div class="col-12">
+
+                                <h3>Visualizador de partes semanales</h3>
+                                <p>Puede revisar, editar, borrar sus partes de trabajo antes de cerrar la semana.</p>
+                                @foreach (var dept in listPartes)
+                                {
+                                    <div class="table-wrapper">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th></th>
+                                                    <th>Inicio</th>
+                                                    <th>Fin</th>
+                                                    <th>Empresa</th>
+                                                    <th>OT</th>
+                                                    <!--<th>Nombre OT</th>-->
+                                                    <th>Presupuesto</th>
+                                                    <!--<th>Nombre Presupuesto</th>-->
+                                                    <!--<th>Nivel1</th>
+                                                <th>Nivel2</th>
+                                                <th>Nivel3</th>
+                                                <th>Nivel4</th>
+                                                <th>Nivel5</th>
+                                                <th>Nivel6</th>
+                                                <th>Nivel7</th>-->
+                                                    <th>Horas de Viaje</th>
+                                                    <th>Horas</th>
+                                                    <th>Gastos</th>
+                                                    <th>Kilometros</th>
+                                                    <th>Pernoctacion</th>
+                                                    <th>Observaciones</th>
+                                                    <th>Identificador</th>
+                                                    <th>Nº Parte</th>
+                                                    <th>Bloqueado</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <form asp-controller="WeekReview" asp-action="Index" method="POST">
+                                                            <input type="hidden" name="strId" value="@dept.Idlinea" />
+                                                            <input type="hidden" name="strAction" value="editLine" />
+                                                            <input type="submit" value="Editar" />
+                                                        </form>
+                                                        <input type="hidden" id="idLinea" name="idLinea" value="@dept.Idlinea" />
+                                                        <input type="hidden" id="dtIni" name="dtIni" value="@dept.Inicio.Date" />
+                                                        <!--<input type="submit" name="strAction" onclick="deleteConfirmation('idLinea','dtIni');" value="Borrar" />-->
+                                                        <input type="submit" name="strAction" onclick="deleteConfirmation(@dept.Idlinea);" value="Borrar" />
+                                                    </td>
+                                                    <td>@dept.Inicio</td>
+                                                    <td>@dept.Fin</td>
+                                                    <td>@dept.NombreCliente</td>
+                                                    <td>@dept.NombreOt</td>
+                                                    <!--<td>Nombre OT</td>-->
+                                                    <td>@dept.NombrePreslin</td>
+                                                    <!--<td>Nombre Presupuesto</td>-->
+                                                    <!--<td>Nivel1</td>
+                                                <td>Nivel2</td>
+                                                <td>Nivel3</td>
+                                                <td>Nivel4</td>
+                                                <td>Nivel5</td>
+                                                <td>Nivel6</td>
+                                                <td>Nivel7</td>-->
+                                                    <td>@dept.Horasviaje</td>
+                                                    <td>@dept.Horas</td>
+                                                    <td>@dept.Dietas</td>
+                                                    <td>@dept.Km</td>
+                                                    <td>@dept.strPernocta</td>
+                                                    <td>@dept.Observaciones</td>
+                                                    <td>@dept.Idlinea</td>
+                                                    <td>@dept.Npartefirmado</td>
+                                                    <td>@dept.Validado</td>
+                                                </tr>
+
+                                            </tbody>
+
+                                            @*<tfoot>
+                                                <tr>
+                                                    <td colspan="2"></td>
+                                                    <td>100.00</td>
+                                                </tr>
+                                            </tfoot>*@
+                                        </table>
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                    </section>
+
+                </div>
+            </div>
+
+
+        </div>
+
+        <!-- Scripts -->
+        <script src="assets/js/jquery.min.js"></script>
+        <script src="assets/js/browser.min.js"></script>
+        <script src="assets/js/breakpoints.min.js"></script>
+        <script src="assets/js/util.js"></script>
+        <script src="assets/js/main.js"></script>
+
+        <script type="text/javascript">
+            const $ot = document.querySelector("#ot");        
+            const $tipo = document.querySelector("#Tipo");
+            const $pagador = document.querySelector("#Pagador");
+        const $gastos = document.querySelector("#gastos");
+
+            const PagadorSeleccionado = () => {
+            const indice = $pagador.selectedIndex;
+            if (indice === -1) return; // Esto es cuando no hay elementos
+            const optionSelec = $pagador.options[indice];
+            const opcionSeleccionada =document.getElementById("ot");
+            for (let i = $tipo.options.length; i >= 0; i--) {
+                $tipo.remove(i);
+            }
+            var url = "@Url.Action("PagadorSelect","Main")";
+            var cantidad = 0;
+            if (optionSelec.value == 'ALDAKIN') {
+                cantidad = 1;
+            } else {
+                if (optionSelec.value == 'TRABAJADOR') {
+                    cantidad = 0;
+                }
+                else {
+                    return;
+                }
+            }
+            var cantidad2 = opcionSeleccionada.value;
+            var data = { cantidad: cantidad, cantidad2: cantidad2};
+            $.post(url, data).done(function (data) {
+                //si la operacion es buena
+                if (data != null) {
+                    if (data.length > 0) {
+                        document.getElementById("Tipo").disabled = false;
+                        const option = document.createElement('option');
+                        option.value = "0";
+                        option.text = "";
+                        $tipo.appendChild(option);
+                        for (let i = 0; i <= data.length - 1; i++) {
+                            const option = document.createElement('option');
+                            option.value = JSON.stringify(data[i].strValue).replace(/['"]+/g, '');
+                            option.text = JSON.stringify(data[i].strText);
+                            $tipo.appendChild(option);
+                        }
+                    } else {
+                        document.getElementById("Tipo").disabled = true;
+                    }
+                } else {
+                        document.getElementById("Tipo").disabled = true;
+                }
+            }).fail(daError).always(function () {
+                //esto se ejecuta siempre
+            });
+        }
+            
+        function insertText(idGasto, strCantidad, strPagador, strTipo, strGastos, strObservaciones) {
+            var elem = document.getElementById(strGastos);
+            var id = document.getElementById(idGasto);
+            var Pagador = document.getElementById(strPagador);
+            var Tipo = document.getElementById(strTipo);
+            var Cantidad = document.getElementById(strCantidad);
+            var Observaciones = document.getElementById(strObservaciones);
+            elem.value = elem.value + id.value + '|' + Pagador.value + '|' + Tipo.value + '|' + Cantidad.value + '|' + Observaciones.value + '\r\n';
+            id.value = parseInt(id.value, 10) + 1;
+        }
+
+        function viewLblGastos() {
+            div = document.getElementById('lblGastos');
+            if (div.style.display == 'none') {
+                div.style.display = '';
+            }
+            else {
+                div.style.display = 'none';
+            }
+        }
+        
+
+        function deleteConfirmation(idlinea) {
+            var opcion = confirm("¿Seguro que desea Eliminar?");
+            var linea = idlinea;
+            if (opcion == true) {
+                var url = "@Url.Action("DeleteLineFunction","WeekReview")";
+                var data = { cantidad: linea};
+                $.post(url, data).done(function (data) {
+                    if (data.length>1) {
+                        window.location.href = "WeekReview?strMessage=Parte borrado correctamente;&strDate=" + JSON.stringify(data[1].strValue).replace(/['"]+/g, '') + "&strAction=" + JSON.stringify(data[1].strText).replace(/['"]+/g, '') + "";
+                        }
+                    else {
+                        window.location.href = "WeekReview?strMessage=Error durante el proceso de borrado;";
+                    }
+                    //window.location.href = "WeekReview?strMessage=Parte borrado correctamente;";
+               
+                   
+                })
+            } else {
+                alert('Borrado cancelado');
+            }
+        }
+        const GastoSeleccionado = () => {
+            if (document.getElementById('gastos').checked)
+            {
+                document.getElementById("strHoraInicio").value = "00";
+                document.getElementById("strMinutoInicio").value = "00";
+                document.getElementById("strHoraFin").value = "00";
+                document.getElementById("strMinutoFin").value = "00";
+                //alert('Marcar un parte como solo gastos implica 0 horas');
+            }
+        }
+
+
+
+
+
+
+        function daError(ex) {
+            console.log("Error");
+            alert("Ocurrio un error,recargue la pagina y vuelva a empezar." +ex);
+        }
+
+        $pagador.addEventListener("change", PagadorSeleccionado);
+        $gastos.addEventListener("change", GastoSeleccionado);
+
+
+        </script>
+
+
+
+
+    </body>
+

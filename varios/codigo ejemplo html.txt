@@ -1,0 +1,1334 @@
+
+@{
+    ViewData["Title"] = "Index";
+}
+@{
+    //LENGUAJE DE SERVIDOR C#
+    List<AppPartes.Data.Models.Ots> listaOts = ViewBag.Ots;
+    List<AppPartes.Data.Models.Entidad> listadept = ViewBag.Departamentos;
+    List<AppPartes.Data.Models.Clientes> listaClient = ViewBag.Clientes;
+
+    List<AppPartes.Data.Models.Presupuestos> listaPresupuestos = ViewBag.Presupuestos;
+}
+
+    <body class="is-preload">
+
+        <!-- Wrapper -->
+        <div id="wrapper">
+
+            <!-- Main -->
+            <div id="main">
+                <div class="inner">
+
+                    <!-- Header -->
+                    <header id="header">
+                        <a href="#" class="logo"><strong>Grupo Aldakin</strong></a>
+                        <!--
+                    <ul class="icons">
+                        <li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
+                        <li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
+                        <li><a href="#" class="icon brands fa-snapchat-ghost"><span class="label">Snapchat</span></a></li>
+                        <li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
+                        <li><a href="#" class="icon brands fa-medium-m"><span class="label">Medium</span></a></li>
+                    </ul>
+                    -->
+                    </header>
+
+                    <!-- Content -->
+                    <section>
+                        <header class="main">
+                            <h1>Insertar parte nuevo</h1>
+                        </header>
+
+                        <!-- Content -->
+                        <h2 id="content">Sample Content</h2>
+                        <p>Rellene los campos con la informacionsobre su parte de trabajo.</p>
+
+
+                        <label for="start">Entidad:</label>
+                        <select id="entidad" name="entidad">
+                            @foreach (var dept in listadept)
+                            {
+                                <option value="@dept.CodEnt">
+                                    @dept.Nombre
+                                </option>
+                            }
+                        </select>
+
+                        @*<label for="start">Clientes:</label>
+                        <select name="cliente">
+                            <option value=" "></option>
+                            @foreach (var client in listaClient)
+                            {
+                                <option value="@client.Idclientes">
+                                    @client.Nombre
+                                </option>
+                            }
+                        </select>*@
+
+                        <label for="start">Ots:</label>
+                        <select id="ot" name="ot">
+                            <option value=" "></option>
+                            @foreach (var dept in listaOts)
+                            {
+                                <option value="@dept.Idots">
+                                    @dept.Numero || @dept.Nombre
+                                </option>
+                            }
+                        </select>
+
+                        <label id="lbPresupuesto" for="start" style="display:none">Presupuesto:</label>
+                        <select id="presupuesto" name="presupuesto" style="display:none">
+                            <option value=" "></option>
+                            <option value=" ">presupuesto</option>
+
+                        </select>
+
+                        <label id="lbNivel1" for="start" style="display:none">Nivel1:</label>
+                        <select id="nivel1" name="nivel1" style="display:none">
+                            <option value=" "></option>
+                            <option value=" ">nivel1</option>
+
+                        </select>
+
+                        <label id="lbNivel2" for="start" style="display:none">Nivel2:</label>
+                        <select id="nivel2" name="nivel2" style="display:none">
+                            <option value=" "></option>
+                            <option value=" ">nivel3</option>
+
+                        </select>
+
+                        <label id="lbNivel3" for="start" style="display:none">Nivel3:</label>
+                        <select id="nivel3" name="nivel3" style="display:none">
+                            <option value=" "></option>
+                            <option value=" ">nivel3</option>
+
+                        </select>
+
+                        <label id="lbNivel4" for="start" style="display:none">Nivel4:</label>
+                        <select id="nivel4" name="nivel4" style="display:none">
+                            <option value=" "></option>
+                            <option value=" ">nivel4</option>
+
+                        </select>
+
+                        <label id="lbNivel5" for="start" style="display:none">Nivel5:</label>
+                        <select id="nivel5" name="nivel5" style="display:none">
+                            <option value=" "></option>
+                            <option value=" ">nivel5</option>
+
+                        </select>
+
+                        <label id="lbNivel6" for="start" style="display:none">Nivel6:</label>
+                        <select id="nivel6" name="nivel6" style="display:none">
+                            <option value=" "></option>
+                            <option value=" ">nivel6</option>
+
+                        </select>
+
+                        <label id="lbNivel7" for="start" style="display:none">Nivel7:</label><!--inline or block or none-->
+                        <select id="nivel7" name="nivel7" style="display:none">
+                            <option value=" "></option>
+                            <option value=" ">nivel7</option>
+
+                        </select>
+
+
+
+                        <div id="information1" class="row" style="display:none">
+                            <div class="col-6 col-12-small">
+                                <h3>Sem turpis amet semper</h3>
+
+
+                                <label for="start">Seleccione un dia:</label>
+
+                                <input type="date" id="Calendario" name="Calendario"
+                                       value=""
+                                       min="@(DateTime.Now.Year-2)-01-01"
+                                       max="@(DateTime.Now.Year+2)-12-31">
+
+                                <label for="start">Hora Inicio:</label>
+                                <table class="egt">
+                                    <tr>
+                                        <td>
+                                            <select name="HoraInicio">
+                                                <option value="00" selected>00</option>
+                                                <option value="01">01</option>
+                                                <option value="02">02</option>
+                                                <option value="03">03</option>
+                                                <option value="04">04</option>
+                                                <option value="05">05</option>
+                                                <option value="06">06</option>
+                                                <option value="07">07</option>
+                                                <option value="08">08</option>
+                                                <option value="09">09</option>
+                                                <option value="10">10</option>
+                                                <option value="11">11</option>
+                                                <option value="12">12</option>
+                                                <option value="13">13</option>
+                                                <option value="14">14</option>
+                                                <option value="15">15</option>
+                                                <option value="16">16</option>
+                                                <option value="17">17</option>
+                                                <option value="18">18</option>
+                                                <option value="19">19</option>
+                                                <option value="20">20</option>
+                                                <option value="21">21</option>
+                                                <option value="22">22</option>
+                                                <option value="23">23</option>
+                                            </select>
+                                        </td>
+                                        <td>:</td>
+                                        <td>
+                                            <select name="MinutoInicio">
+                                                <option value="00" selected>00</option>
+                                                <option value="15">15</option>
+                                                <option value="30">30</option>
+                                                <option value="45">45</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <label for="start">Hora Fin:</label>
+                                <table class="egt">
+                                    <tr>
+                                        <td>
+                                            <select name="HoraFin">
+                                                <option value="00" selected>00</option>
+                                                <option value="01">01</option>
+                                                <option value="02">02</option>
+                                                <option value="03">03</option>
+                                                <option value="04">04</option>
+                                                <option value="05">05</option>
+                                                <option value="06">06</option>
+                                                <option value="07">07</option>
+                                                <option value="08">08</option>
+                                                <option value="09">09</option>
+                                                <option value="10">10</option>
+                                                <option value="11">11</option>
+                                                <option value="12">12</option>
+                                                <option value="13">13</option>
+                                                <option value="14">14</option>
+                                                <option value="15">15</option>
+                                                <option value="16">16</option>
+                                                <option value="17">17</option>
+                                                <option value="18">18</option>
+                                                <option value="19">19</option>
+                                                <option value="20">20</option>
+                                                <option value="21">21</option>
+                                                <option value="22">22</option>
+                                                <option value="23">23</option>
+                                            </select>
+                                        </td>
+                                        <td>:</td>
+                                        <td>
+                                            <select name="MinutoFin">
+                                                <option value="00" selected>00</option>
+                                                <option value="15">15</option>
+                                                <option value="30">30</option>
+                                                <option value="45">45</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <!--
+                                <p>Nunc lacinia ante nunc ac lobortis. Interdum adipiscing gravida odio porttitor sem non mi integer non faucibus ornare mi ut ante amet placerat aliquet. Volutpat commodo eu sed ante lacinia. Sapien a lorem in integer ornare praesent commodo adipiscing arcu in massa commodo lorem accumsan at odio massa ac ac. Semper adipiscing varius montes viverra nibh in adipiscing blandit tempus accumsan.</p>
+                            -->
+                            </div>
+                            <div class="col-6 col-12-small">
+                                <h3>Magna odio tempus commodo</h3>
+                                <!--<label><input type="checkbox" id="cbox1" value="first_checkbox"> Este es mi primer checkbox</label><br>-->
+
+                                <input type="checkbox" id="cbox2" value="second_checkbox"> <label for="cbox2">Solo gastos:</label>
+
+                                <!--
+                            <label for="start">Solo Gastos:</label>
+                            <input type="checkbox" id="checkgastos" name="checkgastos" value="true"><br>
+                            -->
+
+                                <label for="start">NºParte:</label>
+                                <input type="text" name="txtparte" />
+
+                                <label for="vehicle1">Pernoctación</label>
+                                <select name="pernoctacion">
+                                    <option value="NO" selected>NO</option>
+                                    <option value="NACIONAL">NACIONAL</option>
+                                    <option value="INTERNACIONAL">INTERNACIONAL</option>
+                                </select>
+                                <!--
+                                 <p>In arcu accumsan arcu adipiscing accumsan orci ac. Felis id enim aliquet. Accumsan ac integer lobortis commodo ornare aliquet accumsan erat tempus amet porttitor. Ante commodo blandit adipiscing integer semper orci eget. Faucibus commodo adipiscing mi eu nullam accumsan morbi arcu ornare odio mi adipiscing nascetur lacus ac interdum morbi accumsan vis mi accumsan.</p>
+                            -->
+                            </div>
+                            <!-- Break -->
+                            <!--<div class="col-4 col-12-medium">
+                            <h3>Interdum sapien gravida</h3>
+                            <p>Nunc lacinia ante nunc ac lobortis. Interdum adipiscing gravida odio porttitor sem non mi integer non faucibus ornare mi ut ante amet placerat aliquet. Volutpat eu sed ante lacinia sapien lorem accumsan varius montes viverra nibh in adipiscing blandit.</p>
+                        </div>
+                        <div class="col-4 col-12-medium">
+                            <h3>Faucibus consequat lorem</h3>
+                            <p>Nunc lacinia ante nunc ac lobortis. Interdum adipiscing gravida odio porttitor sem non mi integer non faucibus ornare mi ut ante amet placerat aliquet. Volutpat eu sed ante lacinia sapien lorem accumsan varius montes viverra nibh in adipiscing blandit.</p>
+                        </div>
+                        <div class="col-4 col-12-medium">
+                            <h3>Accumsan montes viverra</h3>
+                            <p>Nunc lacinia ante nunc ac lobortis. Interdum adipiscing gravida odio porttitor sem non mi integer non faucibus ornare mi ut ante amet placerat aliquet. Volutpat eu sed ante lacinia sapien lorem accumsan varius montes viverra nibh in adipiscing blandit.</p>
+                        </div>
+                            -->
+                        </div>
+                        <!-- Break -->
+                        <div id="information2" class="col-12" style="display:none">
+                            <label for="start">Observaciones:</label>
+                            <textarea name="txtObservaciones" id="txtObservaciones" placeholder="Enter your message" rows="6" required></textarea>
+                        </div>
+
+
+                        <div  id="information3"class="col-12" style="display:none">
+                            <ul class="actions">
+                                <li><input type="submit" value="Guardar" class="primary" /></li>
+                            </ul>
+                        </div>
+
+
+
+                        <hr class="major" />
+
+                        <!-- Elements -->
+                        <h2 id="elements">Elements</h2>
+                        <div class="row gtr-200">
+                            <div class="col-6 col-12-medium">
+
+                                <!-- Text stuff -->
+                                <h3>Text</h3>
+                                <p>
+                                    This is <b>bold</b> and this is <strong>strong</strong>. This is <i>italic</i> and this is <em>emphasized</em>.
+                                    This is <sup>superscript</sup> text and this is <sub>subscript</sub> text.
+                                    This is <u>underlined</u> and this is code: <code>for (;;) { ... }</code>.
+                                    Finally, this is a <a href="#">link</a>.
+                                </p>
+                                <hr />
+                                <h2>Heading Level 2</h2>
+                                <h3>Heading Level 3</h3>
+                                <h4>Heading Level 4</h4>
+                                <hr />
+                                <p>Nunc lacinia ante nunc ac lobortis. Interdum adipiscing gravida odio porttitor sem non mi integer non faucibus ornare mi ut ante amet placerat aliquet. Volutpat eu sed ante lacinia sapien lorem accumsan varius montes viverra nibh in adipiscing blandit tempus accumsan.</p>
+
+                                <!-- Lists -->
+                                <h3>Lists</h3>
+                                <div class="row">
+                                    <div class="col-6 col-12-small">
+
+                                        <h4>Unordered</h4>
+                                        <ul>
+                                            <li>Dolor etiam magna etiam.</li>
+                                            <li>Sagittis lorem eleifend.</li>
+                                            <li>Felis dolore viverra.</li>
+                                        </ul>
+
+                                        <h4>Alternate</h4>
+                                        <ul class="alt">
+                                            <li>Dolor etiam magna etiam.</li>
+                                            <li>Sagittis lorem eleifend.</li>
+                                            <li>Felis feugiat viverra.</li>
+                                        </ul>
+
+                                    </div>
+                                    <div class="col-6 col-12-small">
+
+                                        <h4>Ordered</h4>
+                                        <ol>
+                                            <li>Dolor etiam magna etiam.</li>
+                                            <li>Etiam vel lorem sed viverra.</li>
+                                            <li>Felis dolore viverra.</li>
+                                            <li>Dolor etiam magna etiam.</li>
+                                            <li>Etiam vel lorem sed viverra.</li>
+                                            <li>Felis dolore viverra.</li>
+                                        </ol>
+
+                                        <h4>Icons</h4>
+                                        <ul class="icons">
+                                            <li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
+                                            <li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
+                                            <li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
+                                            <li><a href="#" class="icon brands fa-github"><span class="label">Github</span></a></li>
+                                            <li><a href="#" class="icon brands fa-dribbble"><span class="label">Dribbble</span></a></li>
+                                            <li><a href="#" class="icon brands fa-tumblr"><span class="label">Tumblr</span></a></li>
+                                        </ul>
+
+                                    </div>
+                                </div>
+                                <h4>Definition</h4>
+                                <dl>
+                                    <dt>Item1</dt>
+                                    <dd>
+                                        <p>Lorem ipsum dolor vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent. Lorem ipsum dolor.</p>
+                                    </dd>
+                                    <dt>Item2</dt>
+                                    <dd>
+                                        <p>Lorem ipsum dolor vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent. Lorem ipsum dolor.</p>
+                                    </dd>
+                                    <dt>Item3</dt>
+                                    <dd>
+                                        <p>Lorem ipsum dolor vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent. Lorem ipsum dolor.</p>
+                                    </dd>
+                                </dl>
+
+                                <h4>Actions</h4>
+                                <ul class="actions">
+                                    <li><a href="#" class="button primary">Default</a></li>
+                                    <li><a href="#" class="button">Default</a></li>
+                                </ul>
+                                <ul class="actions small">
+                                    <li><a href="#" class="button primary small">Small</a></li>
+                                    <li><a href="#" class="button small">Small</a></li>
+                                </ul>
+                                <div class="row">
+                                    <div class="col-6 col-12-small">
+                                        <ul class="actions stacked">
+                                            <li><a href="#" class="button primary">Default</a></li>
+                                            <li><a href="#" class="button">Default</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-6 col-12-small">
+                                        <ul class="actions stacked">
+                                            <li><a href="#" class="button primary small">Small</a></li>
+                                            <li><a href="#" class="button small">Small</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-6 col-12-small">
+                                        <ul class="actions stacked">
+                                            <li><a href="#" class="button primary fit">Default</a></li>
+                                            <li><a href="#" class="button fit">Default</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-6 col-12-small">
+                                        <ul class="actions stacked">
+                                            <li><a href="#" class="button primary small fit">Small</a></li>
+                                            <li><a href="#" class="button small fit">Small</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <h4>Pagination</h4>
+                                <ul class="pagination">
+                                    <li><span class="button disabled">Prev</span></li>
+                                    <li><a href="#" class="page active">1</a></li>
+                                    <li><a href="#" class="page">2</a></li>
+                                    <li><a href="#" class="page">3</a></li>
+                                    <li><span>&hellip;</span></li>
+                                    <li><a href="#" class="page">8</a></li>
+                                    <li><a href="#" class="page">9</a></li>
+                                    <li><a href="#" class="page">10</a></li>
+                                    <li><a href="#" class="button">Next</a></li>
+                                </ul>
+
+                                <!-- Blockquote -->
+                                <h3>Blockquote</h3>
+                                <blockquote>Lorem ipsum dolor vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent. Lorem ipsum dolor. Lorem ipsum dolor vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus.</blockquote>
+
+                                <!-- Table -->
+                                <h3>Table</h3>
+
+                                <h4>Default</h4>
+                                <div class="table-wrapper">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Description</th>
+                                                <th>Price</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Item1</td>
+                                                <td>Ante turpis integer aliquet porttitor.</td>
+                                                <td>29.99</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Item2</td>
+                                                <td>Vis ac commodo adipiscing arcu aliquet.</td>
+                                                <td>19.99</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Item3</td>
+                                                <td> Morbi faucibus arcu accumsan lorem.</td>
+                                                <td>29.99</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Item4</td>
+                                                <td>Vitae integer tempus condimentum.</td>
+                                                <td>19.99</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Item5</td>
+                                                <td>Ante turpis integer aliquet porttitor.</td>
+                                                <td>29.99</td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="2"></td>
+                                                <td>100.00</td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+
+                                <h4>Alternate</h4>
+                                <div class="table-wrapper">
+                                    <table class="alt">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Description</th>
+                                                <th>Price</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Item1</td>
+                                                <td>Ante turpis integer aliquet porttitor.</td>
+                                                <td>29.99</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Item2</td>
+                                                <td>Vis ac commodo adipiscing arcu aliquet.</td>
+                                                <td>19.99</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Item3</td>
+                                                <td> Morbi faucibus arcu accumsan lorem.</td>
+                                                <td>29.99</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Item4</td>
+                                                <td>Vitae integer tempus condimentum.</td>
+                                                <td>19.99</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Item5</td>
+                                                <td>Ante turpis integer aliquet porttitor.</td>
+                                                <td>29.99</td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="2"></td>
+                                                <td>100.00</td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+
+                            </div>
+                            <div class="col-6 col-12-medium">
+
+                                <!-- Buttons -->
+                                <h3>Buttons</h3>
+                                <ul class="actions">
+                                    <li><a href="#" class="button primary">Primary</a></li>
+                                    <li><a href="#" class="button">Default</a></li>
+                                </ul>
+                                <ul class="actions">
+                                    <li><a href="#" class="button large">Large</a></li>
+                                    <li><a href="#" class="button">Default</a></li>
+                                    <li><a href="#" class="button small">Small</a></li>
+                                </ul>
+                                <ul class="actions">
+                                    <li><a href="#" class="button primary large">Large</a></li>
+                                    <li><a href="#" class="button primary">Default</a></li>
+                                    <li><a href="#" class="button primary small">Small</a></li>
+                                </ul>
+                                <ul class="actions fit">
+                                    <li><a href="#" class="button primary fit">Fit</a></li>
+                                    <li><a href="#" class="button fit">Fit</a></li>
+                                </ul>
+                                <ul class="actions fit small">
+                                    <li><a href="#" class="button primary fit small">Fit + Small</a></li>
+                                    <li><a href="#" class="button fit small">Fit + Small</a></li>
+                                </ul>
+                                <ul class="actions">
+                                    <li><a href="#" class="button primary icon solid fa-search">Icon</a></li>
+                                    <li><a href="#" class="button icon solid fa-download">Icon</a></li>
+                                </ul>
+                                <ul class="actions">
+                                    <li><span class="button primary disabled">Primary</span></li>
+                                    <li><span class="button disabled">Default</span></li>
+                                </ul>
+
+                                <!-- Form -->
+                                <h3>Form</h3>
+
+                                <form method="post" action="#">
+                                    <div class="row gtr-uniform">
+                                        <div class="col-6 col-12-xsmall">
+                                            <input type="text" name="demo-name" id="demo-name" value="" placeholder="Name" />
+                                        </div>
+                                        <div class="col-6 col-12-xsmall">
+                                            <input type="email" name="demo-email" id="demo-email" value="" placeholder="Email" />
+                                        </div>
+                                        <!-- Break -->
+                                        <div class="col-12">
+                                            <select name="demo-category" id="demo-category">
+                                                <option value="">- Category -</option>
+                                                <option value="1">Manufacturing</option>
+                                                <option value="1">Shipping</option>
+                                                <option value="1">Administration</option>
+                                                <option value="1">Human Resources</option>
+                                            </select>
+                                        </div>
+                                        <!-- Break -->
+                                        <div class="col-4 col-12-small">
+                                            <input type="radio" id="demo-priority-low" name="demo-priority" checked>
+                                            <label for="demo-priority-low">Low</label>
+                                        </div>
+                                        <div class="col-4 col-12-small">
+                                            <input type="radio" id="demo-priority-normal" name="demo-priority">
+                                            <label for="demo-priority-normal">Normal</label>
+                                        </div>
+                                        <div class="col-4 col-12-small">
+                                            <input type="radio" id="demo-priority-high" name="demo-priority">
+                                            <label for="demo-priority-high">High</label>
+                                        </div>
+                                        <!-- Break -->
+                                        <div class="col-6 col-12-small">
+                                            <input type="checkbox" id="demo-copy" name="demo-copy">
+                                            <label for="demo-copy">Email me a copy</label>
+                                        </div>
+                                        <div class="col-6 col-12-small">
+                                            <input type="checkbox" id="demo-human" name="demo-human" checked>
+                                            <label for="demo-human">I am a human</label>
+                                        </div>
+                                        <!-- Break -->
+                                        <div class="col-12">
+                                            <textarea name="demo-message" id="demo-message" placeholder="Enter your message" rows="6"></textarea>
+                                        </div>
+                                        <!-- Break -->
+                                        <div class="col-12">
+                                            <ul class="actions">
+                                                <li><input type="submit" value="Send Message" class="primary" /></li>
+                                                <li><input type="reset" value="Reset" /></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </form>
+
+                                <!-- Image -->
+                                <h3>Image</h3>
+
+                                <h4>Fit</h4>
+                                <span class="image fit"><img src="images/pic11.jpg" alt="" /></span>
+                                <div class="box alt">
+                                    <div class="row gtr-50 gtr-uniform">
+                                        <div class="col-4"><span class="image fit"><img src="images/pic01.jpg" alt="" /></span></div>
+                                        <div class="col-4"><span class="image fit"><img src="images/pic02.jpg" alt="" /></span></div>
+                                        <div class="col-4"><span class="image fit"><img src="images/pic03.jpg" alt="" /></span></div>
+                                        <!-- Break -->
+                                        <div class="col-4"><span class="image fit"><img src="images/pic03.jpg" alt="" /></span></div>
+                                        <div class="col-4"><span class="image fit"><img src="images/pic01.jpg" alt="" /></span></div>
+                                        <div class="col-4"><span class="image fit"><img src="images/pic02.jpg" alt="" /></span></div>
+                                        <!-- Break -->
+                                        <div class="col-4"><span class="image fit"><img src="images/pic02.jpg" alt="" /></span></div>
+                                        <div class="col-4"><span class="image fit"><img src="images/pic03.jpg" alt="" /></span></div>
+                                        <div class="col-4"><span class="image fit"><img src="images/pic01.jpg" alt="" /></span></div>
+                                    </div>
+                                </div>
+
+                                <h4>Left &amp; Right</h4>
+                                <p><span class="image left"><img src="images/pic01.jpg" alt="" /></span>Lorem ipsum dolor sit accumsan interdum nisi, quis tincidunt felis sagittis eget. tempus euismod. Vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent tincidunt felis sagittis eget. tempus euismod. Vestibulum ante ipsum primis sagittis eget. tempus euismod. Vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent.</p>
+                                <p><span class="image right"><img src="images/pic02.jpg" alt="" /></span>Lorem ipsum dolor sit accumsan interdum nisi, quis tincidunt felis sagittis eget. tempus euismod. Vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent tincidunt felis sagittis eget. tempus euismod. Vestibulum ante ipsum primis sagittis eget. tempus euismod. Vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent.</p>
+
+                                <!-- Box -->
+                                <h3>Box</h3>
+                                <div class="box">
+                                    <p>Felis sagittis eget tempus primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent tincidunt felis sagittis eget. tempus euismod. Magna sed etiam ante ipsum primis in faucibus vestibulum.</p>
+                                </div>
+
+
+
+                            </div>
+                        </div>
+
+                    </section>
+
+                </div>
+                <h1>Select en JavaScript</h1>
+                <p>
+                    <a target="_blank" href="//parzibyte.me/blog">By Parzibyte</a>
+                </p>
+                <select id="miSelect"></select>
+                <br>
+                <button id="btnAgregar">Agregar</button>
+                <button id="btnLimpiar">Limpiar</button>
+                <button id="btnMostrar">Mostrar seleccionado</button>
+
+            </div>
+
+
+            <!--<script src="script.js"></script>-->
+            <!--
+        Formulario 1
+        <form name="ejemplo1" action="17-jquery-change-demo1.php" method="POST">
+            <select name="color1">
+                <option value="0">Selecciona una opción</option>
+                <option value="azul">Azul</option>
+                <option value="rojo">Rojo</option>
+            </select>
+            <input type="text" name="valor1" size="40" value="Aquí saldrá el valor del select cuando cambie">
+        </form>
+
+        Formulario 2
+        <form name="ejemplo2" action="17-jquery-change-demo1.php" method="POST">
+            <select name="color2" id="ejemplo2">
+                <option value="0">Selecciona una opción</option>
+                <option value="azul">Azul</option>
+                <option value="rojo">Rojo</option>
+            </select>
+            <input type="text" name="valor2" size="40" id="valor2" value="Aquí saldrá el valor del select cuando cambie">
+        </form>
+
+        Formulario 3
+        <form name="ejemplo3" action="17-jquery-change-demo1.php" method="POST">
+            <select name="color3" class="ejemplo3">
+                <option value="0">Selecciona una opción</option>
+                <option value="azul">Azul</option>
+                <option value="rojo">Rojo</option>
+            </select>
+            <input type="text" name="valor3" size="40" class="valor3" value="Aquí saldrá el valor del select cuando cambie">
+        </form>
+        -->
+        </div>
+
+        <!-- Scripts -->
+        <script src="assets/js/jquery.min.js"></script>
+        <script src="assets/js/browser.min.js"></script>
+        <script src="assets/js/breakpoints.min.js"></script>
+        <script src="assets/js/util.js"></script>
+        <script src="assets/js/main.js"></script>
+
+
+
+            
+
+
+    <script type="text/javascript">
+
+        const $select = document.querySelector("#miSelect");
+
+        const $entidad = document.querySelector("#entidad");
+        const $ot = document.querySelector("#ot");
+        const $presupuesto = document.querySelector("#presupuesto");
+        
+            const $nivel1 = document.querySelector("#nivel1");
+        const $nivel2 = document.querySelector("#nivel2");
+        const $nivel3 = document.querySelector("#nivel3");
+        const $nivel4 = document.querySelector("#nivel4");
+        const $nivel5 = document.querySelector("#nivel5");
+        const $nivel6 = document.querySelector("#nivel6");
+        const $nivel7 = document.querySelector("#nivel7");
+        
+
+
+        //const opcionCambiada = () => {
+        //    console.log("Cambio");
+        //    const indice = $select.selectedIndex;
+        //    if (indice === -1) return; // Esto es cuando no hay elementos
+        //    const opcionSeleccionada = $select.options[indice];
+        //    alert(`Texto: ${opcionSeleccionada.text}. Valor: ${opcionSeleccionada.value}`);
+        //};
+
+        //$select.addEventListener("change", opcionCambiada);
+
+        //const agregar = () => {
+        //    const option = document.createElement('option');
+        //    const valor = new Date().getTime();
+        //    option.value = valor;
+        //    option.text = valor;
+        //    $select.appendChild(option);
+        //};
+
+        //const limpiar = () => {
+        //    for (let i = $select.options.length; i >= 0; i--) {
+        //        $select.remove(i);
+        //    }
+        //};
+
+        //const mostrar = () => {
+        //    const indice = $select.selectedIndex;
+        //    if (indice === -1) return; // Esto es cuando no hay elementos
+        //    const opcionSeleccionada = $select.options[indice];
+        //    alert(`Texto: ${opcionSeleccionada.text}. Valor: ${opcionSeleccionada.value}`);
+        //};
+
+        //document.addEventListener("DOMContentLoaded", () => {
+        //    document.querySelector("#btnAgregar").addEventListener("click", agregar);
+        //    document.querySelector("#btnLimpiar").addEventListener("click", limpiar);
+        //    document.querySelector("#btnMostrar").addEventListener("click", mostrar);
+        //});
+
+
+
+        const EntidadSeleccionada = () => {
+            const indice = $entidad.selectedIndex;
+            if (indice === -1) return; // Esto es cuando no hay elementos
+            const opcionSeleccionada = $entidad.options[indice];
+            document.getElementById('lbPresupuesto').style.display = 'none';
+            document.getElementById('lbNivel1').style.display = 'none';
+            document.getElementById('lbNivel2').style.display = 'none';
+            document.getElementById('lbNivel3').style.display = 'none';
+            document.getElementById('lbNivel4').style.display = 'none';
+            document.getElementById('lbNivel5').style.display = 'none';
+            document.getElementById('lbNivel6').style.display = 'none';
+            document.getElementById('lbNivel7').style.display = 'none';
+            document.getElementById('presupuesto').style.display = 'none';
+            document.getElementById('nivel1').style.display = 'none';
+            document.getElementById('nivel2').style.display = 'none';
+            document.getElementById('nivel3').style.display = 'none';
+            document.getElementById('nivel4').style.display = 'none';
+            document.getElementById('nivel5').style.display = 'none';
+            document.getElementById('nivel6').style.display = 'none';
+            document.getElementById('nivel7').style.display = 'none';
+                for (let i = $ot.options.length; i >= 0; i--) {
+                    $ot.remove(i);
+                }
+                for (let i = $presupuesto.options.length; i >= 0; i--) {
+                    $presupuesto.remove(i);
+                }
+                for (let i = $nivel1.options.length; i >= 0; i--) {
+                    $nivel1.remove(i);
+                }
+                for (let i = $nivel2.options.length; i >= 0; i--) {
+                    $nivel2.remove(i);
+                }
+                for (let i = $nivel3.options.length; i >= 0; i--) {
+                    $nivel3.remove(i);
+                }
+                for (let i = $nivel4.options.length; i >= 0; i--) {
+                    $nivel4.remove(i);
+                }
+                for (let i = $nivel5.options.length; i >= 0; i--) {
+                    $nivel5.remove(i);
+                }
+                for (let i = $nivel6.options.length; i >= 0; i--) {
+                    $nivel6.remove(i);
+                }
+                for (let i = $nivel7.options.length; i >= 0; i--) {
+                    $nivel7.remove(i);
+                }
+            var url = "@Url.Action("EntidadSelected","Main")";
+            var cantidad = opcionSeleccionada.value;//$(opcionSeleccionada.value)
+            var data = { cantidad: cantidad };
+            $.post(url, data).done(function (data) {
+                //si la operacion es buena
+                const option = document.createElement('option');
+                option.value = "";
+                option.text = "";
+                $ot.appendChild(option);
+                    for (let i = data.length-1; i >= 0; i--) {
+
+                const option = document.createElement('option');
+                        //option.value =JSON.stringify(data[i].idots);
+                        //option.text =JSON.stringify(data[i].numero) +"||"+JSON.stringify(data[i].nombre);
+                        option.value =JSON.stringify(data[i].iValue);
+                        option.text =JSON.stringify(data[i].strText);
+                $ot.appendChild(option);
+            }
+            }).fail(daError).always(function () {
+                //esto se ejecuta siempre
+            });
+
+        }
+        const OtSeleccionada = () => {
+            const indice = $ot.selectedIndex;
+            if (indice === -1) return; // Esto es cuando no hay elementos
+            const opcionSeleccionada = $ot.options[indice];
+
+            //alert(`Texto: ${opcionSeleccionada.text}. Valor: ${opcionSeleccionada.value}`);
+                    //    documnet.getElementById('information').style.display = 'none';
+            document.getElementById('lbPresupuesto').style.display = 'none';
+            document.getElementById('lbNivel1').style.display = 'none';
+            document.getElementById('lbNivel2').style.display = 'none';
+            document.getElementById('lbNivel3').style.display = 'none';
+            document.getElementById('lbNivel4').style.display = 'none';
+            document.getElementById('lbNivel5').style.display = 'none';
+            document.getElementById('lbNivel6').style.display = 'none';
+            document.getElementById('lbNivel7').style.display = 'none';
+            document.getElementById('presupuesto').style.display = 'none';
+            document.getElementById('nivel1').style.display = 'none';
+            document.getElementById('nivel2').style.display = 'none';
+            document.getElementById('nivel3').style.display = 'none';
+            document.getElementById('nivel4').style.display = 'none';
+            document.getElementById('nivel5').style.display = 'none';
+            document.getElementById('nivel6').style.display = 'none';
+            document.getElementById('nivel7').style.display = 'none';
+                for (let i = $presupuesto.options.length; i >= 0; i--) {
+                    $presupuesto.remove(i);
+                }
+                for (let i = $nivel1.options.length; i >= 0; i--) {
+                    $nivel1.remove(i);
+                }
+                for (let i = $nivel2.options.length; i >= 0; i--) {
+                    $nivel2.remove(i);
+                }
+                for (let i = $nivel3.options.length; i >= 0; i--) {
+                    $nivel3.remove(i);
+                }
+                for (let i = $nivel4.options.length; i >= 0; i--) {
+                    $nivel4.remove(i);
+                }
+                for (let i = $nivel5.options.length; i >= 0; i--) {
+                    $nivel5.remove(i);
+                }
+                for (let i = $nivel6.options.length; i >= 0; i--) {
+                    $nivel6.remove(i);
+                }
+                for (let i = $nivel7.options.length; i >= 0; i--) {
+                    $nivel7.remove(i);
+            }
+           // alert("1");//ok
+            var url = "@Url.Action("OtSelected","Main")";
+            var cantidad = opcionSeleccionada.value;//$(opcionSeleccionada.value)
+            var data = { cantidad: cantidad };
+           // alert("1.1");//ok
+            $.post(url, data).done(function (data) {
+                //si la operacion es buena
+                if (data == null) {
+                    //alert("null");
+                    document.getElementById('lbPresupuesto').style.display = 'none';
+                    document.getElementById('presupuesto').style.display = 'none';
+                    alert('mostar information')
+                    div = document.getElementById('information1');
+                    div.style.display = '';
+                    div = document.getElementById('information2');
+                    div.style.display = '';
+                    div = document.getElementById('information3');
+                    div.style.display = '';
+                    //para ocultar div
+            //         div = document.getElementById('flotante');
+            //div.style.display = 'none';
+                } else {
+                    //alert("No null");
+                    if (data.length > 1) {
+                    //alert("Mayor que 1");
+                    document.getElementById('lbPresupuesto').style.display = 'block';
+                    document.getElementById('presupuesto').style.display = 'block';
+                    const option = document.createElement('option');
+                    option.value = "";
+                    option.text = "";
+                    $presupuesto.appendChild(option);
+                    for (let i = data.length - 1; i >= 0; i--) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(data[i].iValue);
+                        option.text = JSON.stringify(data[i].strText);
+                        $presupuesto.appendChild(option);
+                        }
+                }else{
+                    //alert("Igual que 1");
+                    document.getElementById('lbPresupuesto').style.display = 'none';
+                        document.getElementById('presupuesto').style.display = 'none';
+                         const option = document.createElement('option');
+                    for (let i = data.length - 1; i >= 0; i--) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(data[i].iValue);
+                        option.text = JSON.stringify(data[i].strText);
+                        $presupuesto.appendChild(option);
+                    }
+
+                    //alert("10.0");//ok
+                    var url = "@Url.Action("ObtenerNivel1","Main")";
+                    var cantidadN1 = data[0].iValue;//$(opcionSeleccionada.value)
+                    var dataN1 = { cantidad: cantidadN1 };
+                    //alert("10.1");//ok
+                    $.post(url, dataN1).done(function (dataN1) {
+                        //alert("10.2");//ok
+                        document.getElementById('lbNivel1').style.display = 'block';
+                        document.getElementById('nivel1').style.display = 'block';
+                        const option = document.createElement('option');
+                        option.value = "";
+                        option.text = "";
+                        $nivel1.appendChild(option);
+                        for (let i = dataN1.length - 1; i >= 0; i--) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(dataN1[i].iValue);
+                        option.text = JSON.stringify(dataN1[i].strText);
+                        $nivel1.appendChild(option);
+                    }
+                    }).fail(daError).always(function () {
+                        //esto se ejecuta siempre
+                     });
+                }
+                }
+            }).fail(daError).always(function () {
+                //esto se ejecuta siempre
+            });
+
+        }
+
+        const Nivel1Seleccionado = () => {
+
+            const indice = $nivel1.selectedIndex;
+            if (indice === -1) return; // Esto es cuando no hay elementos
+            const optionSelec =  $nivel1.options[indice];
+            const optionSelec2 =document.getElementById("presupuesto");
+            document.getElementById('lbNivel2').style.display = 'none';
+            document.getElementById('lbNivel3').style.display = 'none';
+            document.getElementById('lbNivel4').style.display = 'none';
+            document.getElementById('lbNivel5').style.display = 'none';
+            document.getElementById('lbNivel6').style.display = 'none';
+            document.getElementById('lbNivel7').style.display = 'none';
+            document.getElementById('nivel2').style.display = 'none';
+            document.getElementById('nivel3').style.display = 'none';
+            document.getElementById('nivel4').style.display = 'none';
+            document.getElementById('nivel5').style.display = 'none';
+            document.getElementById('nivel6').style.display = 'none';
+            document.getElementById('nivel7').style.display = 'none';
+
+
+            for (let i = $nivel2.options.length; i >= 0; i--) {
+                $nivel2.remove(i);
+            }
+            for (let i = $nivel3.options.length; i >= 0; i--) {
+                $nivel3.remove(i);
+            }
+            for (let i = $nivel4.options.length; i >= 0; i--) {
+                $nivel4.remove(i);
+            }
+            for (let i = $nivel5.options.length; i >= 0; i--) {
+                $nivel5.remove(i);
+            }
+            for (let i = $nivel6.options.length; i >= 0; i--) {
+                $nivel6.remove(i);
+            }
+            for (let i = $nivel7.options.length; i >= 0; i--) {
+                $nivel7.remove(i);
+            }
+            var url = "@Url.Action("ObtenerNivel2","Main")";
+            var cantidad = optionSelec.value;
+            var cantidad2 = optionSelec2.value;
+            var data = { cantidad: cantidad, cantidad2: cantidad2 };
+            $.post(url, data).done(function (data) {
+                //si la operacion es buena
+                if (data.length > 1) {
+                    document.getElementById('lbNivel2').style.display = 'block';
+                    document.getElementById('nivel2').style.display = 'block';
+                    const option = document.createElement('option');
+                    option.value = "";
+                    option.text = "";
+                    $nivel2.appendChild(option);
+                    for (let i = data.length - 1; i >= 0; i--) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(data[i].iValue);
+                        option.text = JSON.stringify(data[i].strText);
+                        $nivel2.appendChild(option);
+                    }
+                } else {
+                    alert("sin nivel 2");
+                    div = document.getElementById('information1');
+                    div.style.display = '';
+                    div = document.getElementById('information2');
+                    div.style.display = '';
+                    div = document.getElementById('information3');
+                    div.style.display = '';
+                }
+            }).fail(daError).always(function () {
+                //esto se ejecuta siempre
+            });
+        }
+        const Nivel2Seleccionado = () => {
+
+            const indice = $nivel2.selectedIndex;
+            if (indice === -1) return; // Esto es cuando no hay elementos
+            const optionSelec = $nivel2.options[indice];
+            const optionSelec2 =document.getElementById("presupuesto");
+            const optionSelec3 =document.getElementById("nivel1");
+            document.getElementById('lbNivel3').style.display = 'none';
+            document.getElementById('lbNivel4').style.display = 'none';
+            document.getElementById('lbNivel5').style.display = 'none';
+            document.getElementById('lbNivel6').style.display = 'none';
+            document.getElementById('lbNivel7').style.display = 'none';
+            document.getElementById('nivel3').style.display = 'none';
+            document.getElementById('nivel4').style.display = 'none';
+            document.getElementById('nivel5').style.display = 'none';
+            document.getElementById('nivel6').style.display = 'none';
+            document.getElementById('nivel7').style.display = 'none';
+            var url = "@Url.Action("ObtenerNivel","Main")";//ObtenerNivel3
+            var cantidad = optionSelec.value;
+            var cantidad2 = optionSelec2.value;
+            var cantidad3 = optionSelec3.value;
+            var data = { cantidad: cantidad, cantidad2: cantidad2, cantidad3: cantidad3 };
+            $.post(url, data).done(function (data) {
+                //si la operacion es buena
+                if (data.length > 1) {
+
+                    document.getElementById('lbNivel3').style.display = 'block';
+                    document.getElementById('nivel3').style.display = 'block';
+                    const option = document.createElement('option');
+                    option.value = "";
+                    option.text = "";
+                    $nivel3.appendChild(option);
+                    for (let i = data.length - 1; i >= 0; i--) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(data[i].iValue);
+                        option.text = JSON.stringify(data[i].strText);
+                        $nivel3.appendChild(option);
+                    }
+                } else {
+                    alert("sin nivel 3");
+                    div = document.getElementById('information1');
+                    div.style.display = '';
+                    div = document.getElementById('information2');
+                    div.style.display = '';
+                    div = document.getElementById('information3');
+                    div.style.display = '';
+                }
+            }).fail(daError).always(function () {
+                //esto se ejecuta siempre
+            });
+        }
+        const Nivel3Seleccionado = () => {
+
+            const indice = $nivel3.selectedIndex;
+            if (indice === -1) return; // Esto es cuando no hay elementos
+            const optionSelec = $nivel3.options[indice];
+            document.getElementById('lbNivel4').style.display = 'none';
+            document.getElementById('lbNivel5').style.display = 'none';
+            document.getElementById('lbNivel6').style.display = 'none';
+            document.getElementById('lbNivel7').style.display = 'none';
+            document.getElementById('nivel4').style.display = 'none';
+            document.getElementById('nivel5').style.display = 'none';
+            document.getElementById('nivel6').style.display = 'none';
+            document.getElementById('nivel7').style.display = 'none';
+            var url = "@Url.Action("ObtenerNivel","Main")";
+            var cantidad = optionSelec.value;
+            var data = { cantidad: cantidad};
+            $.post(url, data).done(function (data) {
+                //si la operacion es buena
+                if (data.length > 1) {
+
+                    document.getElementById('lbNivel4').style.display = 'block';
+                    document.getElementById('nivel4').style.display = 'block';
+                    const option = document.createElement('option');
+                    option.value = "";
+                    option.text = "";
+                    $nivel4.appendChild(option);
+                    for (let i = data.length - 1; i >= 0; i--) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(data[i].iValue);
+                        option.text = JSON.stringify(data[i].strText);
+                        $nivel4.appendChild(option);
+                    }
+                } else {
+                    alert("sin nivel 4");
+                    div = document.getElementById('information1');
+                    div.style.display = '';
+                    div = document.getElementById('information2');
+                    div.style.display = '';
+                    div = document.getElementById('information3');
+                    div.style.display = '';
+                }
+            }).fail(daError).always(function () {
+                //esto se ejecuta siempre
+            });
+        }
+        const Nivel4Seleccionado = () => {
+
+            const indice = $nivel4.selectedIndex;
+            if (indice === -1) return; // Esto es cuando no hay elementos
+            const optionSelec = $nivel4.options[indice];
+            document.getElementById('lbNivel5').style.display = 'none';
+            document.getElementById('lbNivel6').style.display = 'none';
+            document.getElementById('lbNivel7').style.display = 'none';
+            document.getElementById('nivel5').style.display = 'none';
+            document.getElementById('nivel6').style.display = 'none';
+            document.getElementById('nivel7').style.display = 'none';
+            var url = "@Url.Action("ObtenerNivel","Main")";
+            var cantidad = optionSelec.value;
+            var data = { cantidad: cantidad};
+            $.post(url, data).done(function (data) {
+                //si la operacion es buena
+                if (data.length > 1) {
+
+                    document.getElementById('lbNivel5').style.display = 'block';
+                    document.getElementById('nivel5').style.display = 'block';
+                    const option = document.createElement('option');
+                    option.value = "";
+                    option.text = "";
+                    $nivel5.appendChild(option);
+                    for (let i = data.length - 1; i >= 0; i--) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(data[i].iValue);
+                        option.text = JSON.stringify(data[i].strText);
+                        $nivel5.appendChild(option);
+                    }
+                } else {
+                    alert("sin nivel 3");
+                    div = document.getElementById('information1');
+                    div.style.display = '';
+                    div = document.getElementById('information2');
+                    div.style.display = '';
+                    div = document.getElementById('information3');
+                    div.style.display = '';
+                }
+            }).fail(daError).always(function () {
+                //esto se ejecuta siempre
+            });
+        }
+        const Nivel5Seleccionado = () => {
+
+            const indice = $nivel5.selectedIndex;
+            if (indice === -1) return; // Esto es cuando no hay elementos
+            const optionSelec = $nivel5.options[indice];
+            document.getElementById('lbNivel6').style.display = 'none';
+            document.getElementById('lbNivel7').style.display = 'none';
+            document.getElementById('nivel6').style.display = 'none';
+            document.getElementById('nivel7').style.display = 'none';
+            var url = "@Url.Action("ObtenerNivel","Main")";
+            var cantidad = optionSelec.value;
+            var data = { cantidad: cantidad};
+            $.post(url, data).done(function (data) {
+                //si la operacion es buena
+                if (data.length > 1) {
+
+                    document.getElementById('lbNivel6').style.display = 'block';
+                    document.getElementById('nivel6').style.display = 'block';
+                    const option = document.createElement('option');
+                    option.value = "";
+                    option.text = "";
+                    $nivel6.appendChild(option);
+                    for (let i = data.length - 1; i >= 0; i--) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(data[i].iValue);
+                        option.text = JSON.stringify(data[i].strText);
+                        $nivel6.appendChild(option);
+                    }
+                } else {
+                    alert("sin nivel 6");
+                    div = document.getElementById('information1');
+                    div.style.display = '';
+                    div = document.getElementById('information2');
+                    div.style.display = '';
+                    div = document.getElementById('information3');
+                    div.style.display = '';
+                }
+            }).fail(daError).always(function () {
+                //esto se ejecuta siempre
+            });
+        }
+        const Nivel6Seleccionado = () => {
+
+            const indice = $nivel6.selectedIndex;
+            if (indice === -1) return; // Esto es cuando no hay elementos
+            const optionSelec = $nivel6.options[indice];
+            document.getElementById('lbNivel7').style.display = 'none';
+            document.getElementById('nivel7').style.display = 'none';
+            var url = "@Url.Action("ObtenerNivel","Main")";
+            var cantidad = optionSelec.value;
+            var data = { cantidad: cantidad};
+            $.post(url, data).done(function (data) {
+                //si la operacion es buena
+                if (data.length > 1) {
+
+                    document.getElementById('lbNivel7').style.display = 'block';
+                    document.getElementById('nivel7').style.display = 'block';
+                    const option = document.createElement('option');
+                    option.value = "";
+                    option.text = "";
+                    $nivel7.appendChild(option);
+                    for (let i = data.length - 1; i >= 0; i--) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(data[i].iValue);
+                        option.text = JSON.stringify(data[i].strText);
+                        $nivel7.appendChild(option);
+                    }
+                } else {
+                    alert("sin nivel 7");
+                    div = document.getElementById('information1');
+                    div.style.display = '';
+                    div = document.getElementById('information2');
+                    div.style.display = '';
+                    div = document.getElementById('information3');
+                    div.style.display = '';
+                }
+            }).fail(daError).always(function () {
+                //esto se ejecuta siempre
+            });
+        }
+        const Nivel7Seleccionado = () => {
+            alert("no hay mas niveles");
+                    div = document.getElementById('information1');
+                    div.style.display = '';
+                    div = document.getElementById('information2');
+                    div.style.display = '';
+                    div = document.getElementById('information3');
+                    div.style.display = '';
+            @*const indice = $nivel7.selectedIndex;
+            if (indice === -1) return; // Esto es cuando no hay elementos
+            const optionSelec = $nivel7.options[indice];
+            document.getElementById('lbNivel7').style.display = 'none';
+            document.getElementById('nivel7').style.display = 'none';
+            var url = "@Url.Action("ObtenerNivel","Main")";
+            var cantidad = optionSelec.value;
+            var data = { cantidad: cantidad};
+            $.post(url, data).done(function (data) {
+                //si la operacion es buena
+                if (data.length > 1) {
+
+                    document.getElementById('lbNivel7').style.display = 'block';
+                    document.getElementById('nivel7').style.display = 'block';
+                    const option = document.createElement('option');
+                    option.value = "";
+                    option.text = "";
+                    $nivel7.appendChild(option);
+                    for (let i = data.length - 1; i >= 0; i--) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(data[i].iValue);
+                        option.text = JSON.stringify(data[i].strText);
+                        $nivel7.appendChild(option);
+                    }
+                } else {
+                    alert("sin nivel 7");
+                    div = document.getElementById('information1');
+                    div.style.display = '';
+                    div = document.getElementById('information2');
+                    div.style.display = '';
+                    div = document.getElementById('information3');
+                    div.style.display = '';
+                }
+            }).fail(daError).always(function () {
+                //esto se ejecuta siempre
+            });*@
+        }
+
+        function daError(ex) {
+            console.log("Error");
+            alert("Ocurrio un error" +ex);
+        }
+
+
+        $entidad.addEventListener("change", EntidadSeleccionada);
+        $ot.addEventListener("change", OtSeleccionada);
+        $nivel1.addEventListener("change", Nivel1Seleccionado);
+        $nivel2.addEventListener("change", Nivel2Seleccionado);
+        $nivel3.addEventListener("change", Nivel3Seleccionado);
+        $nivel4.addEventListener("change", Nivel4Seleccionado);
+        $nivel5.addEventListener("change", Nivel5Seleccionado);
+        $nivel6.addEventListener("change", Nivel6Seleccionado);
+        $nivel7.addEventListener("change", Nivel7Seleccionado);
+
+        //mostrar div
+        //div = document.getElementById('information3');
+        //div.style.display = '';
+        //para ocultar div
+        //div = document.getElementById('flotante');
+        //div.style.display = 'none';
+        </script>
+
+    </body>
+
+
+
+
+
+
+<p>&copy;@(DateTime.Now.Year - 1) My ASP.NET Application</p>
+<p>&copy; @DateTime.Now.Year My ASP.NET Application</p>
+<p>&copy;@(DateTime.Now.Year + 1) My ASP.NET Application</p>

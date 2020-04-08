@@ -1,0 +1,1469 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+}
+@{
+    //LENGUAJE DE SERVIDOR C#
+    List<AppPartes.Data.Models.Ots> listaOts = ViewBag.Ots;
+    List<AppPartes.Data.Models.Entidad> listadept = ViewBag.Departamentos;
+    List<AppPartes.Data.Models.Clientes> listaClient = ViewBag.Clientes;
+    List<AppPartes.Data.Models.Pernoctaciones> listaPernocta = ViewBag.Pernoctas;
+    //List<AppPartes.Data.Models.Presupuestos> listaPresupuestos = ViewBag.Presupuestos;
+}
+
+<body class="is-preload">
+
+    <!-- Wrapper -->
+    <div id="wrapper">
+
+        <!-- Main -->
+        <div id="main">
+            <!--<div class="inner">-->
+            <!-- Header -->
+            <header id="header">
+                <a href="#" class="logo"><strong>Grupo Aldakin</strong></a>
+            </header>
+            <!-- Content -->
+            <section>
+                @{
+                    if (!string.IsNullOrEmpty(ViewBag.Message))
+                    {
+                        <div class="alert alert-warning">@ViewBag.Message</div>
+                    }
+                }
+                <header class="main">
+                    <h1>Insertar parte nuevo</h1>
+                </header>
+                <!-- Content -->
+                <!--<h2 id="content">Sample Content</h2>-->
+                <form asp-action="InsertLine" asp-controller="Main" method="POST">
+                    <div class="col-12">
+                        <p>Seleccione la orden de trabajo para su parte de trabajo .</p>
+                        <label for="start">Entidad:</label>
+                        <select id="entidad" name="strEntidad">
+                            @foreach (var dept in listadept)
+                            {
+                                <option value="@dept.CodEnt">
+                                    @dept.Nombre
+                                </option>
+                            }
+                        </select>
+                        <label for="start">Clientes:</label>
+                        <select id="cliente" name="strCliente">
+                            <option value="0"></option>
+                            @foreach (var client in listaClient)
+                            {
+                                <option value="@client.Idclientes">
+                                    @client.Nombre
+                                </option>
+                            }
+                        </select>
+                        <label for="start">Ots:</label>
+                        <select id="ot" name="strOt">
+                            <option value="0"></option>
+                            @foreach (var dept in listaOts)
+                            {
+                                <option value="@dept.Idots">
+                                    @dept.Numero || @dept.Nombre
+                                </option>
+                            }
+                        </select>
+                        <label id="lbPresupuesto" for="start" style="display:none">Presupuesto:</label>
+                        <select id="presupuesto" name="strPresupuesto" style="display:none">
+                            <option value="0"></option>
+                            <option value=" ">presupuesto</option>
+
+                        </select>
+                        <label id="lbNivel1" for="start" style="display:none">Nivel1:</label>
+                        <select id="nivel1" name="strNivel1" style="display:none">
+                            <option value="0"></option>
+
+                        </select>
+                        <label id="lbNivel2" for="start" style="display:none">Nivel2:</label>
+                        <select id="nivel2" name="strNivel2" style="display:none">
+                            <option value="0"></option>
+
+                        </select>
+                        <label id="lbNivel3" for="start" style="display:none">Nivel3:</label>
+                        <select id="nivel3" name="strNivel3" style="display:none">
+                            <option value="0"></option>
+
+                        </select>
+                        <label id="lbNivel4" for="start" style="display:none">Nivel4:</label>
+                        <select id="nivel4" name="strNivel4" style="display:none">
+                            <option value="0"></option>
+
+                        </select>
+                        <label id="lbNivel5" for="start" style="display:none">Nivel5:</label>
+                        <select id="nivel5" name="strNivel5" style="display:none">
+                            <option value="0"></option>
+
+                        </select>
+                        <label id="lbNivel6" for="start" style="display:none">Nivel6:</label>
+                        <select id="nivel6" name="strNivel6" style="display:none">
+                            <option value="0"></option>
+
+                        </select>
+                        <label id="lbNivel7" for="start" style="display:none">Nivel7:</label>
+                        <select id="nivel7" name="strNivel7" style="display:none">
+                            <option value="0"></option>
+
+                        </select>
+                        <hr class="major" />
+                    </div>
+                    <div id="information1" class="row" style="display:none">
+                        <div class="col-12">
+                            <h1>Datos de parte de trabajo.</h1>
+                            <p>Rellene todos los campos necesarios para completar el parte de trabajo</p>
+                        </div>
+                        <div class="col-12">
+                            <div class="col-12">
+                                <!--<h3>Seleccione un dia:</h3>-->
+                                <label for="start">Seleccione un dia:</label>
+
+                                <input type="date" id="Calendario" name="strCalendario"
+                                       value=""
+                                       min="@(DateTime.Now.Year-2)-01-01"
+                                       max="@(DateTime.Now.Year+2)-12-31" required>
+                                <hr class="major" />
+                            </div>
+                            <div id="tablaResumen" class="col-12" style="display:none">
+                                <label for="start">Resumen Semanal</label>
+                                <div class="table-wrapper">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Lunes</th>
+                                                <th><input type="text" id="strLunes" name="strLunes" value="0" readonly /></th>
+                                            </tr>
+                                            <tr>
+                                                <th>Martes</th>
+                                                <th><input type="text" id="strMartes" name="strMartes" value="0" readonly /></th>
+                                            </tr>
+                                            <tr>
+                                                <th>Miercoles</th>
+                                                <th><input type="text" id="strMiercoles" name="strMiercoles" value="0" readonly /></th>
+                                            </tr>
+                                            <tr>
+                                                <th>Jueves</th>
+                                                <th><input type="text" id="strJueves" name="strJueves" value="0" readonly /></th>
+                                            </tr>
+                                            <tr>
+                                                <th>Viernes</th>
+                                                <th><input type="text" id="strViernes" name="strViernes" value="0" readonly /></th>
+                                            </tr>
+                                            <tr>
+                                                <th>Sabado</th>
+                                                <th><input type="text" id="strSabado" name="strSabado" value="0" readonly /></th>
+                                            </tr>
+                                            <tr>
+                                                <th>Domingo</th>
+                                                <th><input type="text" id="strDomingo" name="strDomingo" value="0" readonly /></th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                            <hr class="major" />
+                            <div class="col-12">
+                                <label for="start">Hora Inicio:</label>
+                                <table class="egt">
+                                    <tr>
+                                        <td>
+                                            <select id="strHoraInicio" name="strHoraInicio" required>
+                                                <option value=""></option>
+                                                <option value="00">00</option>
+                                                <option value="01">01</option>
+                                                <option value="02">02</option>
+                                                <option value="03">03</option>
+                                                <option value="04">04</option>
+                                                <option value="05">05</option>
+                                                <option value="06">06</option>
+                                                <option value="07">07</option>
+                                                <option value="08">08</option>
+                                                <option value="09">09</option>
+                                                <option value="10">10</option>
+                                                <option value="11">11</option>
+                                                <option value="12">12</option>
+                                                <option value="13">13</option>
+                                                <option value="14">14</option>
+                                                <option value="15">15</option>
+                                                <option value="16">16</option>
+                                                <option value="17">17</option>
+                                                <option value="18">18</option>
+                                                <option value="19">19</option>
+                                                <option value="20">20</option>
+                                                <option value="21">21</option>
+                                                <option value="22">22</option>
+                                                <option value="23">23</option>
+                                            </select>
+                                        </td>
+                                        <td>:</td>
+                                        <td>
+                                            <select id="strMinutoInicio" name="strMinutoInicio" required>
+                                                <option value="00" selected="selected">00</option>
+                                                <option value="15">15</option>
+                                                <option value="30">30</option>
+                                                <option value="45">45</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-12">
+                                <label for="start">Hora Fin:</label>
+                                <table class="egt">
+                                    <tr>
+                                        <td>
+                                            <select id="strHoraFin" name="strHoraFin" required>
+                                                <option value=""></option>
+                                                <option value="00">00</option>
+                                                <option value="01">01</option>
+                                                <option value="02">02</option>
+                                                <option value="03">03</option>
+                                                <option value="04">04</option>
+                                                <option value="05">05</option>
+                                                <option value="06">06</option>
+                                                <option value="07">07</option>
+                                                <option value="08">08</option>
+                                                <option value="09">09</option>
+                                                <option value="10">10</option>
+                                                <option value="11">11</option>
+                                                <option value="12">12</option>
+                                                <option value="13">13</option>
+                                                <option value="14">14</option>
+                                                <option value="15">15</option>
+                                                <option value="16">16</option>
+                                                <option value="17">17</option>
+                                                <option value="18">18</option>
+                                                <option value="19">19</option>
+                                                <option value="20">20</option>
+                                                <option value="21">21</option>
+                                                <option value="22">22</option>
+                                                <option value="23">23</option>
+                                            </select>
+                                        </td>
+                                        <td>:</td>
+                                        <td>
+                                            <select id="strMinutoFin" name="strMinutoFin" required>
+                                                <option value="00" selected="selected">00</option>
+                                                <option value="15">15</option>
+                                                <option value="30">30</option>
+                                                <option value="45">45</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <!--
+                            <p>Nunc lacinia ante nunc ac lobortis. Interdum adipiscing gravida odio porttitor sem non mi integer non faucibus ornare mi ut ante amet placerat aliquet. Volutpat commodo eu sed ante lacinia. Sapien a lorem in integer ornare praesent commodo adipiscing arcu in massa commodo lorem accumsan at odio massa ac ac. Semper adipiscing varius montes viverra nibh in adipiscing blandit tempus accumsan.</p>
+                                -->
+                            <hr class="major" />
+                        </div>
+                        <div class="col-6 col-12-small">
+                            <input type="checkbox" id="cbox2" value="true" name="bHorasViaje"> <label for="cbox2">Viaje</label>
+                        </div>
+                        <div class="col-6 col-12-small">
+                            <input type="checkbox" id="gastos" value="true" name="bGastos"> <label for="gastos">Solo gastos:</label>
+                        </div>
+                        <div class="col-12">
+                            <!--<h3>Magna odio tempus commodo</h3>-->
+                            <!--<label><input type="checkbox" id="cbox1" value="first_checkbox"> Este es mi primer checkbox</label><br>-->
+                            <!--
+                            <input type="checkbox" id="checkgastos" name="checkgastos" value="true"><br>
+                                -->
+
+                            <label for="start">NºParte:</label>
+                            <input type="text" name="strParte" />
+
+                            <label for="vehicle1">Pernoctación</label>
+                            <select name="strPernoctacion">
+                                <option value="0" selected>NO</option>
+                                @foreach (var client in listaPernocta)
+                                {
+                                    <option value="@client.Tipo">
+                                        @client.Descripcion
+                                    </option>
+                                }
+                                <!--<option value="NACIONAL">NACIONAL</option>
+                                <option value="INTERNACIONAL">INTERNACIONAL</option>-->
+                            </select>
+                            <!--
+                            <p>In arcu accumsan arcu adipiscing accumsan orci ac. Felis id enim aliquet. Accumsan ac integer lobortis commodo ornare aliquet accumsan erat tempus amet porttitor. Ante commodo blandit adipiscing integer semper orci eget. Faucibus commodo adipiscing mi eu nullam accumsan morbi arcu ornare odio mi adipiscing nascetur lacus ac interdum morbi accumsan vis mi accumsan.</p>
+                                -->
+                            <hr class="major" />
+                        </div>
+
+                    </div>
+                    <!-- Break -->
+                    <div id="information2" class="col-12" style="display:none">
+                        <label for="start">Observaciones:</label>
+                        <textarea name="strObservaciones" id="txtObservaciones" placeholder="Enter your message" rows="6" required></textarea>
+                        <hr class="major" />
+                    </div>
+                    <div class="col-12">
+                        <div id="information4" style="display:none">
+                            <span class="button" onclick="viewLblGastos();" style="display: inline-block">Mostrar Gastos</span>
+                            <hr class="major" />
+                            <div class="col-12" id="lblGastos" name="lblGastos" style="display:none">
+                                <input type="hidden" id="idGasto" name="idGasto" value="1" readonly />
+
+                                <label for="start">Cantidad:</label>
+                                <input type="text" id="strCantidad" name="strCantidad" value="0" />
+                                <label for="start">Pagador:</label>
+                                <select id="Pagador" name="Pagador">
+                                    <option value="0"></option>
+                                    <option value="TRABAJADOR">TRABAJADOR</option>
+                                    <option value="ALDAKIN">ALDAKIN</option>
+                                </select>
+                                <label id="lblTipo" for="start">Tipo Gasto:</label>
+                                <select id="Tipo" name="Tipo" disabled>
+                                    <option value="0"></option>
+                                </select>
+                                <label for="start">Observaciones:</label>
+                                <input type="text" id="strObservaciones" name="strObservaciones" value=" " />
+                                <span class="button" onclick="insertText('idGasto','strCantidad','Pagador','Tipo','strGastos','strObservaciones');" style="display: inline-block">Añadir Gasto</span>
+                                <label for="start">Lista de gastos:</label>
+                                <textarea name="strGastos" id="strGastos" value="" rows="6"></textarea>
+                                <hr class="major" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="col-12" style="display:none">
+                        </div>
+                        <input id="strPreslin" name="strPreslin" type="hidden" value="" style="display:none" />
+                        <div id="information3" class="col-12" style="display:none">
+                            <ul class="actions">
+
+                                <li><input type="submit" value="Guardar" class="primary" /></li>
+                            </ul>
+                        </div>
+                    </div>
+                </form>
+
+            </section>
+            <!--</div>-->
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/browser.min.js"></script>
+    <script src="assets/js/breakpoints.min.js"></script>
+    <script src="assets/js/util.js"></script>
+    <script src="assets/js/main.js"></script>
+
+
+
+
+
+
+    <script type="text/javascript">
+
+        const $select = document.querySelector("#miSelect");
+
+        const $entidad = document.querySelector("#entidad");
+        const $cliente = document.querySelector("#cliente");
+        const $ot = document.querySelector("#ot");
+        const $presupuesto = document.querySelector("#presupuesto");
+        const $nivel1 = document.querySelector("#nivel1");
+        const $nivel2 = document.querySelector("#nivel2");
+        const $nivel3 = document.querySelector("#nivel3");
+        const $nivel4 = document.querySelector("#nivel4");
+        const $nivel5 = document.querySelector("#nivel5");
+        const $nivel6 = document.querySelector("#nivel6");
+        const $nivel7 = document.querySelector("#nivel7");
+        const $tipo = document.querySelector("#Tipo");
+        const $pagador = document.querySelector("#Pagador");
+        const $calendario = document.querySelector("#Calendario");
+        const $gastos = document.querySelector("#gastos");
+
+
+
+
+        const EntidadSeleccionada = () => {
+            const indice = $entidad.selectedIndex;
+            if (indice === -1) return; // Esto es cuando no hay elementos
+            const opcionSeleccionada = $entidad.options[indice];
+            document.getElementById('lbPresupuesto').style.display = 'none';
+            document.getElementById('lbNivel1').style.display = 'none';
+            document.getElementById('lbNivel2').style.display = 'none';
+            document.getElementById('lbNivel3').style.display = 'none';
+            document.getElementById('lbNivel4').style.display = 'none';
+            document.getElementById('lbNivel5').style.display = 'none';
+            document.getElementById('lbNivel6').style.display = 'none';
+            document.getElementById('lbNivel7').style.display = 'none';
+            document.getElementById('presupuesto').style.display = 'none';
+            document.getElementById('nivel1').style.display = 'none';
+            document.getElementById('nivel2').style.display = 'none';
+            document.getElementById('nivel3').style.display = 'none';
+            document.getElementById('nivel4').style.display = 'none';
+            document.getElementById('nivel5').style.display = 'none';
+            document.getElementById('nivel6').style.display = 'none';
+            document.getElementById('nivel7').style.display = 'none';
+            for (let i = $cliente.options.length; i >= 0; i--) {
+                $cliente.remove(i);
+            }
+            for (let i = $ot.options.length; i >= 0; i--) {
+                $ot.remove(i);
+            }
+            for (let i = $presupuesto.options.length; i >= 0; i--) {
+                $presupuesto.remove(i);
+            }
+            for (let i = $nivel1.options.length; i >= 0; i--) {
+                $nivel1.remove(i);
+            }
+            for (let i = $nivel2.options.length; i >= 0; i--) {
+                $nivel2.remove(i);
+            }
+            for (let i = $nivel3.options.length; i >= 0; i--) {
+                $nivel3.remove(i);
+            }
+            for (let i = $nivel4.options.length; i >= 0; i--) {
+                $nivel4.remove(i);
+            }
+            for (let i = $nivel5.options.length; i >= 0; i--) {
+                $nivel5.remove(i);
+            }
+            for (let i = $nivel6.options.length; i >= 0; i--) {
+                $nivel6.remove(i);
+            }
+            for (let i = $nivel7.options.length; i >= 0; i--) {
+                $nivel7.remove(i);
+            }
+            div = document.getElementById('information1');
+            div.style.display = 'none';
+            div = document.getElementById('information2');
+            div.style.display = 'none';
+            div = document.getElementById('information3');
+            div.style.display = 'none';
+            div = document.getElementById('information4');
+            div.style.display = 'none';
+            var url = "@Url.Action("EntidadSelectedOt","Main")";
+            var cantidad = opcionSeleccionada.value;//$(opcionSeleccionada.value)
+            var data = { cantidad: cantidad };
+            $.post(url, data).done(function (data) {
+                //si la operacion es buena
+                    const option = document.createElement('option');
+                    option.value = "0";
+                    option.text = "";
+                    $ot.appendChild(option);
+                    for (let i = 0; i <= data.length - 1; i++) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(data[i].iValue);
+                        option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
+                        $ot.appendChild(option);
+                    }
+
+                }).fail(daError).always(function () {
+                    //esto se ejecuta siempre
+                });
+            var url = "@Url.Action("EntidadSelectedCliente","Main")";
+            var cantidad = opcionSeleccionada.value;//$(opcionSeleccionada.value)
+            var data = { cantidad: cantidad };
+            $.post(url, data).done(function (data) {
+                //si la operacion es buena
+                const option = document.createElement('option');
+                option.value = "0";
+                option.text = "";
+                $cliente.appendChild(option);
+                for (let i = 0; i <= data.length - 1; i++) {
+                    const option = document.createElement('option');
+                    option.value = JSON.stringify(data[i].iValue);
+                    option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
+                    $cliente.appendChild(option);
+                }
+            }).fail(daError).always(function () {
+                //esto se ejecuta siempre
+            });
+        }
+
+        const ClienteSeleccionado = () => {
+            const indice = $cliente.selectedIndex;
+            if (indice === -1) return; // Esto es cuando no hay elementos
+            const opcionSeleccionada = $cliente.options[indice];
+             document.getElementById('lbPresupuesto').style.display = 'none';
+            document.getElementById('lbNivel1').style.display = 'none';
+            document.getElementById('lbNivel2').style.display = 'none';
+            document.getElementById('lbNivel3').style.display = 'none';
+            document.getElementById('lbNivel4').style.display = 'none';
+            document.getElementById('lbNivel5').style.display = 'none';
+            document.getElementById('lbNivel6').style.display = 'none';
+            document.getElementById('lbNivel7').style.display = 'none';
+            document.getElementById('presupuesto').style.display = 'none';
+            document.getElementById('nivel1').style.display = 'none';
+            document.getElementById('nivel2').style.display = 'none';
+            document.getElementById('nivel3').style.display = 'none';
+            document.getElementById('nivel4').style.display = 'none';
+            document.getElementById('nivel5').style.display = 'none';
+            document.getElementById('nivel6').style.display = 'none';
+            document.getElementById('nivel7').style.display = 'none';
+                for (let i = $ot.options.length; i >= 0; i--) {
+                    $ot.remove(i);
+                }
+                for (let i = $presupuesto.options.length; i >= 0; i--) {
+                    $presupuesto.remove(i);
+                }
+                for (let i = $nivel1.options.length; i >= 0; i--) {
+                    $nivel1.remove(i);
+                }
+                for (let i = $nivel2.options.length; i >= 0; i--) {
+                    $nivel2.remove(i);
+                }
+                for (let i = $nivel3.options.length; i >= 0; i--) {
+                    $nivel3.remove(i);
+                }
+                for (let i = $nivel4.options.length; i >= 0; i--) {
+                    $nivel4.remove(i);
+                }
+                for (let i = $nivel5.options.length; i >= 0; i--) {
+                    $nivel5.remove(i);
+                }
+                for (let i = $nivel6.options.length; i >= 0; i--) {
+                    $nivel6.remove(i);
+                }
+                for (let i = $nivel7.options.length; i >= 0; i--) {
+                    $nivel7.remove(i);
+            }
+            div = document.getElementById('information1');
+            div.style.display = 'none';
+            div = document.getElementById('information2');
+            div.style.display = 'none';
+            div = document.getElementById('information3');
+            div.style.display = 'none';
+            div = document.getElementById('information4');
+            div.style.display = 'none';
+            if (opcionSeleccionada.value == 0) {
+                opcionSeleccionada.value = 0;
+            }
+            var url = "@Url.Action("ClienteSelected","Main")";
+            var cantidad = opcionSeleccionada.value;//$(opcionSeleccionada.value)
+            var data = { cantidad: cantidad };
+            $.post(url, data).done(function (data) {
+                //si la operacion es buena
+                const option = document.createElement('option');
+                option.value = "0";
+                option.text = "";
+                $ot.appendChild(option);
+                for (let i = 0; i <= data.length - 1; i++) {
+                    const option = document.createElement('option');
+                    option.value = JSON.stringify(data[i].iValue);
+                    option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
+                    $ot.appendChild(option);
+                }
+
+            }).fail(daError).always(function () {
+                //esto se ejecuta siempre
+            });
+        }
+        const OtSeleccionada = () => {
+            const indice = $ot.selectedIndex;
+            if (indice === -1) return; // Esto es cuando no hay elementos
+            const opcionSeleccionada = $ot.options[indice];   //alert(`Texto: ${opcionSeleccionada.text}. Valor: ${opcionSeleccionada.value}`);  //    documnet.getElementById('information').style.display = 'none';
+            document.getElementById('lbPresupuesto').style.display = 'none';
+            document.getElementById('lbNivel1').style.display = 'none';
+            document.getElementById('lbNivel2').style.display = 'none';
+            document.getElementById('lbNivel3').style.display = 'none';
+            document.getElementById('lbNivel4').style.display = 'none';
+            document.getElementById('lbNivel5').style.display = 'none';
+            document.getElementById('lbNivel6').style.display = 'none';
+            document.getElementById('lbNivel7').style.display = 'none';
+            document.getElementById('presupuesto').style.display = 'none';
+            document.getElementById('nivel1').style.display = 'none';
+            document.getElementById('nivel2').style.display = 'none';
+            document.getElementById('nivel3').style.display = 'none';
+            document.getElementById('nivel4').style.display = 'none';
+            document.getElementById('nivel5').style.display = 'none';
+            document.getElementById('nivel6').style.display = 'none';
+            document.getElementById('nivel7').style.display = 'none';
+                for (let i = $presupuesto.options.length; i >= 0; i--) {
+                    $presupuesto.remove(i);
+                }
+                for (let i = $nivel1.options.length; i >= 0; i--) {
+                    $nivel1.remove(i);
+                }
+                for (let i = $nivel2.options.length; i >= 0; i--) {
+                    $nivel2.remove(i);
+                }
+                for (let i = $nivel3.options.length; i >= 0; i--) {
+                    $nivel3.remove(i);
+                }
+                for (let i = $nivel4.options.length; i >= 0; i--) {
+                    $nivel4.remove(i);
+                }
+                for (let i = $nivel5.options.length; i >= 0; i--) {
+                    $nivel5.remove(i);
+                }
+                for (let i = $nivel6.options.length; i >= 0; i--) {
+                    $nivel6.remove(i);
+                }
+                for (let i = $nivel7.options.length; i >= 0; i--) {
+                    $nivel7.remove(i);
+            }
+            div = document.getElementById('information1');
+            div.style.display = 'none';
+            div = document.getElementById('information2');
+            div.style.display = 'none';
+            div = document.getElementById('information3');
+            div.style.display = 'none';
+            div = document.getElementById('information4');
+            div.style.display = 'none';
+            if (opcionSeleccionada.value == 0) {
+                alert("Seleccione una opcion correcta o recargue la pagina y vuelva a empezar");
+                return;
+            }
+            var url = "@Url.Action("OtSelected","Main")";
+            var cantidad = opcionSeleccionada.value;//$(opcionSeleccionada.value)
+            var data = { cantidad: cantidad };
+            $.post(url, data).done(function (data) {
+                //si la operacion es buena
+                if (data == null) {
+                    document.getElementById('lbPresupuesto').style.display = 'none';
+                    document.getElementById('presupuesto').style.display = 'none';
+                    div = document.getElementById('information1');
+                    div.style.display = '';
+                    div = document.getElementById('information2');
+                    div.style.display = '';
+                    div = document.getElementById('information3');
+                    div.style.display = '';
+                    div = document.getElementById('information4');
+                    div.style.display = '';
+                } else {
+                    if (data.length > 1) {
+                    document.getElementById('lbPresupuesto').style.display = 'block';
+                    document.getElementById('presupuesto').style.display = 'block';
+                    const option = document.createElement('option');
+                    option.value = "0";
+                    option.text = "";
+                    $presupuesto.appendChild(option);
+                for (let i = 0; i <= data.length - 1; i++) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(data[i].iValue);
+                        option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
+                        $presupuesto.appendChild(option);
+                        }
+                }else{
+                    document.getElementById('lbPresupuesto').style.display = 'none';
+                        document.getElementById('presupuesto').style.display = 'none';
+                         const option = document.createElement('option');
+                for (let i = 0; i <= data.length - 1; i++) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(data[i].iValue);
+                        option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
+                        $presupuesto.appendChild(option);
+                    }
+                    var url = "@Url.Action("ObtenerNivel1","Main")";
+                    var cantidadN1 = data[0].iValue;//$(opcionSeleccionada.value)
+                    var dataN1 = { cantidad: cantidadN1 };
+                    $.post(url, dataN1).done(function (dataN1) {
+                        document.getElementById('lbNivel1').style.display = 'block';
+                        document.getElementById('nivel1').style.display = 'block';
+                        const option = document.createElement('option');
+                        option.value = "0";
+                        option.text = "";
+                        $nivel1.appendChild(option);
+                for (let i = 0; i <= dataN1.length - 1; i++) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(dataN1[i].iValue);
+                        option.text = JSON.stringify(dataN1[i].strText).replace(/['"]+/g, '');
+                        $nivel1.appendChild(option);
+                    }
+                    }).fail(daError).always(function () {
+                        //esto se ejecuta siempre
+                     });
+                }
+                }
+            }).fail(daError).always(function () {
+                //esto se ejecuta siempre
+            });
+
+        }
+        const PresuSeleccionado = () => {
+            const indice = $presupuesto.selectedIndex;
+            if (indice === -1) return; // Esto es cuando no hay elementos
+            const optionSelec =  $presupuesto.options[indice];
+            document.getElementById('lbNivel1').style.display = 'none';
+            document.getElementById('lbNivel2').style.display = 'none';
+            document.getElementById('lbNivel3').style.display = 'none';
+            document.getElementById('lbNivel4').style.display = 'none';
+            document.getElementById('lbNivel5').style.display = 'none';
+            document.getElementById('lbNivel6').style.display = 'none';
+            document.getElementById('lbNivel7').style.display = 'none';
+            document.getElementById('nivel1').style.display = 'none';
+            document.getElementById('nivel2').style.display = 'none';
+            document.getElementById('nivel3').style.display = 'none';
+            document.getElementById('nivel4').style.display = 'none';
+            document.getElementById('nivel5').style.display = 'none';
+            document.getElementById('nivel6').style.display = 'none';
+            document.getElementById('nivel7').style.display = 'none';
+                for (let i = $nivel1.options.length; i >= 0; i--) {
+                    $nivel1.remove(i);
+                }
+                for (let i = $nivel2.options.length; i >= 0; i--) {
+                    $nivel2.remove(i);
+                }
+                for (let i = $nivel3.options.length; i >= 0; i--) {
+                    $nivel3.remove(i);
+                }
+                for (let i = $nivel4.options.length; i >= 0; i--) {
+                    $nivel4.remove(i);
+                }
+                for (let i = $nivel5.options.length; i >= 0; i--) {
+                    $nivel5.remove(i);
+                }
+                for (let i = $nivel6.options.length; i >= 0; i--) {
+                    $nivel6.remove(i);
+                }
+                for (let i = $nivel7.options.length; i >= 0; i--) {
+                    $nivel7.remove(i);
+                }
+            div = document.getElementById('information1');
+            div.style.display = 'none';
+            div = document.getElementById('information2');
+            div.style.display = 'none';
+            div = document.getElementById('information3');
+            div.style.display = 'none';
+            div = document.getElementById('information4');
+            div.style.display = 'none';
+            if (optionSelec.value == 0) {
+                alert("Seleccione una opcion correcta o recargue la pagina y vuelva a empezar");
+                return;
+            }
+            var url = "@Url.Action("ObtenerNivel1","Main")";
+            var cantidadN1 = optionSelec.value;//$(opcionSeleccionada.value)
+                    var dataN1 = { cantidad: cantidadN1 };
+                    $.post(url, dataN1).done(function (dataN1) {
+                        document.getElementById('lbNivel1').style.display = 'block';
+                        document.getElementById('nivel1').style.display = 'block';
+                        const option = document.createElement('option');
+                        option.value = "0";
+                        option.text = "";
+                        $nivel1.appendChild(option);
+                        for (let i = 0; i <= dataN1.length - 1; i++) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(dataN1[i].iValue);
+                        option.text = JSON.stringify(dataN1[i].strText).replace(/['"]+/g, '');
+                        $nivel1.appendChild(option);
+                    }
+                    }).fail(daError).always(function () {
+                        //esto se ejecuta siempre
+                     });
+
+        }
+        const Nivel1Seleccionado = () => {
+
+            const indice = $nivel1.selectedIndex;
+            if (indice === -1) return; // Esto es cuando no hay elementos
+            const optionSelec =  $nivel1.options[indice];
+            const optionSelec2 =document.getElementById("presupuesto");
+            document.getElementById('lbNivel2').style.display = 'none';
+            document.getElementById('lbNivel3').style.display = 'none';
+            document.getElementById('lbNivel4').style.display = 'none';
+            document.getElementById('lbNivel5').style.display = 'none';
+            document.getElementById('lbNivel6').style.display = 'none';
+            document.getElementById('lbNivel7').style.display = 'none';
+            document.getElementById('nivel2').style.display = 'none';
+            document.getElementById('nivel3').style.display = 'none';
+            document.getElementById('nivel4').style.display = 'none';
+            document.getElementById('nivel5').style.display = 'none';
+            document.getElementById('nivel6').style.display = 'none';
+            document.getElementById('nivel7').style.display = 'none';
+            for (let i = $nivel2.options.length; i >= 0; i--) {
+                $nivel2.remove(i);
+            }
+            for (let i = $nivel3.options.length; i >= 0; i--) {
+                $nivel3.remove(i);
+            }
+            for (let i = $nivel4.options.length; i >= 0; i--) {
+                $nivel4.remove(i);
+            }
+            for (let i = $nivel5.options.length; i >= 0; i--) {
+                $nivel5.remove(i);
+            }
+            for (let i = $nivel6.options.length; i >= 0; i--) {
+                $nivel6.remove(i);
+            }
+            for (let i = $nivel7.options.length; i >= 0; i--) {
+                $nivel7.remove(i);
+            }
+            div = document.getElementById('information1');
+            div.style.display = 'none';
+            div = document.getElementById('information2');
+            div.style.display = 'none';
+            div = document.getElementById('information3');
+            div.style.display = 'none';
+            div = document.getElementById('information4');
+            div.style.display = 'none';
+            if (optionSelec.value == 0) {
+                alert("Seleccione una opcion correcta o recargue la pagina y vuelva a empezar");
+                return;
+            }
+            var url = "@Url.Action("ObtenerNivel2","Main")";
+            var cantidad = optionSelec.value;
+            var cantidad2 = optionSelec2.value;
+            var data = { cantidad: cantidad, cantidad2: cantidad2 };
+            $.post(url, data).done(function (data) {
+                //si la operacion es buena
+                if (data.length > 1) {
+                    document.getElementById('lbNivel2').style.display = 'block';
+                    document.getElementById('nivel2').style.display = 'block';
+                    const option = document.createElement('option');
+                    option.value = "0";
+                    option.text = "";
+                    $nivel2.appendChild(option);
+                    for (let i = 0; i <= data.length - 1; i++) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(data[i].iValue);
+                        option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
+                        $nivel2.appendChild(option);
+                    }
+                } else {
+                    if (data.length == 1) {
+                    document.getElementById('lbNivel2').style.display = 'block';
+                    document.getElementById('nivel2').style.display = 'block';
+                    const option = document.createElement('option');
+                    $nivel2.appendChild(option);
+                    for (let i = 0; i <= data.length - 1; i++) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(data[i].iValue);
+                        option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
+                        $nivel2.appendChild(option);
+                        }
+                    }
+                    else {
+                        div = document.getElementById('information1');
+                        div.style.display = '';
+                        div = document.getElementById('information2');
+                        div.style.display = '';
+                        div = document.getElementById('information3');
+                        div.style.display = '';
+                        div = document.getElementById('information4');
+                        div.style.display = '';
+                    }
+                }
+                document.getElementById("strPreslin").value = optionSelec.value;
+            }).fail(daError).always(function () {
+                //esto se ejecuta siempre
+            });
+        }
+        const Nivel2Seleccionado = () => {
+
+            const indice = $nivel2.selectedIndex;
+            if (indice === -1) return; // Esto es cuando no hay elementos
+            const optionSelec = $nivel2.options[indice];
+            const optionSelec2 =document.getElementById("presupuesto");
+            const optionSelec3 =document.getElementById("nivel1");
+            document.getElementById('lbNivel3').style.display = 'none';
+            document.getElementById('lbNivel4').style.display = 'none';
+            document.getElementById('lbNivel5').style.display = 'none';
+            document.getElementById('lbNivel6').style.display = 'none';
+            document.getElementById('lbNivel7').style.display = 'none';
+            document.getElementById('nivel3').style.display = 'none';
+            document.getElementById('nivel4').style.display = 'none';
+            document.getElementById('nivel5').style.display = 'none';
+            document.getElementById('nivel6').style.display = 'none';
+            document.getElementById('nivel7').style.display = 'none';
+            for (let i = $nivel3.options.length; i >= 0; i--) {
+                $nivel3.remove(i);
+            }
+            for (let i = $nivel4.options.length; i >= 0; i--) {
+                $nivel4.remove(i);
+            }
+            for (let i = $nivel5.options.length; i >= 0; i--) {
+                $nivel5.remove(i);
+            }
+            for (let i = $nivel6.options.length; i >= 0; i--) {
+                $nivel6.remove(i);
+            }
+            for (let i = $nivel7.options.length; i >= 0; i--) {
+                $nivel7.remove(i);
+            }
+            div = document.getElementById('information1');
+            div.style.display = 'none';
+            div = document.getElementById('information2');
+            div.style.display = 'none';
+            div = document.getElementById('information3');
+            div.style.display = 'none';
+            div = document.getElementById('information4');
+            div.style.display = 'none';
+            if (optionSelec.value == 0) {
+                alert("Seleccione una opcion correcta o recargue la pagina y vuelva a empezar");
+                return;
+            }
+            var url = "@Url.Action("ObtenerNivel","Main")";//ObtenerNivel3
+            var cantidad = optionSelec.value;
+            var cantidad2 = optionSelec2.value;
+            var cantidad3 = optionSelec3.value;
+            var data = { cantidad: cantidad, cantidad2: cantidad2, cantidad3: cantidad3 };
+            $.post(url, data).done(function (data) {
+                //si la operacion es buena
+                if (data.length > 1) {
+                    document.getElementById('lbNivel3').style.display = 'block';
+                    document.getElementById('nivel3').style.display = 'block';
+                    const option = document.createElement('option');
+                    option.value = "0";
+                    option.text = "";
+                    $nivel3.appendChild(option);
+                    for (let i = 0; i <= data.length - 1; i++) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(data[i].iValue);
+                        option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
+                        $nivel3.appendChild(option);
+                    }
+                } else {
+                    if (data.length == 1) {
+                        document.getElementById('lbNivel3').style.display = 'block';
+                        document.getElementById('nivel3').style.display = 'block';
+                        const option = document.createElement('option');
+                        option.value = "0";
+                        option.text = "";
+                        $nivel3.appendChild(option);
+                        for (let i = 0; i <= data.length - 1; i++) {
+                            const option = document.createElement('option');
+                            option.value = JSON.stringify(data[i].iValue);
+                            option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
+                            $nivel3.appendChild(option);
+                        }
+                    }
+                    else {
+                        div = document.getElementById('information1');
+                        div.style.display = '';
+                        div = document.getElementById('information2');
+                        div.style.display = '';
+                        div = document.getElementById('information3');
+                        div.style.display = '';
+                        div = document.getElementById('information4');
+                        div.style.display = '';
+                    }
+                }
+                document.getElementById("strPreslin").value = optionSelec.value;
+            }).fail(daError).always(function () {
+                //esto se ejecuta siempre
+            });
+        }
+        const Nivel3Seleccionado = () => {
+
+            const indice = $nivel3.selectedIndex;
+            if (indice === -1) return; // Esto es cuando no hay elementos
+            const optionSelec = $nivel3.options[indice];
+            document.getElementById('lbNivel4').style.display = 'none';
+            document.getElementById('lbNivel5').style.display = 'none';
+            document.getElementById('lbNivel6').style.display = 'none';
+            document.getElementById('lbNivel7').style.display = 'none';
+            document.getElementById('nivel4').style.display = 'none';
+            document.getElementById('nivel5').style.display = 'none';
+            document.getElementById('nivel6').style.display = 'none';
+            document.getElementById('nivel7').style.display = 'none';
+            for (let i = $nivel4.options.length; i >= 0; i--) {
+                $nivel4.remove(i);
+            }
+            for (let i = $nivel5.options.length; i >= 0; i--) {
+                $nivel5.remove(i);
+            }
+            for (let i = $nivel6.options.length; i >= 0; i--) {
+                $nivel6.remove(i);
+            }
+            for (let i = $nivel7.options.length; i >= 0; i--) {
+                $nivel7.remove(i);
+            }
+            div = document.getElementById('information1');
+            div.style.display = 'none';
+            div = document.getElementById('information2');
+            div.style.display = 'none';
+            div = document.getElementById('information3');
+            div.style.display = 'none';
+            div = document.getElementById('information4');
+            div.style.display = 'none';
+            if (optionSelec.value == 0) {
+                alert("Seleccione una opcion correcta o recargue la pagina y vuelva a empezar");
+                return;
+            }
+            var url = "@Url.Action("ObtenerNivel","Main")";
+            var cantidad = optionSelec.value;
+            var data = { cantidad: cantidad};
+            $.post(url, data).done(function (data) {
+                //si la operacion es buena
+                if (data.length > 1) {
+                    document.getElementById('lbNivel4').style.display = 'block';
+                    document.getElementById('nivel4').style.display = 'block';
+                    const option = document.createElement('option');
+                    option.value = "0";
+                    option.text = "";
+                    $nivel4.appendChild(option);
+                    for (let i = 0; i <= data.length - 1; i++) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(data[i].iValue);
+                        option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
+                        $nivel4.appendChild(option);
+                    }
+                } else {
+                    if (data.length == 1) {
+                    document.getElementById('lbNivel4').style.display = 'block';
+                    document.getElementById('nivel4').style.display = 'block';
+                    const option = document.createElement('option');
+                    for (let i = 0; i <= data.length - 1; i++) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(data[i].iValue);
+                        option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
+                        $nivel4.appendChild(option);
+                        }
+                    }
+                    else {
+                        div = document.getElementById('information1');
+                        div.style.display = '';
+                        div = document.getElementById('information2');
+                        div.style.display = '';
+                        div = document.getElementById('information3');
+                        div.style.display = '';
+                        div = document.getElementById('information4');
+                        div.style.display = '';
+                    }
+                }
+                document.getElementById("strPreslin").value = optionSelec.value;
+            }).fail(daError).always(function () {
+                //esto se ejecuta siempre
+            });
+        }
+        const Nivel4Seleccionado = () => {
+
+            const indice = $nivel4.selectedIndex;
+            if (indice === -1) return; // Esto es cuando no hay elementos
+            const optionSelec = $nivel4.options[indice];
+            document.getElementById('lbNivel5').style.display = 'none';
+            document.getElementById('lbNivel6').style.display = 'none';
+            document.getElementById('lbNivel7').style.display = 'none';
+            document.getElementById('nivel5').style.display = 'none';
+            document.getElementById('nivel6').style.display = 'none';
+            document.getElementById('nivel7').style.display = 'none';
+            for (let i = $nivel5.options.length; i >= 0; i--) {
+                $nivel5.remove(i);
+            }
+            for (let i = $nivel6.options.length; i >= 0; i--) {
+                $nivel6.remove(i);
+            }
+            for (let i = $nivel7.options.length; i >= 0; i--) {
+                $nivel7.remove(i);
+            }
+            div = document.getElementById('information1');
+            div.style.display = 'none';
+            div = document.getElementById('information2');
+            div.style.display = 'none';
+            div = document.getElementById('information3');
+            div.style.display = 'none';
+            div = document.getElementById('information4');
+            div.style.display = 'none';
+            if (optionSelec.value == 0) {
+                alert("Seleccione una opcion correcta o recargue la pagina y vuelva a empezar");
+                return;
+            }
+            var url = "@Url.Action("ObtenerNivel","Main")";
+            var cantidad = optionSelec.value;
+            var data = { cantidad: cantidad};
+            $.post(url, data).done(function (data) {
+                //si la operacion es buena
+                if (data.length > 1) {
+                    document.getElementById('lbNivel5').style.display = 'block';
+                    document.getElementById('nivel5').style.display = 'block';
+                    const option = document.createElement('option');
+                    option.value = "0";
+                    option.text = "";
+                    $nivel5.appendChild(option);
+                    for (let i = 0; i <= data.length - 1; i++) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(data[i].iValue);
+                        option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
+                        $nivel5.appendChild(option);
+                    }
+                } else {
+                    if (data.length == 1) {
+                        document.getElementById('lbNivel5').style.display = 'block';
+                        document.getElementById('nivel5').style.display = 'block';
+                        const option = document.createElement('option');
+                        option.value = "0";
+                        option.text = "";
+                        $nivel5.appendChild(option);
+                        for (let i = 0; i <= data.length - 1; i++) {
+                            const option = document.createElement('option');
+                            option.value = JSON.stringify(data[i].iValue);
+                            option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
+                            $nivel5.appendChild(option);
+                            }
+                        }
+                    else {
+                        div = document.getElementById('information1');
+                        div.style.display = '';
+                        div = document.getElementById('information2');
+                        div.style.display = '';
+                        div = document.getElementById('information3');
+                        div.style.display = '';
+                        div = document.getElementById('information4');
+                        div.style.display = '';
+                    }
+                }
+                document.getElementById("strPreslin").value = optionSelec.value;
+            }).fail(daError).always(function () {
+                //esto se ejecuta siempre
+            });
+        }
+        const Nivel5Seleccionado = () => {
+
+            const indice = $nivel5.selectedIndex;
+            if (indice === -1) return; // Esto es cuando no hay elementos
+            const optionSelec = $nivel5.options[indice];
+            document.getElementById('lbNivel6').style.display = 'none';
+            document.getElementById('lbNivel7').style.display = 'none';
+            document.getElementById('nivel6').style.display = 'none';
+            document.getElementById('nivel7').style.display = 'none';
+            for (let i = $nivel6.options.length; i >= 0; i--) {
+                $nivel6.remove(i);
+            }
+            for (let i = $nivel7.options.length; i >= 0; i--) {
+                $nivel7.remove(i);
+            }
+            div = document.getElementById('information1');
+            div.style.display = 'none';
+            div = document.getElementById('information2');
+            div.style.display = 'none';
+            div = document.getElementById('information3');
+            div.style.display = 'none';
+            div = document.getElementById('information4');
+            div.style.display = 'none';
+            if (optionSelec.value == 0) {
+                alert("Seleccione una opcion correcta o recargue la pagina y vuelva a empezar");
+                return;
+            }
+            var url = "@Url.Action("ObtenerNivel","Main")";
+            var cantidad = optionSelec.value;
+            var data = { cantidad: cantidad};
+            $.post(url, data).done(function (data) {
+                //si la operacion es buena
+                if (data.length > 1) {
+                    document.getElementById('lbNivel6').style.display = 'block';
+                    document.getElementById('nivel6').style.display = 'block';
+                    const option = document.createElement('option');
+                    option.value = "0";
+                    option.text = "";
+                    $nivel6.appendChild(option);
+                    for (let i = 0; i <= data.length - 1; i++) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(data[i].iValue);
+                        option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
+                        $nivel6.appendChild(option);
+                    }
+                } else {
+                    if (data.length == 1) {
+                    document.getElementById('lbNivel6').style.display = 'block';
+                    document.getElementById('nivel6').style.display = 'block';
+                    const option = document.createElement('option');
+                    option.value = "0";
+                    option.text = "";
+                    $nivel6.appendChild(option);
+                    for (let i = 0; i <= data.length - 1; i++) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(data[i].iValue);
+                        option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
+                        $nivel6.appendChild(option);
+                        }
+                    }
+                    else {
+                        div = document.getElementById('information1');
+                        div.style.display = '';
+                        div = document.getElementById('information2');
+                        div.style.display = '';
+                        div = document.getElementById('information3');
+                        div.style.display = '';
+                        div = document.getElementById('information4');
+                        div.style.display = '';
+                    }
+                }
+                document.getElementById("strPreslin").value = optionSelec.value;
+            }).fail(daError).always(function () {
+                //esto se ejecuta siempre
+            });
+        }
+        const Nivel6Seleccionado = () => {
+
+            const indice = $nivel6.selectedIndex;
+            if (indice === -1) return; // Esto es cuando no hay elementos
+            const optionSelec = $nivel6.options[indice];
+            document.getElementById('lbNivel7').style.display = 'none';
+            document.getElementById('nivel7').style.display = 'none';
+            for (let i = $nivel7.options.length; i >= 0; i--) {
+                $nivel7.remove(i);
+            }
+            div = document.getElementById('information1');
+            div.style.display = 'none';
+            div = document.getElementById('information2');
+            div.style.display = 'none';
+            div = document.getElementById('information3');
+            div.style.display = 'none';
+            div = document.getElementById('information4');
+            div.style.display = 'none';
+            if (optionSelec.value == 0) {
+                alert("Seleccione una opcion correcta o recargue la pagina y vuelva a empezar");
+                return;
+            }
+            var url = "@Url.Action("ObtenerNivel","Main")";
+            var cantidad = optionSelec.value;
+            var data = { cantidad: cantidad};
+            $.post(url, data).done(function (data) {
+                //si la operacion es buena
+                if (data.length > 1) {
+                    document.getElementById('lbNivel7').style.display = 'block';
+                    document.getElementById('nivel7').style.display = 'block';
+                    const option = document.createElement('option');
+                    option.value = "0";
+                    option.text = "";
+                    $nivel7.appendChild(option);
+                    for (let i = 0; i <= data.length - 1; i++) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(data[i].iValue);
+                        option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
+                        $nivel7.appendChild(option);
+                    }
+                } else {
+                    if (data.length == 1) {
+                    document.getElementById('lbNivel7').style.display = 'block';
+                    document.getElementById('nivel7').style.display = 'block';
+                    const option = document.createElement('option');
+                    option.value = "0";
+                    option.text = "";
+                    $nivel7.appendChild(option);
+                    for (let i = 0; i <= data.length - 1; i++) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(data[i].iValue);
+                        option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
+                        $nivel7.appendChild(option);
+                        }
+                    }
+                    else {
+                        div = document.getElementById('information1');
+                        div.style.display = '';
+                        div = document.getElementById('information2');
+                        div.style.display = '';
+                        div = document.getElementById('information3');
+                        div.style.display = '';
+                        div = document.getElementById('information4');
+                        div.style.display = '';
+                    }
+                }
+                document.getElementById("strPreslin").value = optionSelec.value;
+            }).fail(daError).always(function () {
+                //esto se ejecuta siempre
+            });
+        }
+        const Nivel7Seleccionado = () => {
+            const indice = $nivel7.selectedIndex;
+            if (indice === -1) return; // Esto es cuando no hay elementos
+            const optionSelec = $nivel7.options[indice];
+            div = document.getElementById('information1');
+            div.style.display = '';
+            div = document.getElementById('information2');
+            div.style.display = '';
+            div = document.getElementById('information3');
+            div.style.display = '';
+            div = document.getElementById('information4');
+            div.style.display = '';
+            document.getElementById("strPreslin").value = optionSelec.value;
+        }
+        const PagadorSeleccionado = () => {
+            const indice = $pagador.selectedIndex;
+            if (indice === -1) return; // Esto es cuando no hay elementos
+            const optionSelec = $pagador.options[indice];
+            const opcionSeleccionada =document.getElementById("ot");
+            for (let i = $tipo.options.length; i >= 0; i--) {
+                $tipo.remove(i);
+            }
+            var url = "@Url.Action("PagadorSelect","Main")";
+            var cantidad = 0;
+            if (optionSelec.value == 'ALDAKIN') {
+                cantidad = 1;
+            } else {
+                if (optionSelec.value == 'TRABAJADOR') {
+                    cantidad = 0;
+                }
+                else {
+                    return;
+                }
+            }
+            var cantidad2 = opcionSeleccionada.value;
+            var data = { cantidad: cantidad, cantidad2: cantidad2};
+            $.post(url, data).done(function (data) {
+                //si la operacion es buena
+                if (data.length > 0) {
+                    document.getElementById("Tipo").disabled=false;
+                    const option = document.createElement('option');
+                    option.value = "0";
+                    option.text = "";
+                    $tipo.appendChild(option);
+                    for (let i = 0; i <= data.length - 1; i++) {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify(data[i].strValue).replace(/['"]+/g, '');
+                        option.text = JSON.stringify(data[i].strText);
+                        $tipo.appendChild(option);
+                    }
+                } else {
+                    document.getElementById("Tipo").disabled=true;
+                }
+            }).fail(daError).always(function () {
+                //esto se ejecuta siempre
+            });
+        }
+        const CalendarioSeleccionado = () => {
+            //var myDate = window.document.getElementById("Calendario").value;
+            //alert('date1 ' + myDate);
+            var url = "@Url.Action("ResumenSemana","Main")";
+            var cantidad = window.document.getElementById("Calendario").value;
+            var data = { cantidad: cantidad};
+            $.post(url, data).done(function (data) {
+                //si la operacion es buena
+                if (data != null) {
+                    if (data.length > 0) {
+                        var inputNombre = document.getElementById("strLunes");
+                        inputNombre.value = JSON.stringify(data[0].strText).replace(/['"]+/g, '');
+                        var inputNombre = document.getElementById("strMartes");
+                        inputNombre.value = JSON.stringify(data[1].strText).replace(/['"]+/g, '');
+                        var inputNombre = document.getElementById("strMiercoles");
+                        inputNombre.value = JSON.stringify(data[2].strText).replace(/['"]+/g, '');
+                        var inputNombre = document.getElementById("strJueves");
+                        inputNombre.value = JSON.stringify(data[3].strText).replace(/['"]+/g, '');
+                        var inputNombre = document.getElementById("strViernes");
+                        inputNombre.value = JSON.stringify(data[4].strText).replace(/['"]+/g, '');
+                        var inputNombre = document.getElementById("strSabado");
+                        inputNombre.value = JSON.stringify(data[5].strText).replace(/['"]+/g, '');
+                        var inputNombre = document.getElementById("strDomingo");
+                        inputNombre.value = JSON.stringify(data[6].strText).replace(/['"]+/g, '');
+                        div = document.getElementById('tablaResumen');
+                        div.style.display = '';
+                    } else {
+                        div = document.getElementById('tablaResumen');
+                        div.style.display = 'none';
+                    }
+                }
+                else {
+                    div = document.getElementById('tablaResumen');
+                    div.style.display = 'none';
+                }
+            }).fail(daError).always(function () {
+                //esto se ejecuta siempre
+            });
+
+
+
+
+        }
+
+        const GastoSeleccionado = () => {
+            if (document.getElementById('gastos').checked)
+            {
+                document.getElementById("strHoraInicio").value = "00";
+                document.getElementById("strMinutoInicio").value = "00";
+                document.getElementById("strHoraFin").value = "00";
+                document.getElementById("strMinutoFin").value = "00";
+                //alert('Marcar un parte como solo gastos implica 0 horas');
+            }
+        }
+        function daError(ex) {
+            console.log("Error");
+            alert("Ocurrio un error,recargue la pagina y vuelva a empezar." +ex);
+        }
+
+
+        $entidad.addEventListener("change", EntidadSeleccionada);
+        $cliente.addEventListener("change", ClienteSeleccionado);
+        $ot.addEventListener("change", OtSeleccionada);
+        $presupuesto.addEventListener("change", PresuSeleccionado);
+        $nivel1.addEventListener("change", Nivel1Seleccionado);
+        $nivel2.addEventListener("change", Nivel2Seleccionado);
+        $nivel3.addEventListener("change", Nivel3Seleccionado);
+        $nivel4.addEventListener("change", Nivel4Seleccionado);
+        $nivel5.addEventListener("change", Nivel5Seleccionado);
+        $nivel6.addEventListener("change", Nivel6Seleccionado);
+        $nivel7.addEventListener("change", Nivel7Seleccionado);
+        $pagador.addEventListener("change", PagadorSeleccionado);
+        $calendario.addEventListener("change", CalendarioSeleccionado);
+        $gastos.addEventListener("change", GastoSeleccionado);
+
+        function insertText(idGasto, strCantidad, strPagador, strTipo, strGastos, strObservaciones) {
+            var elem = document.getElementById(strGastos);
+            var id = document.getElementById(idGasto);
+            var Pagador = document.getElementById(strPagador);
+            var Tipo = document.getElementById(strTipo);
+            var Cantidad = document.getElementById(strCantidad);
+            var Observaciones = document.getElementById(strObservaciones);
+            
+            //if ((Tipo.value == "VARIOS") && (Observaciones.length ==0))
+            //{
+            //    alert("Varios siempre va con observacion");
+            //    return;
+            //}
+
+            if ((Tipo.value == 0)||(Cantidad.value==0)) {
+                alert("Dastos de gasto incorrectos");
+            }
+            else {
+                elem.value = elem.value + id.value + '|' + Pagador.value + '|' + Tipo.value + '|' + Cantidad.value + '|' + Observaciones.value + '\r\n';
+                id.value = parseInt(id.value, 10) + 1;
+            }
+        }
+
+        function viewLblGastos() {
+            div = document.getElementById('lblGastos');
+            if (div.style.display == 'none') {
+                div.style.display = '';
+            }
+            else {
+                div.style.display = 'none';
+            }
+        }
+        //mostrar div
+        //div = document.getElementById('information3');
+        //div.style.display = '';
+        //para ocultar div
+        //div = document.getElementById('flotante');
+        //div.style.display = 'none';
+
+
+
+        //const opcionCambiada = () => {
+        //    console.log("Cambio");
+        //    const indice = $select.selectedIndex;
+        //    if (indice === -1) return; // Esto es cuando no hay elementos
+        //    const opcionSeleccionada = $select.options[indice];
+        //    alert(`Texto: ${opcionSeleccionada.text}. Valor: ${opcionSeleccionada.value}`);
+        //};
+
+        //$select.addEventListener("change", opcionCambiada);
+
+        //const agregar = () => {
+        //    const option = document.createElement('option');
+        //    const valor = new Date().getTime();
+        //    option.value = valor;
+        //    option.text = valor;
+        //    $select.appendChild(option);
+        //};
+
+        //const limpiar = () => {
+        //    for (let i = $select.options.length; i >= 0; i--) {
+        //        $select.remove(i);
+        //    }
+        //};
+
+        //const mostrar = () => {
+        //    const indice = $select.selectedIndex;
+        //    if (indice === -1) return; // Esto es cuando no hay elementos
+        //    const opcionSeleccionada = $select.options[indice];
+        //    alert(`Texto: ${opcionSeleccionada.text}. Valor: ${opcionSeleccionada.value}`);
+        //};
+
+        //document.addEventListener("DOMContentLoaded", () => {
+        //    document.querySelector("#btnAgregar").addEventListener("click", agregar);
+        //    document.querySelector("#btnLimpiar").addEventListener("click", limpiar);
+        //    document.querySelector("#btnMostrar").addEventListener("click", mostrar);
+        //});
+
+    </script>
+
+</body>
+
