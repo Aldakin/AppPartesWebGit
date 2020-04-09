@@ -31,4 +31,6 @@ jobs:
       run: dotnet build --configuration Release --no-restore
     - name: End Sonar
       run: dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}" 
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
    
