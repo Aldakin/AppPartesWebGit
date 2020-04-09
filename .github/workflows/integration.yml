@@ -19,8 +19,12 @@ jobs:
         dotnet-version: 3.1.101
     - name: Install Sonar
       run: dotnet tool install --global dotnet-sonarscanner --version 4.7.1
+    - name: Start Sonnar
+      run: dotnet-sonarscanner begin /k:"web-partes" /o:"aldakin" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
     - name: Install dependencies
       run: dotnet restore
     - name: Build
       run: dotnet build --configuration Release --no-restore
+    - name: End Sonar
+      run: dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}" 
    
