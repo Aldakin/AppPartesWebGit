@@ -1,4 +1,4 @@
-name: Build
+name: Sonar
 
 on:
   push:
@@ -23,7 +23,7 @@ jobs:
         dotnet-version: 3.1.101
     - name: Install Sonar
       run: dotnet tool install --global dotnet-sonarscanner --version 4.8.0
-    - name: Start Sonnar
+    - name: Start Sonar
       run: dotnet-sonarscanner begin /k:"web-partes" /o:"aldakin" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
     - name: Install dependencies
       run: dotnet restore
