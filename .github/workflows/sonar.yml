@@ -24,7 +24,7 @@ jobs:
     - name: Install Sonar
       run: dotnet tool install --global dotnet-sonarscanner --version 4.8.0
     - name: Start Sonar
-      run: dotnet-sonarscanner begin /k:"web-partes" /o:"aldakin" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+      run: dotnet-sonarscanner begin /k:"web-partes" /o:"aldakin" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.exclusions="src/AppPartes.Web/wwwroot/lib/**"
     - name: Install dependencies
       run: dotnet restore
     - name: Build
