@@ -1,11 +1,10 @@
-﻿using System;
+﻿using AppPartes.Data.Models;
+using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.IO;
-using Microsoft.AspNetCore.Mvc;
-using System.Globalization;
-using AppPartes.Data.Models;
 
 //https://programacion.net/articulo/como_resaltar_fechas_especificas_en_jquery_ui_datepicker_1731
 
@@ -14,11 +13,11 @@ namespace AppPartes.Web.Controllers
     public class WeekReviewController : Controller
     {
         //apaño para usuario con claims
-        int iUserCondEntO = 0;
-        int iUserId = 0;
-        string strUserName = "";
-        string stUserrDni = "";
-        List<Lineas> listPartes = new List<Lineas>();
+        private int iUserCondEntO = 0;
+        private int iUserId = 0;
+        private string strUserName = "";
+        private string stUserrDni = "";
+        private List<Lineas> listPartes = new List<Lineas>();
         private readonly AldakinDbContext aldakinDbContext;
 
         public WeekReviewController(AldakinDbContext aldakinDbContext)
@@ -51,12 +50,16 @@ namespace AppPartes.Web.Controllers
             }
             else
             {
-                List<LineaVisual> listVisual = new List<LineaVisual>();
-                string NombreOt = string.Empty;
-                string NombreCliente = string.Empty;
-                string strPernocta = string.Empty;
-                string strPreslin = string.Empty;
-                if ((string.IsNullOrEmpty(strId))) strId = "0";
+                var listVisual = new List<LineaVisual>();
+                var NombreOt = string.Empty;
+                var NombreCliente = string.Empty;
+                var strPernocta = string.Empty;
+                var strPreslin = string.Empty;
+                if ((string.IsNullOrEmpty(strId)))
+                {
+                    strId = "0";
+                }
+
                 var lSelect = aldakinDbContext.Lineas.FirstOrDefault(x => x.Idlinea == Convert.ToInt32(strId));
                 DateTime day;
                 List<Estadodias> lEstadoDia;
@@ -68,10 +71,10 @@ namespace AppPartes.Web.Controllers
                     case "loadWeek":
                         try
                         {
-                            DateTime dtSelected = Convert.ToDateTime(strDate);
+                            var dtSelected = Convert.ToDateTime(strDate);
                             //int m_nSemana = System.Globalization.CultureInfo.CurrentUICulture.Calendar.GetWeekOfYear(dtSelected, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
                             //int m_nAño = dtSelected.Year;
-                            System.DayOfWeek dayWeek = dtSelected.DayOfWeek;
+                            var dayWeek = dtSelected.DayOfWeek;
                             switch (dayWeek)
                             {
                                 case System.DayOfWeek.Sunday:
@@ -105,12 +108,12 @@ namespace AppPartes.Web.Controllers
                                 default:
                                     return RedirectToAction("Index", new { strMessage = "Error en la seleccion de dia!!!" });
                             }
-                            List<double> ldHorasdia = new List<double>();
-                            for (DateTime date = dtIniWeek; date < dtEndWeek; date = date.AddDays(1.0))
+                            var ldHorasdia = new List<double>();
+                            for (var date = dtIniWeek; date < dtEndWeek; date = date.AddDays(1.0))
                             {
                                 double dHorasDia = 0;
                                 listPartes = aldakinDbContext.Lineas.Where(x => x.Inicio.Date == date.Date && x.CodEnt == iUserCondEntO && x.Idusuario == iUserId).OrderBy(x => x.Inicio).ToList();
-                                foreach (Lineas l in listPartes)
+                                foreach (var l in listPartes)
                                 {
                                     dHorasDia = dHorasDia + (l.Fin - l.Inicio).TotalHours;
                                 }
@@ -121,11 +124,11 @@ namespace AppPartes.Web.Controllers
                             listPartes = aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.Idusuario == iUserId && x.CodEnt == iUserCondEntO).OrderBy(x => x.Inicio).ToList();
                             //aqui tengo que recorrer lisPartes e ir volvandolo a otra clase nueva para nomstrar losnombres de las ots y empresas...
                             //ademas tengo que ver si es la linea original o la secundaria para que si es la secundaria la cambie por la principal
-                            foreach (Lineas l in listPartes)
+                            foreach (var l in listPartes)
                             {
                                 NombreOt = aldakinDbContext.Ots.FirstOrDefault(x => x.Idots == l.Idot).Nombre;
                                 NombreCliente = aldakinDbContext.Clientes.FirstOrDefault(x => x.Idclientes == aldakinDbContext.Ots.FirstOrDefault(o => o.Idots == l.Idot).Cliente).Nombre;
-                                if(l.Facturable==0)
+                                if (l.Facturable == 0)
                                 {
                                     strPernocta = "NO";
                                 }
@@ -150,7 +153,7 @@ namespace AppPartes.Web.Controllers
                                         Inicio = l.Inicio,
                                         Fin = l.Fin,
                                         Idusuario = l.Idusuario,
-                                        strPernocta= strPernocta,
+                                        strPernocta = strPernocta,
                                         Npartefirmado = l.Npartefirmado,
                                         Idoriginal = l.Idoriginal,
                                         Registrado = l.Registrado,
@@ -198,14 +201,18 @@ namespace AppPartes.Web.Controllers
                             }
                             ViewBag.DateSelected = dtSelected.ToString("yyyy-MM-dd"); // dtSelected.Date;
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             return RedirectToAction("Index", new { strMessage = "ocurrio un error!!!" });
                         }
                         break;
 
                     case "editLine":
-                        if (lSelect is null) return RedirectToAction("Index", new { strMessage = "Error en la seleccion de parte" });
+                        if (lSelect is null)
+                        {
+                            return RedirectToAction("Index", new { strMessage = "Error en la seleccion de parte" });
+                        }
+
                         day = lSelect.Inicio;
                         lEstadoDia = aldakinDbContext.Estadodias.Where(x => x.Idusuario == iUserId && DateTime.Compare(x.Dia, day.Date) == 0).ToList();//
                         if (lEstadoDia.Count > 0)
@@ -214,13 +221,13 @@ namespace AppPartes.Web.Controllers
                         }
                         NombreOt = aldakinDbContext.Ots.FirstOrDefault(x => x.Idots == lSelect.Idot).Nombre;
                         NombreCliente = aldakinDbContext.Clientes.FirstOrDefault(x => x.Idclientes == aldakinDbContext.Ots.FirstOrDefault(o => o.Idots == lSelect.Idot).Cliente).Nombre;
-                        List<Gastos> lGastos = aldakinDbContext.Gastos.Where(x => x.Idlinea == lSelect.Idlinea).ToList();
-                        int iCont = 0;
-                        string strGastos = "";
-                        foreach (Gastos g in lGastos)
+                        var lGastos = aldakinDbContext.Gastos.Where(x => x.Idlinea == lSelect.Idlinea).ToList();
+                        var iCont = 0;
+                        var strGastos = "";
+                        foreach (var g in lGastos)
                         {
-                            string strPagador = "";
-                            string strTipo = aldakinDbContext.Tipogastos.FirstOrDefault(x => x.Idtipogastos == g.Tipo).Tipo;
+                            var strPagador = "";
+                            var strTipo = aldakinDbContext.Tipogastos.FirstOrDefault(x => x.Idtipogastos == g.Tipo).Tipo;
                             iCont++;
                             if (g.Pagador == 0)
                             {
@@ -259,7 +266,7 @@ namespace AppPartes.Web.Controllers
                         });
                         ViewBag.LineasSelect = listVisual;
                         //obtener pernoctaciones
-                        List<Pernoctaciones> lPernoctas = aldakinDbContext.Pernoctaciones.Where(x => x.CodEnt == lSelect.CodEnt).ToList();
+                        var lPernoctas = aldakinDbContext.Pernoctaciones.Where(x => x.CodEnt == lSelect.CodEnt).ToList();
                         ViewBag.Pernoctas = lPernoctas;
 
                         ViewBag.DateSelected = lSelect.Inicio.Date.ToString("yyyy-MM-dd"); // dtSelected.Date;
@@ -353,26 +360,36 @@ namespace AppPartes.Web.Controllers
         {
             ajusteUsuario();
 
-            List<SelectData> listaSelect = new List<SelectData>();
-            List<SelectData> lReturn = new List<SelectData>();
-            lReturn.Add(new SelectData { iValue = 0 });
+            var listaSelect = new List<SelectData>();
+            var lReturn = new List<SelectData>
+            {
+                new SelectData { iValue = 0 }
+            };
             listaSelect = null;
-            string strReturn = string.Empty;
-            int iIdLinea = 0;
+            var strReturn = string.Empty;
+            var iIdLinea = 0;
             try
             {
                 iIdLinea = Convert.ToInt32(cantidad);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Json(lReturn);// RedirectToAction("Index", new { strMessage = "proceso abortado, error en los datos;" });
             }
-            if (iIdLinea == 0) return Json(lReturn);// RedirectToAction("Index", new { strMessage = "proceso abortado, error en los datos;" });
+            if (iIdLinea == 0)
+            {
+                return Json(lReturn);// RedirectToAction("Index", new { strMessage = "proceso abortado, error en los datos;" });
+            }
+
             var lSelect = aldakinDbContext.Lineas.FirstOrDefault(x => x.Idlinea == Convert.ToInt32(iIdLinea));
             DateTime day;
-            if (lSelect is null) return Json(lReturn);// RedirectToAction("Index", new { strMessage = "Error en la seleccion de parte" });
+            if (lSelect is null)
+            {
+                return Json(lReturn);// RedirectToAction("Index", new { strMessage = "Error en la seleccion de parte" });
+            }
+
             day = lSelect.Inicio;
-            List<Estadodias> lEstadoDia = aldakinDbContext.Estadodias.Where(x => x.Idusuario == iUserId && DateTime.Compare(x.Dia, day.Date) == 0).ToList();//
+            var lEstadoDia = aldakinDbContext.Estadodias.Where(x => x.Idusuario == iUserId && DateTime.Compare(x.Dia, day.Date) == 0).ToList();//
             if (lEstadoDia.Count > 0)
             {
                 //strReturn = lSelect.Inicio.Year + "-" + lSelect.Inicio.Month + "-" + lSelect.Inicio.Day;
@@ -390,23 +407,29 @@ namespace AppPartes.Web.Controllers
                 linea = lSelect;
                 aldakinDbContext.Lineas.Remove(linea);
                 var lineaSecundaria = aldakinDbContext.Lineas.FirstOrDefault(x => x.Idoriginal == lSelect.Idlinea);
-                if (!(lineaSecundaria is null)) aldakinDbContext.Lineas.Remove(lineaSecundaria);
+                if (!(lineaSecundaria is null))
+                {
+                    aldakinDbContext.Lineas.Remove(lineaSecundaria);
+                }
 
-                List<Gastos> gasto = aldakinDbContext.Gastos.Where(x => x.Idlinea == lSelect.Idlinea).ToList();
-                if (!(gasto is null)) aldakinDbContext.Gastos.RemoveRange(gasto);
+                var gasto = aldakinDbContext.Gastos.Where(x => x.Idlinea == lSelect.Idlinea).ToList();
+                if (!(gasto is null))
+                {
+                    aldakinDbContext.Gastos.RemoveRange(gasto);
+                }
 
                 await aldakinDbContext.SaveChangesAsync();
 
                 await transaction.CommitAsync();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 await transaction.RollbackAsync();
                 strReturn = lSelect.Inicio.Year + "-" + lSelect.Inicio.Month + "-" + lSelect.Inicio.Day;
                 return Json(lReturn);// RedirectToAction("Index", new { strMessage = "Ha ocurrido un problema durante el proceso de borrado el parte de trabajo.;", strDate = strReturn, strAction = "loadWeek" });
             }
-            string strDay = string.Empty;
-            string strMonth = string.Empty;
+            var strDay = string.Empty;
+            var strMonth = string.Empty;
             if (lSelect.Inicio.Month < 10)
             {
                 strMonth = "0" + lSelect.Inicio.Month;
@@ -425,7 +448,7 @@ namespace AppPartes.Web.Controllers
             }
             strReturn = lSelect.Inicio.Year + "-" + strMonth + "-" + strDay;
             lReturn.First().iValue = 1;
-            lReturn.Add(new SelectData { iValue = 1,strText= "loadWeek", strValue= strReturn });
+            lReturn.Add(new SelectData { iValue = 1, strText = "loadWeek", strValue = strReturn });
             return Json(lReturn);// RedirectToAction("Index", new { strMessage = "Parte Borrado Satisfactoriamente;", strDate = strReturn, strAction = "loadWeek" });
         }
 
@@ -439,18 +462,18 @@ namespace AppPartes.Web.Controllers
             {
                 dtSelected = Convert.ToDateTime(strDataSelected);
             }
-            catch(Exception ex)
+            catch (Exception)
             {
                 return RedirectToAction("Index", new { strMessage = "Proceso abortado, error en los datos;" });
             }
-            List<Estadodias> lEstadoDia = aldakinDbContext.Estadodias.Where(x => x.Idusuario == iUserId && DateTime.Compare(x.Dia, dtSelected) == 0).ToList();//
+            var lEstadoDia = aldakinDbContext.Estadodias.Where(x => x.Idusuario == iUserId && DateTime.Compare(x.Dia, dtSelected) == 0).ToList();//
             if (lEstadoDia.Count > 0)
             {
                 return RedirectToAction("Index", new { strMessage = "La semana esta cerrada, habla con tu responsable si es necesario abrirla;" });
             }
             DateTime dtIniWeek;
             DateTime dtEndWeek;
-            System.DayOfWeek day = dtSelected.DayOfWeek;
+            var day = dtSelected.DayOfWeek;
             switch (day)
             {
                 case System.DayOfWeek.Sunday:
@@ -495,18 +518,18 @@ namespace AppPartes.Web.Controllers
                     dtEndWeek = new DateTime(dtIniWeek.Year, dtIniWeek.Month, 1).AddMonths(1).AddDays(-1);
                 }
             }
-            List<double> ldHorasdia = new List<double>();
-            List<Estadodias> lListEstados = new List<Estadodias>();
-            for (DateTime date = dtIniWeek; date < dtEndWeek; date = date.AddDays(1.0))
+            var ldHorasdia = new List<double>();
+            var lListEstados = new List<Estadodias>();
+            for (var date = dtIniWeek; date < dtEndWeek; date = date.AddDays(1.0))
             {
                 double dHorasDia = 0;
                 listPartes = aldakinDbContext.Lineas.Where(x => x.Inicio.Date == date.Date && x.CodEnt == iUserCondEntO && x.Idusuario == iUserId).OrderBy(x => x.Inicio).ToList();
-                foreach (Lineas l in listPartes)
+                foreach (var l in listPartes)
                 {
                     dHorasDia = dHorasDia + (l.Fin - l.Inicio).TotalHours;
                 }
                 ldHorasdia.Add(dHorasDia);
-                lListEstados.Add(new Estadodias { Dia = date.Date,Idusuario=iUserId ,Estado=2,Horas= (float)(dHorasDia) });//
+                lListEstados.Add(new Estadodias { Dia = date.Date, Idusuario = iUserId, Estado = 2, Horas = (float)(dHorasDia) });//
             }
             var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
             try
@@ -515,13 +538,13 @@ namespace AppPartes.Web.Controllers
                 await aldakinDbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 await transaction.RollbackAsync();
                 return RedirectToAction("Index", new { strMessage = "Ha ocurrido un problema durante el proceso de cerrar semana.;" });
             }
 
-            string strReturn = dtSelected.Year + "-" + dtSelected.Month + "-" + dtSelected.Day;
+            var strReturn = dtSelected.Year + "-" + dtSelected.Month + "-" + dtSelected.Day;
             return RedirectToAction("Index", new { strMessage = "Semana Cerrada;", strDate = strReturn, strAction = "loadWeek" });
 
             //DDBB.CerrarSemana(Program.par_aplicacion.CurrentUser.idUsuario, primerDia, ultimoDia);
@@ -547,14 +570,18 @@ namespace AppPartes.Web.Controllers
         [HttpPost]
         public JsonResult PagadorSelect(int cantidad, int cantidad2)
         {
-            List<SelectData> listaSelect = new List<SelectData>();
-            if(cantidad2<1) return Json(null);
-            List<Tipogastos> tipoGasto = aldakinDbContext.Tipogastos.Where(x => x.Pagador == cantidad && x.CodEnt == aldakinDbContext.Ots.FirstOrDefault(o => o.Idots == cantidad2).CodEnt).ToList();
+            var listaSelect = new List<SelectData>();
+            if (cantidad2 < 1)
+            {
+                return Json(null);
+            }
+
+            var tipoGasto = aldakinDbContext.Tipogastos.Where(x => x.Pagador == cantidad && x.CodEnt == aldakinDbContext.Ots.FirstOrDefault(o => o.Idots == cantidad2).CodEnt).ToList();
             if (!(tipoGasto == null))
             {
-                foreach (Tipogastos p in tipoGasto)
+                foreach (var p in tipoGasto)
                 {
-                    string strTemp = p.Tipo.ToUpper();
+                    var strTemp = p.Tipo.ToUpper();
                     listaSelect.Add(new SelectData { strValue = strTemp, strText = strTemp });
                 }
             }
@@ -566,16 +593,24 @@ namespace AppPartes.Web.Controllers
         {
             //datos provisionles
             ajusteUsuario();
-            string strReturn = string.Empty;
-            bool bHorasViajeTemp = false;
-            bool gGastosTemp = false;
-            int iPernoctacion = 0;
+            var strReturn = string.Empty;
+            var bHorasViajeTemp = false;
+            var gGastosTemp = false;
+            var iPernoctacion = 0;
             DateTime day, dtInicio, dtFin;
             var datosLinea = aldakinDbContext.Lineas.FirstOrDefault(x => x.Idlinea == Convert.ToInt32(strIdLinea));
             try
             {
-                if (string.IsNullOrEmpty(strObservaciones)) strObservaciones = string.Empty;
-                if (string.IsNullOrEmpty(strParte)) strParte = string.Empty;
+                if (string.IsNullOrEmpty(strObservaciones))
+                {
+                    strObservaciones = string.Empty;
+                }
+
+                if (string.IsNullOrEmpty(strParte))
+                {
+                    strParte = string.Empty;
+                }
+
                 if (string.IsNullOrEmpty(bHorasViaje))
                 {
                     bHorasViajeTemp = false;
@@ -608,7 +643,7 @@ namespace AppPartes.Web.Controllers
                 dtInicio = Convert.ToDateTime(strCalendario + " " + strHoraInicio + ":" + strMinutoInicio + ":00");
                 dtFin = Convert.ToDateTime(strCalendario + " " + strHoraFin + ":" + strMinutoFin + ":00");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return RedirectToAction("Index", new { strMessage = "Se ha producido un error en el procesamiento de los datos;" });
             }
@@ -617,7 +652,7 @@ namespace AppPartes.Web.Controllers
             day = Convert.ToDateTime(strCalendario);
             dtInicio = Convert.ToDateTime(strCalendario + " " + strHoraInicio + ":" + strMinutoInicio + ":00");
             dtFin = Convert.ToDateTime(strCalendario + " " + strHoraFin + ":" + strMinutoFin + ":00");
-            List<Estadodias> lEstadoDia = aldakinDbContext.Estadodias.Where(x => x.Idusuario == iUserId && DateTime.Compare(x.Dia, day) == 0).ToList();//
+            var lEstadoDia = aldakinDbContext.Estadodias.Where(x => x.Idusuario == iUserId && DateTime.Compare(x.Dia, day) == 0).ToList();//
             if (lEstadoDia.Count > 0)
             {
                 strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
@@ -629,10 +664,10 @@ namespace AppPartes.Web.Controllers
                 return RedirectToAction("Index", new { strMessage = "Hora de Fin de Parte anterior a la Hora de inicio de Parte;", strDate = strReturn, strAction = "loadWeek" });
             }
             //Rango usado
-            List<Lineas> lLineas = aldakinDbContext.Lineas.Where(x => DateTime.Compare(x.Inicio.Date, day.Date) == 0 && x.Idusuario == iUserId && x.Validado == 0 && x.Registrado == 0 && x.Idlinea != datosLinea.Idlinea && x.Idoriginal!=datosLinea.Idlinea ).ToList();
+            var lLineas = aldakinDbContext.Lineas.Where(x => DateTime.Compare(x.Inicio.Date, day.Date) == 0 && x.Idusuario == iUserId && x.Validado == 0 && x.Registrado == 0 && x.Idlinea != datosLinea.Idlinea && x.Idoriginal != datosLinea.Idlinea).ToList();
             if (lLineas != null)
             {
-                foreach (Lineas x in lLineas)
+                foreach (var x in lLineas)
                 {
                     if (DateTime.Compare(dtFin, x.Inicio) > 0 && DateTime.Compare(dtFin, x.Fin) < 0)
                     {
@@ -647,7 +682,7 @@ namespace AppPartes.Web.Controllers
                 }
             }
             //
-            double dHorasTrabajadas = (dtFin - dtInicio).TotalHours;
+            var dHorasTrabajadas = (dtFin - dtInicio).TotalHours;
             if ((dHorasTrabajadas == 0) && !gGastosTemp)
             {
                 strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
@@ -662,13 +697,13 @@ namespace AppPartes.Web.Controllers
             //gastos
             float dGastos = 0;
             float dKilometros = 0;
-            int iCodEntOt = aldakinDbContext.Ots.FirstOrDefault(t => t.Idots == Convert.ToInt32(ot)).CodEnt;
-            List<Gastos> lGastos = new List<Gastos>();
-            if (!(String.IsNullOrEmpty(strGastos)))
+            var iCodEntOt = aldakinDbContext.Ots.FirstOrDefault(t => t.Idots == Convert.ToInt32(ot)).CodEnt;
+            var lGastos = new List<Gastos>();
+            if (!(string.IsNullOrEmpty(strGastos)))
             {
                 string line;
                 string[] substring;
-                StringReader strReader = new StringReader(strGastos);
+                var strReader = new StringReader(strGastos);
                 while ((line = strReader.ReadLine()) != null)
                 {
                     if (line != null)
@@ -710,11 +745,17 @@ namespace AppPartes.Web.Controllers
                                         Observacion = substring[4]
                                     });
 
-                                    if (substring[2] != "KILOMETROS") dGastos = dGastos + (float)Convert.ToDouble(substring[3].Replace('.', ','));
-                                    else dKilometros = dKilometros + (float)Convert.ToDouble(substring[3].Replace('.', ','));
+                                    if (substring[2] != "KILOMETROS")
+                                    {
+                                        dGastos = dGastos + (float)Convert.ToDouble(substring[3].Replace('.', ','));
+                                    }
+                                    else
+                                    {
+                                        dKilometros = dKilometros + (float)Convert.ToDouble(substring[3].Replace('.', ','));
+                                    }
                                 }
                             }
-                            catch (Exception ex)
+                            catch (Exception)
                             {
                                 strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
                                 return RedirectToAction("Index", new { strMessage = "Los gastos son erroneos, repita el parte;", strDate = strReturn, strAction = "loadWeek" });
@@ -734,14 +775,18 @@ namespace AppPartes.Web.Controllers
                 }
             }
             var otSel = aldakinDbContext.Ots.FirstOrDefault(x => x.Idots == Convert.ToInt32(ot) && x.Codigorefot != "29" && x.Cierre == null);
-            if (otSel is null) return RedirectToAction("Index", new { strMessage = "En la Ot que esta usande se ha encontrado un problema, recargue la pagina;" });
+            if (otSel is null)
+            {
+                return RedirectToAction("Index", new { strMessage = "En la Ot que esta usande se ha encontrado un problema, recargue la pagina;" });
+            }
+
             if (otSel.Nombre.Length > 10 && otSel.Nombre.Substring(0, 20) == "TRABAJOS REALIZADOS ")
             {
                 try
                 {
-                    int otoriginal = Convert.ToInt32(strObservaciones.Substring(0, 1));
+                    var otoriginal = Convert.ToInt32(strObservaciones.Substring(0, 1));
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
                     return RedirectToAction("Index", new { strMessage = "En las OTs de trabajos para otras delegaciones, lo primero que debe aparecer en las observaciones debe ser la OT de la delegacion de origen;", strDate = strReturn, strAction = "loadWeek" });
@@ -767,9 +812,13 @@ namespace AppPartes.Web.Controllers
 
                     aldakinDbContext.Lineas.Update(datosLinea);
                     await aldakinDbContext.SaveChangesAsync();
-                    List<Gastos> gasto = aldakinDbContext.Gastos.Where(x => x.Idlinea == datosLinea.Idlinea).ToList();
-                    if (!(gasto is null)) aldakinDbContext.Gastos.RemoveRange(gasto);
-                    foreach (Gastos g in lGastos)
+                    var gasto = aldakinDbContext.Gastos.Where(x => x.Idlinea == datosLinea.Idlinea).ToList();
+                    if (!(gasto is null))
+                    {
+                        aldakinDbContext.Gastos.RemoveRange(gasto);
+                    }
+
+                    foreach (var g in lGastos)
                     {
                         var gastoNew = new Gastos
                         {
@@ -784,7 +833,7 @@ namespace AppPartes.Web.Controllers
                     await aldakinDbContext.SaveChangesAsync();
                     await transaction.CommitAsync();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     await transaction.RollbackAsync();
                     strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
@@ -813,9 +862,13 @@ namespace AppPartes.Web.Controllers
                     {
                         aldakinDbContext.Lineas.Update(datosLinea);
                         await aldakinDbContext.SaveChangesAsync();
-                        List<Gastos> gasto = aldakinDbContext.Gastos.Where(x => x.Idlinea == datosLinea.Idlinea).ToList();
-                        if (!(gasto is null)) aldakinDbContext.Gastos.RemoveRange(gasto);
-                        foreach (Gastos g in lGastos)
+                        var gasto = aldakinDbContext.Gastos.Where(x => x.Idlinea == datosLinea.Idlinea).ToList();
+                        if (!(gasto is null))
+                        {
+                            aldakinDbContext.Gastos.RemoveRange(gasto);
+                        }
+
+                        foreach (var g in lGastos)
                         {
                             var gastoNew = new Gastos
                             {
@@ -830,17 +883,17 @@ namespace AppPartes.Web.Controllers
                         await aldakinDbContext.SaveChangesAsync();
 
                         string Salida = otSel.Numero.ToString(), Primerdigito, Resto;
-                        char Cero = Convert.ToChar("0"); 
+                        var Cero = Convert.ToChar("0");
                         Primerdigito = otSel.Numero.ToString().Substring(0, 1);
                         Resto = otSel.Numero.ToString().Substring(2, otSel.Numero.ToString().Length - 2);
                         Resto = Resto.TrimStart(Cero);
                         Salida = string.Format("{0}|{1}", Primerdigito, Resto);
-                        string observaciones = Salida + " " + datosLinea.Observaciones.ToUpper();
+                        var observaciones = Salida + " " + datosLinea.Observaciones.ToUpper();
 
                         var secundarioAntigua = aldakinDbContext.Lineas.FirstOrDefault(x => x.Idoriginal == datosLinea.Idlinea);
                         aldakinDbContext.Lineas.Remove(secundarioAntigua);
                         //from ots where cierre is null and year(apertura) = year(iinicio) and  cod_ent = icod_ent and cod_ent_d = (select cod_ent from lineas where idlinea = iidoriginal)
-                        int iOt = aldakinDbContext.Ots.FirstOrDefault(x => x.Cierre == null && x.Apertura.Year == datosLinea.Inicio.Year && x.CodEnt == iUserCondEntO && x.CodEntD == aldakinDbContext.Lineas.FirstOrDefault(y => y.Idlinea == datosLinea.Idlinea).CodEnt).Idots;
+                        var iOt = aldakinDbContext.Ots.FirstOrDefault(x => x.Cierre == null && x.Apertura.Year == datosLinea.Inicio.Year && x.CodEnt == iUserCondEntO && x.CodEntD == aldakinDbContext.Lineas.FirstOrDefault(y => y.Idlinea == datosLinea.Idlinea).CodEnt).Idots;
                         var lineaSecundaria = new Lineas
                         {
                             Idot = iOt,
@@ -864,7 +917,7 @@ namespace AppPartes.Web.Controllers
                         await aldakinDbContext.SaveChangesAsync();
                         await transaction.CommitAsync();
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         await transaction.RollbackAsync();
                         strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;

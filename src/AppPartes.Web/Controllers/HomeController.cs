@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using AppPartes.Data.Models;
+using AppPartes.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using AppPartes.Web.Models;
-using AppPartes.Data.Models;
-
+using System.Diagnostics;
+using System.Linq;
 using System.Security.Claims;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace AppPartes.Web.Controllers
 {
@@ -30,19 +26,19 @@ namespace AppPartes.Web.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Login()
         {
-            
+
             using (var context = new AldakinDbContext())
             {
-                var user = context.Usuarios.Where(x => x.Name.Equals("460b244aa3e22b31a53018fc506f517f") &&x.CodEnt==x.CodEntO).ToList();
-                
+                var user = context.Usuarios.Where(x => x.Name.Equals("460b244aa3e22b31a53018fc506f517f") && x.CodEnt == x.CodEntO).ToList();
+
                 if (user.Count == 1)
                 {
                     //var claims = new List<Claim>();
                     //claims.Add(new Claim(ClaimTypes.NameIdentifier, user.First().Idusuario.ToString()));
                     //claims.Add(new Claim(ClaimTypes.Name, user.First().Nombrecompleto.ToString()));
                     //claims.Add(new Claim("id", "69"));
-                   
-                    ClaimsIdentity identity = new ClaimsIdentity();
+
+                    var identity = new ClaimsIdentity();
                     identity.AddClaim(new Claim(ClaimTypes.Name, user.First().Nombrecompleto.ToString()));
                     identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.First().Idusuario.ToString()));
                     identity.AddClaim(new Claim(ClaimTypes.Role, user.First().CodEntO.ToString()));

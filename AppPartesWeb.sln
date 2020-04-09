@@ -7,9 +7,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1-src", "1-src", "{0D1F9C85
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2-test", "2-test", "{3436D2E6-2B57-4C2D-9179-63DE2FB240BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppPartes.Data", "src\AppPartes.Data\AppPartes.Data.csproj", "{23BA659D-3441-4489-9BA0-CC5B1F1DE514}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppPartes.Data", "src\AppPartes.Data\AppPartes.Data.csproj", "{23BA659D-3441-4489-9BA0-CC5B1F1DE514}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppPartes.Web", "src\AppPartes.Web\AppPartes.Web.csproj", "{5E82B281-E2A1-491C-8A8D-DCED7FDB00F1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppPartes.Web", "src\AppPartes.Web\AppPartes.Web.csproj", "{5E82B281-E2A1-491C-8A8D-DCED7FDB00F1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3-solution-items", "3-solution-items", "{237E5784-3B66-47F4-BEC8-C43EC3EEF16F}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.github\workflows\build.yml = .github\workflows\build.yml
+		.github\workflows\sonar.yml = .github\workflows\sonar.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
