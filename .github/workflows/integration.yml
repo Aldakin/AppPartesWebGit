@@ -13,12 +13,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2    
+    - name: Setup .NET Core for Sonar
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 2.1.805
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.101
     - name: Install Sonar
-      run: dotnet tool install --global dotnet-sonarscanner --version 4.7.1
+      run: dotnet tool install --global dotnet-sonarscanner --version 4.8.0
     - name: Start Sonnar
       run: dotnet-sonarscanner begin /k:"web-partes" /o:"aldakin" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
     - name: Install dependencies
