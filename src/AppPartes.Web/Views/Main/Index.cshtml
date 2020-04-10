@@ -1,14 +1,13 @@
-﻿
+﻿@model   IEnumerable<AppPartes.Logic.DataLogic>
 @{
     ViewData["Title"] = "Index";
 }
 @{
-    //LENGUAJE DE SERVIDOR C#
-    List<AppPartes.Data.Models.Ots> listaOts = ViewBag.Ots;
-    List<AppPartes.Data.Models.Entidad> listadept = ViewBag.Departamentos;
-    List<AppPartes.Data.Models.Clientes> listaClient = ViewBag.Clientes;
-    List<AppPartes.Data.Models.Pernoctaciones> listaPernocta = ViewBag.Pernoctas;
-    //List<AppPartes.Data.Models.Presupuestos> listaPresupuestos = ViewBag.Presupuestos;
+////LENGUAJE DE SERVIDOR C#
+//List<AppPartes.Data.Models.Ots> listaOts = ViewBag.Ots;
+//List<AppPartes.Data.Models.Entidad> listadept = ViewBag.Departamentos;
+//List<AppPartes.Data.Models.Clientes> listaClient = ViewBag.Clientes;
+//List<AppPartes.Data.Models.Pernoctaciones> listaPernocta = ViewBag.Pernoctas;
 }
 
 <body class="is-preload">
@@ -41,7 +40,7 @@
                         <p>Seleccione la orden de trabajo para su parte de trabajo .</p>
                         <label for="start">Entidad:</label>
                         <select id="entidad" name="strEntidad">
-                            @foreach (var dept in listadept)
+                            @foreach (var dept in listCompany)
                             {
                                 <option value="@dept.CodEnt">
                                     @dept.Nombre
@@ -51,7 +50,7 @@
                         <label for="start">Clientes:</label>
                         <select id="cliente" name="strCliente">
                             <option value="0"></option>
-                            @foreach (var client in listaClient)
+                            @foreach (var client in Model.listClient)
                             {
                                 <option value="@client.Idclientes">
                                     @client.Nombre
@@ -61,7 +60,7 @@
                         <label for="start">Ots:</label>
                         <select id="ot" name="strOt">
                             <option value="0"></option>
-                            @foreach (var dept in listaOts)
+                            @foreach (var dept in Model.listaOts)
                             {
                                 <option value="@dept.Idots">
                                     @dept.Numero || @dept.Nombre
@@ -279,7 +278,7 @@
                             <label for="vehicle1">Pernoctación</label>
                             <select name="strPernoctacion">
                                 <option value="0" selected>NO</option>
-                                @foreach (var client in listaPernocta)
+                                @foreach (var client in Model.listNight)
                                 {
                                     <option value="@client.Tipo">
                                         @client.Descripcion
@@ -799,7 +798,7 @@
                 alert("Seleccione una opcion correcta o recargue la pagina y vuelva a empezar");
                 return;
             }
-            var url = "@Url.Action("ObtenerNivel2","Main")";
+            var url = "@Url.Action("ObtenerNivel","Main")";
             var cantidad = optionSelec.value;
             var cantidad2 = optionSelec2.value;
             var data = { cantidad: cantidad, cantidad2: cantidad2 };

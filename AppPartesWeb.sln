@@ -10,12 +10,20 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppPartes.Data", "src\AppPartes.Data\AppPartes.Data.csproj", "{23BA659D-3441-4489-9BA0-CC5B1F1DE514}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppPartes.Web", "src\AppPartes.Web\AppPartes.Web.csproj", "{5E82B281-E2A1-491C-8A8D-DCED7FDB00F1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{455F5B03-1BAC-46D7-92A1-5102424B1C37} = {455F5B03-1BAC-46D7-92A1-5102424B1C37}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3-solution-items", "3-solution-items", "{237E5784-3B66-47F4-BEC8-C43EC3EEF16F}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.github\workflows\build.yml = .github\workflows\build.yml
 		.github\workflows\sonar.yml = .github\workflows\sonar.yml
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppPartes.Logic", "AppPartes.Logic\AppPartes.Logic.csproj", "{455F5B03-1BAC-46D7-92A1-5102424B1C37}"
+	ProjectSection(ProjectDependencies) = postProject
+		{23BA659D-3441-4489-9BA0-CC5B1F1DE514} = {23BA659D-3441-4489-9BA0-CC5B1F1DE514}
 	EndProjectSection
 EndProject
 Global
@@ -32,6 +40,10 @@ Global
 		{5E82B281-E2A1-491C-8A8D-DCED7FDB00F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E82B281-E2A1-491C-8A8D-DCED7FDB00F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E82B281-E2A1-491C-8A8D-DCED7FDB00F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{455F5B03-1BAC-46D7-92A1-5102424B1C37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{455F5B03-1BAC-46D7-92A1-5102424B1C37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{455F5B03-1BAC-46D7-92A1-5102424B1C37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{455F5B03-1BAC-46D7-92A1-5102424B1C37}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -39,6 +51,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{23BA659D-3441-4489-9BA0-CC5B1F1DE514} = {0D1F9C85-266C-46D8-9653-915742D6C38B}
 		{5E82B281-E2A1-491C-8A8D-DCED7FDB00F1} = {0D1F9C85-266C-46D8-9653-915742D6C38B}
+		{455F5B03-1BAC-46D7-92A1-5102424B1C37} = {0D1F9C85-266C-46D8-9653-915742D6C38B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {918A4A88-C7EA-4DDA-971F-49916FF748EA}
