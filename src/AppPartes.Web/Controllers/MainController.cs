@@ -37,14 +37,15 @@ namespace AppPartes.Web.Controllers
         private readonly List<Preslin> Nivel6;
         private readonly List<Preslin> Nivel7;
         private readonly AldakinDbContext aldakinDbContext;
-
+        IDataLogic oper;
         //public MainController(AldakinDbContext aldakinDbContext)
         //{
         //    this.aldakinDbContext = aldakinDbContext;
         //}
 
-        public MainController()
+        public MainController(IDataLogic loquesea)
         {
+            oper = loquesea;
         }
 
         private void ajusteUsuario()
@@ -60,8 +61,7 @@ namespace AppPartes.Web.Controllers
         }
         public IActionResult Index(string strMessage = "")
         {
-            Logic.DataLogic oView = new DataLogic();
-            OperationLogic oper = new OperationLogic(aldakinDbContext);
+            Logic.DataViewLogic oView = new DataViewLogic();
             ViewBag.Message = strMessage;
             oView = oper.LoadMainController();
             return View(oView);
@@ -71,7 +71,6 @@ namespace AppPartes.Web.Controllers
         {
             ajusteUsuario();
             var listaSelect = new List<Logic.SelectData>();
-            OperationLogic oper = new OperationLogic(aldakinDbContext);
             DateTime dtSelected;
             try
             {
@@ -88,7 +87,6 @@ namespace AppPartes.Web.Controllers
         public JsonResult EntidadSelectedOt(int cantidad)//JsonResult
         {
             var listaSelect = new List<Logic.SelectData>();
-            OperationLogic oper = new OperationLogic(aldakinDbContext);
             try
             {
                 listaSelect = oper.SelectedCompanyReadOt(cantidad);
@@ -103,7 +101,6 @@ namespace AppPartes.Web.Controllers
         public JsonResult EntidadSelectedCliente(int cantidad)//JsonResult
         {
             var listaSelect = new List<Logic.SelectData>();
-            OperationLogic oper = new OperationLogic(aldakinDbContext);
             try
             {
                 listaSelect = oper.SelectedCompanyReadClient(cantidad);
@@ -118,7 +115,6 @@ namespace AppPartes.Web.Controllers
         public JsonResult ClienteSelected(int cantidad)//JsonResult
         {
             var listaSelect = new List<Logic.SelectData>();
-            OperationLogic oper = new OperationLogic(aldakinDbContext);
             try
             {
                 listaSelect = oper.SelectedClient(cantidad);
@@ -133,7 +129,6 @@ namespace AppPartes.Web.Controllers
         public JsonResult OtSelected(int cantidad)//JsonResult
         {
             var listaSelect = new List<Logic.SelectData>();
-            OperationLogic oper = new OperationLogic(aldakinDbContext);
             try
             {
                 listaSelect = oper.SelectedOt(cantidad);
@@ -148,7 +143,6 @@ namespace AppPartes.Web.Controllers
         public JsonResult ObtenerNivel1(int cantidad)
         {
             var listaSelect = new List<Logic.SelectData>();
-            OperationLogic oper = new OperationLogic(aldakinDbContext);
             try
             {
                 listaSelect = oper.ReadLevel1(cantidad);
@@ -163,7 +157,6 @@ namespace AppPartes.Web.Controllers
         public JsonResult ObtenerNivel(int cantidad)
         {
             var listaSelect = new List<Logic.SelectData>();
-            OperationLogic oper = new OperationLogic(aldakinDbContext);
             try
             {
                 listaSelect = oper.ReadLevelGeneral(cantidad);
@@ -178,7 +171,6 @@ namespace AppPartes.Web.Controllers
         public JsonResult PagadorSelect(int cantidad, int cantidad2)
         {
             var listaSelect = new List<Logic.SelectData>();
-            OperationLogic oper = new OperationLogic(aldakinDbContext);
             try
             {
                 listaSelect = oper.SelectedPayer(cantidad, cantidad2);
@@ -193,8 +185,7 @@ namespace AppPartes.Web.Controllers
         public async Task<IActionResult> InsertLine(string strEntidad, string strOt, string strPresupuesto, string strNivel1, string strNivel2, string strNivel3, string strNivel4, string strNivel5, string strNivel6, string strNivel7, string strCalendario, string strHoraInicio, string strMinutoInicio, string strHoraFin, string strMinutoFin, string bHorasViaje, string bGastos, string strParte, string strPernoctacion, string strObservaciones, string strPreslin, string strGastos)
         {
             string strReturn = string.Empty;
-            OperationLogic oper = new OperationLogic(aldakinDbContext);
-            strReturn = oper.InsertWorkerLine( strEntidad,  strOt,  strPresupuesto,  strNivel1,  strNivel2,  strNivel3,  strNivel4,  strNivel5,  strNivel6,  strNivel7,  strCalendario,  strHoraInicio,  strMinutoInicio,  strHoraFin,  strMinutoFin,  bHorasViaje,  bGastos,  strParte,  strPernoctacion,  strObservaciones,  strPreslin,  strGastos);
+            strReturn = await oper.InsertWorkerLineAsync( strEntidad,  strOt,  strPresupuesto,  strNivel1,  strNivel2,  strNivel3,  strNivel4,  strNivel5,  strNivel6,  strNivel7,  strCalendario,  strHoraInicio,  strMinutoInicio,  strHoraFin,  strMinutoFin,  bHorasViaje,  bGastos,  strParte,  strPernoctacion,  strObservaciones,  strPreslin,  strGastos);
 
             return RedirectToAction("Index", new { strMessage = strReturn });
         }

@@ -1,4 +1,4 @@
-﻿@model   IEnumerable<AppPartes.Logic.DataLogic>
+﻿@model AppPartes.Logic.DataViewLogic
 @{
     ViewData["Title"] = "Index";
 }
@@ -40,7 +40,7 @@
                         <p>Seleccione la orden de trabajo para su parte de trabajo .</p>
                         <label for="start">Entidad:</label>
                         <select id="entidad" name="strEntidad">
-                            @foreach (var dept in listCompany)
+                            @foreach (var dept in Model.listCompany)
                             {
                                 <option value="@dept.CodEnt">
                                     @dept.Nombre
@@ -60,7 +60,7 @@
                         <label for="start">Ots:</label>
                         <select id="ot" name="strOt">
                             <option value="0"></option>
-                            @foreach (var dept in Model.listaOts)
+                            @foreach (var dept in Model.listOts)
                             {
                                 <option value="@dept.Idots">
                                     @dept.Numero || @dept.Nombre
