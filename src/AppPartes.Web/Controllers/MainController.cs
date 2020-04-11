@@ -3,7 +3,6 @@ using AppPartes.Logic;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 //https://developer.mozilla.org/es/docs/Web/JavaScript/Referencia/Objetos_globales/Object/values
@@ -24,20 +23,20 @@ namespace AppPartes.Web.Controllers
 
         //Datos
 
-        private List<Ots> listOts;
-        private List<Entidad> listadept;
-        private List<Clientes> listaClient;
-        private List<Presupuestos> lPresupuestos;
-        private List<Pernoctaciones> lPernoctas;
+        private readonly List<Ots> listOts;
+        private readonly List<Entidad> listadept;
+        private readonly List<Clientes> listaClient;
+        private readonly List<Presupuestos> lPresupuestos;
+        private readonly List<Pernoctaciones> lPernoctas;
         private readonly List<Preslin> Nivel1;
-        private List<Preslin> Nivel2;
+        private readonly List<Preslin> Nivel2;
         private readonly List<Preslin> Nivel3;
         private readonly List<Preslin> Nivel4;
         private readonly List<Preslin> Nivel5;
         private readonly List<Preslin> Nivel6;
         private readonly List<Preslin> Nivel7;
         private readonly AldakinDbContext aldakinDbContext;
-        IDataLogic oper;
+        private readonly IDataLogic oper;
         //public MainController(AldakinDbContext aldakinDbContext)
         //{
         //    this.aldakinDbContext = aldakinDbContext;
@@ -61,9 +60,8 @@ namespace AppPartes.Web.Controllers
         }
         public IActionResult Index(string strMessage = "")
         {
-            Logic.DataViewLogic oView = new DataViewLogic();
             ViewBag.Message = strMessage;
-            oView = oper.LoadMainController();
+            var oView = oper.LoadMainController();
             return View(oView);
         }
         [HttpPost]
@@ -75,7 +73,7 @@ namespace AppPartes.Web.Controllers
             try
             {
                 dtSelected = Convert.ToDateTime(cantidad);
-                listaSelect=oper.WeekHourResume(dtSelected);
+                listaSelect = oper.WeekHourResume(dtSelected);
             }
             catch (Exception)
             {
@@ -91,7 +89,7 @@ namespace AppPartes.Web.Controllers
             {
                 listaSelect = oper.SelectedCompanyReadOt(cantidad);
             }
-            catch(Exception ex)
+            catch (Exception)
             {
                 return Json(null);
             }
@@ -105,7 +103,7 @@ namespace AppPartes.Web.Controllers
             {
                 listaSelect = oper.SelectedCompanyReadClient(cantidad);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Json(null);
             }
@@ -119,7 +117,7 @@ namespace AppPartes.Web.Controllers
             {
                 listaSelect = oper.SelectedClient(cantidad);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Json(null);
             }
@@ -133,7 +131,7 @@ namespace AppPartes.Web.Controllers
             {
                 listaSelect = oper.SelectedOt(cantidad);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Json(null);
             }
@@ -147,7 +145,7 @@ namespace AppPartes.Web.Controllers
             {
                 listaSelect = oper.ReadLevel1(cantidad);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Json(null);
             }
@@ -161,7 +159,7 @@ namespace AppPartes.Web.Controllers
             {
                 listaSelect = oper.ReadLevelGeneral(cantidad);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Json(null);
             }
@@ -175,7 +173,7 @@ namespace AppPartes.Web.Controllers
             {
                 listaSelect = oper.SelectedPayer(cantidad, cantidad2);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Json(null);
             }
@@ -184,8 +182,8 @@ namespace AppPartes.Web.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> InsertLine(string strEntidad, string strOt, string strPresupuesto, string strNivel1, string strNivel2, string strNivel3, string strNivel4, string strNivel5, string strNivel6, string strNivel7, string strCalendario, string strHoraInicio, string strMinutoInicio, string strHoraFin, string strMinutoFin, string bHorasViaje, string bGastos, string strParte, string strPernoctacion, string strObservaciones, string strPreslin, string strGastos)
         {
-            string strReturn = string.Empty;
-            strReturn = await oper.InsertWorkerLineAsync( strEntidad,  strOt,  strPresupuesto,  strNivel1,  strNivel2,  strNivel3,  strNivel4,  strNivel5,  strNivel6,  strNivel7,  strCalendario,  strHoraInicio,  strMinutoInicio,  strHoraFin,  strMinutoFin,  bHorasViaje,  bGastos,  strParte,  strPernoctacion,  strObservaciones,  strPreslin,  strGastos);
+            var strReturn = string.Empty;
+            strReturn = await oper.InsertWorkerLineAsync(strEntidad, strOt, strPresupuesto, strNivel1, strNivel2, strNivel3, strNivel4, strNivel5, strNivel6, strNivel7, strCalendario, strHoraInicio, strMinutoInicio, strHoraFin, strMinutoFin, bHorasViaje, bGastos, strParte, strPernoctacion, strObservaciones, strPreslin, strGastos);
 
             return RedirectToAction("Index", new { strMessage = strReturn });
         }
