@@ -30,9 +30,8 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
     - name: Test
-      run: dotnet test --configuration Release --no-restore
+      run: dotnet test --configuration Release --no-restore /p:CollectCoverage=true /p:CoverletOutputFormat=OpenCover
     - name: End Sonar
       run: dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}" 
       env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-   
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
