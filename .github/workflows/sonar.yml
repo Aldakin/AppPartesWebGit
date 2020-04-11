@@ -25,12 +25,8 @@ jobs:
       run: dotnet tool install --global dotnet-sonarscanner --version 4.8.0
     - name: Start Sonar
       run: dotnet-sonarscanner begin /k:"web-partes" /o:"aldakin" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.exclusions="**/wwwroot/lib/**" /d:sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml
-    - name: Install dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
     - name: Test
-      run: dotnet test --configuration Release --no-restore /p:CollectCoverage=true /p:CoverletOutputFormat=OpenCover
+      run: dotnet test --configuration Release  /p:CollectCoverage=true /p:CoverletOutputFormat=OpenCover
     - name: End Sonar
       run: dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}" 
       env:
