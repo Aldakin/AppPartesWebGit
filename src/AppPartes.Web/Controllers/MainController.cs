@@ -5,6 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AppPartes.Web.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+
 //https://developer.mozilla.org/es/docs/Web/JavaScript/Referencia/Objetos_globales/Object/values
 
 //https://developer.mozilla.org/es/docs/Web/JavaScript/Referencia/Objetos_globales/JSON/stringify
@@ -18,19 +22,26 @@ namespace AppPartes.Web.Controllers
         private readonly IWorkPartInformation _IWorkPartInformation;
         private readonly IWriteDataBase _IWriteDataBase;
         private readonly ILoadIndexController _ILoadIndexController;
-        public MainController(IWorkPartInformation iWorkPartInformation, IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController)
+        private readonly UserManager<ApplicationUser> _manager;
+
+        public MainController(IWorkPartInformation iWorkPartInformation, IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController,UserManager<ApplicationUser> manager)
         {
             _IWorkPartInformation = iWorkPartInformation;
             _IWriteDataBase = iWriteDataBase;
             _ILoadIndexController = iLoadIndexController;
+            _manager = manager;
         }
-        public IActionResult Index(string strMessage = "")
+        public async Task<IActionResult> Index(string strMessage = "")
         {
+            //TODO Asi recuperamos los datos de aldakin
+            var user = await _manager.GetUserAsync(HttpContext.User);
+            var idAldakin = user?.IdAldakin;
             ViewBag.Message = strMessage;
             var oView = _ILoadIndexController.LoadMainController();
             return View(oView);
         }
         [HttpPost]
+        [Route("ResumenSemana")]
         public JsonResult ResumenSemana(string cantidad)
         {
             var listaSelect = new List<Logic.SelectData>();
@@ -47,18 +58,18 @@ namespace AppPartes.Web.Controllers
             return Json(listaSelect);
         }
         [HttpPost]
-        public JsonResult EntidadSelectedOt(int cantidad)//JsonResult
+        public List<SelectData> EntidadSelectedOt(int cantidad)//JsonResult
         {
-            var listaSelect = new List<Logic.SelectData>();
+            var listaSelect = new List<SelectData>();
             try
             {
                 listaSelect = _IWorkPartInformation.SelectedCompanyReadOt(cantidad);
             }
             catch (Exception)
             {
-                return Json(null);
+                return null;
             }
-            return Json(listaSelect);
+            return listaSelect;
         }
         [HttpPost]
         public JsonResult EntidadSelectedCliente(int cantidad)//JsonResult
