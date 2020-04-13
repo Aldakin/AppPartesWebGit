@@ -1,4 +1,4 @@
-﻿@model AppPartes.Logic.DataViewLogic
+﻿@model AppPartes.Logic.MainDataViewLogic
 @{
     ViewData["Title"] = "Index";
 }
@@ -798,7 +798,7 @@
                 alert("Seleccione una opcion correcta o recargue la pagina y vuelva a empezar");
                 return;
             }
-            var url = "@Url.Action("ObtenerNivel","Main")";
+            var url = "@Url.Action("ObtenerNivel2","Main")";
             var cantidad = optionSelec.value;
             var cantidad2 = optionSelec2.value;
             var data = { cantidad: cantidad, cantidad2: cantidad2 };

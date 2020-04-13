@@ -15,65 +15,30 @@ namespace AppPartes.Web.Controllers
 {
     public class MainController : Controller
     {
-        //apaño para usuario con claims
-        private string strUserName = "";
-        private string stUserrDni = "";
-        private int iUserId = 0;
-        private int iUserCondEntO = 0;
-
-        //Datos
-
-        private readonly List<Ots> listOts;
-        private readonly List<Entidad> listadept;
-        private readonly List<Clientes> listaClient;
-        private readonly List<Presupuestos> lPresupuestos;
-        private readonly List<Pernoctaciones> lPernoctas;
-        private readonly List<Preslin> Nivel1;
-        private readonly List<Preslin> Nivel2;
-        private readonly List<Preslin> Nivel3;
-        private readonly List<Preslin> Nivel4;
-        private readonly List<Preslin> Nivel5;
-        private readonly List<Preslin> Nivel6;
-        private readonly List<Preslin> Nivel7;
-        private readonly AldakinDbContext aldakinDbContext;
-        private readonly IDataLogic oper;
-        //public MainController(AldakinDbContext aldakinDbContext)
-        //{
-        //    this.aldakinDbContext = aldakinDbContext;
-        //}
-
-        public MainController(IDataLogic loquesea)
+        private readonly IWorkPartInformation _IWorkPartInformation;
+        private readonly IWriteDataBase _IWriteDataBase;
+        private readonly ILoadIndexController _ILoadIndexController;
+        public MainController(IWorkPartInformation iWorkPartInformation, IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController)
         {
-            oper = loquesea;
-        }
-
-        private void ajusteUsuario()
-        {
-            var user = aldakinDbContext.Usuarios.FirstOrDefault(x => x.Name.Equals("460b244aa3e22b31a53018fc506f517f") && x.CodEnt == x.CodEntO);
-            if (!(user is null))
-            {
-                strUserName = user.Nombrecompleto.ToString();
-                iUserId = Convert.ToInt16(user.Idusuario);
-                iUserCondEntO = Convert.ToInt16(user.CodEntO);
-                stUserrDni = user.Name;
-            }
+            _IWorkPartInformation = iWorkPartInformation;
+            _IWriteDataBase = iWriteDataBase;
+            _ILoadIndexController = iLoadIndexController;
         }
         public IActionResult Index(string strMessage = "")
         {
             ViewBag.Message = strMessage;
-            var oView = oper.LoadMainController();
+            var oView = _ILoadIndexController.LoadMainController();
             return View(oView);
         }
         [HttpPost]
         public JsonResult ResumenSemana(string cantidad)
         {
-            ajusteUsuario();
             var listaSelect = new List<Logic.SelectData>();
             DateTime dtSelected;
             try
             {
                 dtSelected = Convert.ToDateTime(cantidad);
-                listaSelect = oper.WeekHourResume(dtSelected);
+                listaSelect = _IWorkPartInformation.WeekHourResume(dtSelected);
             }
             catch (Exception)
             {
@@ -87,7 +52,7 @@ namespace AppPartes.Web.Controllers
             var listaSelect = new List<Logic.SelectData>();
             try
             {
-                listaSelect = oper.SelectedCompanyReadOt(cantidad);
+                listaSelect = _IWorkPartInformation.SelectedCompanyReadOt(cantidad);
             }
             catch (Exception)
             {
@@ -101,7 +66,7 @@ namespace AppPartes.Web.Controllers
             var listaSelect = new List<Logic.SelectData>();
             try
             {
-                listaSelect = oper.SelectedCompanyReadClient(cantidad);
+                listaSelect = _IWorkPartInformation.SelectedCompanyReadClient(cantidad);
             }
             catch (Exception)
             {
@@ -115,7 +80,7 @@ namespace AppPartes.Web.Controllers
             var listaSelect = new List<Logic.SelectData>();
             try
             {
-                listaSelect = oper.SelectedClient(cantidad);
+                listaSelect = _IWorkPartInformation.SelectedClient(cantidad);
             }
             catch (Exception)
             {
@@ -129,7 +94,7 @@ namespace AppPartes.Web.Controllers
             var listaSelect = new List<Logic.SelectData>();
             try
             {
-                listaSelect = oper.SelectedOt(cantidad);
+                listaSelect = _IWorkPartInformation.SelectedOt(cantidad);
             }
             catch (Exception)
             {
@@ -143,7 +108,21 @@ namespace AppPartes.Web.Controllers
             var listaSelect = new List<Logic.SelectData>();
             try
             {
-                listaSelect = oper.ReadLevel1(cantidad);
+                listaSelect = _IWorkPartInformation.ReadLevel1(cantidad);
+            }
+            catch (Exception)
+            {
+                return Json(null);
+            }
+            return Json(listaSelect);
+        }
+        [HttpPost]
+        public JsonResult ObtenerNivel2(int cantidad, int cantidad2)
+        {
+            var listaSelect = new List<Logic.SelectData>();
+            try
+            {
+                listaSelect = _IWorkPartInformation.ReadLevel2(cantidad,cantidad2);
             }
             catch (Exception)
             {
@@ -157,7 +136,7 @@ namespace AppPartes.Web.Controllers
             var listaSelect = new List<Logic.SelectData>();
             try
             {
-                listaSelect = oper.ReadLevelGeneral(cantidad);
+                listaSelect = _IWorkPartInformation.ReadLevelGeneral(cantidad);
             }
             catch (Exception)
             {
@@ -171,7 +150,7 @@ namespace AppPartes.Web.Controllers
             var listaSelect = new List<Logic.SelectData>();
             try
             {
-                listaSelect = oper.SelectedPayer(cantidad, cantidad2);
+                listaSelect = _IWorkPartInformation.SelectedPayer(cantidad, cantidad2);
             }
             catch (Exception)
             {
@@ -183,17 +162,35 @@ namespace AppPartes.Web.Controllers
         public async Task<IActionResult> InsertLine(string strEntidad, string strOt, string strPresupuesto, string strNivel1, string strNivel2, string strNivel3, string strNivel4, string strNivel5, string strNivel6, string strNivel7, string strCalendario, string strHoraInicio, string strMinutoInicio, string strHoraFin, string strMinutoFin, string bHorasViaje, string bGastos, string strParte, string strPernoctacion, string strObservaciones, string strPreslin, string strGastos)
         {
             var strReturn = string.Empty;
-            strReturn = await oper.InsertWorkerLineAsync(strEntidad, strOt, strPresupuesto, strNivel1, strNivel2, strNivel3, strNivel4, strNivel5, strNivel6, strNivel7, strCalendario, strHoraInicio, strMinutoInicio, strHoraFin, strMinutoFin, bHorasViaje, bGastos, strParte, strPernoctacion, strObservaciones, strPreslin, strGastos);
+            var dataToInsertLine = new WorkerLineData
+            {
+                strEntidad = strEntidad,
+                strOt = strOt,
+                strPresupuesto = strPresupuesto,
+                strNivel1 = strNivel1,
+                strNivel2 = strNivel2,
+                strNivel3 = strNivel3,
+                strNivel4 = strNivel4,
+                strNivel5 = strNivel5,
+                strNivel6 = strNivel6,
+                strNivel7 = strNivel7,
+                strCalendario = strCalendario,
+                strHoraInicio = strHoraInicio,
+                strMinutoInicio = strMinutoInicio,
+                strHoraFin = strHoraFin,
+                strMinutoFin = strMinutoFin,
+                bHorasViaje = bHorasViaje,
+                bGastos = bGastos,
+                strParte = strParte,
+                strPernoctacion = strPernoctacion,
+                strObservaciones = strObservaciones,
+                strPreslin = strPreslin,
+                strGastos = strGastos
+            };
+            strReturn = await _IWriteDataBase.InsertWorkerLineAsync(dataToInsertLine);
 
             return RedirectToAction("Index", new { strMessage = strReturn });
         }
-
-    }
-    public class SelectData
-    {
-        public int iValue { set; get; }
-        public string strText { set; get; }
-        public string strValue { set; get; }
     }
 
     //.Replace(',', '.')

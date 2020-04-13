@@ -19,10 +19,10 @@ namespace AppPartes.IntegrationTests.Seedwork.Fixtures
                 .UseStartup<TestStartup>()
                 .ConfigureServices(services =>
                 {
-                    var dataLogicMock = Mock.Of<IDataLogic>();
+                    var dataLogicMock = Mock.Of<ILoadIndexController>();
                     Mock.Get(dataLogicMock).Setup(dl => dl.LoadMainController())
-                        .Returns(new DataViewLogic());
-                    services.AddScoped<IDataLogic>(provider => dataLogicMock);
+                        .Returns(new MainDataViewLogic());
+                    services.AddScoped<ILoadIndexController>(provider => dataLogicMock);
                 })
                 .ConfigureAppConfiguration((context, b) => {
                     context.HostingEnvironment.ApplicationName = typeof(HomeController).Assembly.GetName().Name;

@@ -32,7 +32,9 @@ namespace AppPartes.Web
             services.AddDbContext<AldakinDbContext>(options =>
                 options.UseMySql(
                     Configuration.GetConnectionString("AldakinConnection"), x => x.ServerVersion("5.5.58-mysql")));
-            services.AddScoped<IDataLogic, OperationLogic>();
+            services.AddScoped<IWorkPartInformation, WorkPartInformation>();
+            services.AddScoped<IWriteDataBase, WriteDataBase>();
+            services.AddScoped<ILoadIndexController, LoadIndexController>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
