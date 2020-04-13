@@ -22,20 +22,20 @@ namespace AppPartes.Web.Controllers
         private readonly IWorkPartInformation _IWorkPartInformation;
         private readonly IWriteDataBase _IWriteDataBase;
         private readonly ILoadIndexController _ILoadIndexController;
-        private readonly UserManager<ApplicationUser> _manager;
+        //private readonly UserManager<ApplicationUser> _manager;
 
-        public MainController(IWorkPartInformation iWorkPartInformation, IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController,UserManager<ApplicationUser> manager)
+        public MainController(IWorkPartInformation iWorkPartInformation, IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController/*,UserManager<ApplicationUser> manager*/)
         {
             _IWorkPartInformation = iWorkPartInformation;
             _IWriteDataBase = iWriteDataBase;
             _ILoadIndexController = iLoadIndexController;
-            _manager = manager;
+            //_manager = manager;
         }
         public async Task<IActionResult> Index(string strMessage = "")
         {
             //TODO Asi recuperamos los datos de aldakin
-            var user = await _manager.GetUserAsync(HttpContext.User);
-            var idAldakin = user?.IdAldakin;
+            //var user = await _manager.GetUserAsync(HttpContext.User);
+            //var idAldakin = user?.IdAldakin;
             ViewBag.Message = strMessage;
             var oView = _ILoadIndexController.LoadMainController();
             return View(oView);
