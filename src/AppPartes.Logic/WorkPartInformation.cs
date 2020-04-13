@@ -238,10 +238,7 @@ namespace AppPartes.Logic
                     }
             }
             return lReturn;
-
         }
-
-
         public List<SelectData> ReadLevelGeneral(int iData)
         {
             List<SelectData> lReturn = new List<SelectData>();
