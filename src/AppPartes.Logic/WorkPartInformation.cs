@@ -31,15 +31,13 @@ namespace AppPartes.Logic
                 stUserrDni = user.Name;
             }
         }
-
-
-
         public List<SelectData> WeekHourResume(DateTime dtSelected)
         {
             List<SelectData> lReturn = new List<SelectData>();
             int iCont = 0;
             DateTime dtIniWeek, dtEndWeek;
             IniEndWeek(dtSelected, out dtIniWeek, out dtEndWeek);
+            #region list hours per day in a week
             for (var date = dtIniWeek; date < dtEndWeek; date = date.AddDays(1.0))
             {
                 var strRangosHora = "";
@@ -72,6 +70,7 @@ namespace AppPartes.Logic
                 lReturn.Add(new SelectData { iValue = iCont, strText = strRangosHora });
                 iCont++;
             }
+            #endregion
             return lReturn;
         }
         public List<SelectData> SelectedCompanyReadOt(int iEntidad)
@@ -289,7 +288,7 @@ namespace AppPartes.Logic
             }
             return lReturn;
         }
-        private static void IniEndWeek(DateTime dtSelected, out DateTime dtIniWeek, out DateTime dtEndWeek)
+        public static void IniEndWeek(DateTime dtSelected, out DateTime dtIniWeek, out DateTime dtEndWeek)
         {
             var dayWeek = dtSelected.DayOfWeek;
             switch (dayWeek)

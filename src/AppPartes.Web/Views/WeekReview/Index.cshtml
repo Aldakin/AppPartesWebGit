@@ -1,12 +1,6 @@
 ﻿@model AppPartes.Logic.WeekDataViewLogic
 @{
     ViewData["Title"] = "Index";
-
-    //List<AppPartes.Web.Controllers.LineaVisual> listPartes = ViewBag.Lineas;
-    //List<AppPartes.Web.Controllers.LineaVisual> lSelect = ViewBag.LineasSelect;
-    ////List<AppPartes.Data.Models.Lineas> lSelect = ViewBag.LineasSelect;
-    //List<AppPartes.Data.Models.Pernoctaciones> listaPernocta = ViewBag.Pernoctas;
-    //List<double> listaSemana = ViewBag.Semana;
 }
 
 <body class="is-preload">
@@ -111,7 +105,7 @@
                             <h3>Editar parte de trabajo</h3>
                             @foreach (var dept in Model.listSelect)
                             {
-                                <form asp-action="EditLine" asp-controller="WeekReview" method="POST">
+                                <form asp-action="EditLine" asp-controller="WeekDataApi" method="POST">
                                     <input type="hidden" id="ot" name="ot" value="@dept.Idot" readonly />
                                     <div class="row gtr-uniform">
                                         <!--<div class="col-6 col-12-xsmall">
@@ -330,7 +324,7 @@
                             <hr class="major" />
                             <p>Desea cerrar la semana?</p>
 
-                            <form asp-controller="WeekReview" asp-action="CloseWeek" method="POST">
+                            <form asp-controller="WeekDataApi" asp-action="CloseWeek" method="POST">
                                 <input type="hidden" name="strDataSelected" value="@Model.DateSelected" />
                                 <input type="submit" value="CerrarSemana" />
                             </form>
@@ -454,7 +448,7 @@
             for (let i = $tipo.options.length; i >= 0; i--) {
                 $tipo.remove(i);
             }
-            var url = "@Url.Action("PagadorSelect","Main")";
+            var url = "@Url.Action("SelectPayer","WeekDataApi")";
             var cantidad = 0;
             if (optionSelec.value == 'ALDAKIN') {
                 cantidad = 1;
@@ -520,7 +514,7 @@
             var opcion = confirm("¿Seguro que desea Eliminar?");
             var linea = idlinea;
             if (opcion == true) {
-                var url = "@Url.Action("DeleteLineFunction","WeekReview")";
+                var url = "@Url.Action("DeleteLineFunction","WeekDataApi")";
                 var data = { cantidad: linea};
                 $.post(url, data).done(function (data) {
                     if (data.length>1) {

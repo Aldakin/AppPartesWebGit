@@ -2,13 +2,6 @@
 @{
     ViewData["Title"] = "Index";
 }
-@{
-////LENGUAJE DE SERVIDOR C#
-//List<AppPartes.Data.Models.Ots> listaOts = ViewBag.Ots;
-//List<AppPartes.Data.Models.Entidad> listadept = ViewBag.Departamentos;
-//List<AppPartes.Data.Models.Clientes> listaClient = ViewBag.Clientes;
-//List<AppPartes.Data.Models.Pernoctaciones> listaPernocta = ViewBag.Pernoctas;
-}
 
 <body class="is-preload">
 
@@ -35,7 +28,7 @@
                 </header>
                 <!-- Content -->
                 <!--<h2 id="content">Sample Content</h2>-->
-                <form asp-action="InsertLine" asp-controller="Main" method="POST">
+                <form asp-action="InsertLine" asp-controller="MainDataApi" method="POST">
                     <div class="col-12">
                         <p>Seleccione la orden de trabajo para su parte de trabajo .</p>
                         <label for="start">Entidad:</label>
@@ -439,7 +432,7 @@
             div.style.display = 'none';
             div = document.getElementById('information4');
             div.style.display = 'none';
-            var url = "@Url.Action("EntidadSelectedOt","Main")";
+            var url = "@Url.Action("SelectedEntityOt","MainDataApi")";
             var cantidad = opcionSeleccionada.value;//$(opcionSeleccionada.value)
             var data = { cantidad: cantidad };
             $.post(url, data).done(function (data) {
@@ -454,11 +447,10 @@
                         option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
                         $ot.appendChild(option);
                     }
-
                 }).fail(daError).always(function () {
                     //esto se ejecuta siempre
                 });
-            var url = "@Url.Action("EntidadSelectedCliente","Main")";
+            var url = "@Url.Action("SelectedEntityClient","MainDataApi")";
             var cantidad = opcionSeleccionada.value;//$(opcionSeleccionada.value)
             var data = { cantidad: cantidad };
             $.post(url, data).done(function (data) {
@@ -536,7 +528,7 @@
             if (opcionSeleccionada.value == 0) {
                 opcionSeleccionada.value = 0;
             }
-            var url = "@Url.Action("ClienteSelected","Main")";
+            var url = "@Url.Action("ClientSelected","MainDataApi")";
             var cantidad = opcionSeleccionada.value;//$(opcionSeleccionada.value)
             var data = { cantidad: cantidad };
             $.post(url, data).done(function (data) {
@@ -612,7 +604,7 @@
                 alert("Seleccione una opcion correcta o recargue la pagina y vuelva a empezar");
                 return;
             }
-            var url = "@Url.Action("OtSelected","Main")";
+            var url = "@Url.Action("OtSelected","MainDataApi")";
             var cantidad = opcionSeleccionada.value;//$(opcionSeleccionada.value)
             var data = { cantidad: cantidad };
             $.post(url, data).done(function (data) {
@@ -652,7 +644,7 @@
                         option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
                         $presupuesto.appendChild(option);
                     }
-                    var url = "@Url.Action("ObtenerNivel1","Main")";
+                    var url = "@Url.Action("GetLevel1","MainDataApi")";
                     var cantidadN1 = data[0].iValue;//$(opcionSeleccionada.value)
                     var dataN1 = { cantidad: cantidadN1 };
                     $.post(url, dataN1).done(function (dataN1) {
@@ -729,7 +721,7 @@
                 alert("Seleccione una opcion correcta o recargue la pagina y vuelva a empezar");
                 return;
             }
-            var url = "@Url.Action("ObtenerNivel1","Main")";
+            var url = "@Url.Action("GetLevel1","MainDataApi")";
             var cantidadN1 = optionSelec.value;//$(opcionSeleccionada.value)
                     var dataN1 = { cantidad: cantidadN1 };
                     $.post(url, dataN1).done(function (dataN1) {
@@ -798,7 +790,7 @@
                 alert("Seleccione una opcion correcta o recargue la pagina y vuelva a empezar");
                 return;
             }
-            var url = "@Url.Action("ObtenerNivel2","Main")";
+            var url = "@Url.Action("GetLevel2","MainDataApi")";
             var cantidad = optionSelec.value;
             var cantidad2 = optionSelec2.value;
             var data = { cantidad: cantidad, cantidad2: cantidad2 };
@@ -890,7 +882,7 @@
                 alert("Seleccione una opcion correcta o recargue la pagina y vuelva a empezar");
                 return;
             }
-            var url = "@Url.Action("ObtenerNivel","Main")";//ObtenerNivel3
+            var url = "@Url.Action("GetLevel","MainDataApi")";//ObtenerNivel3
             var cantidad = optionSelec.value;
             var cantidad2 = optionSelec2.value;
             var cantidad3 = optionSelec3.value;
@@ -978,7 +970,7 @@
                 alert("Seleccione una opcion correcta o recargue la pagina y vuelva a empezar");
                 return;
             }
-            var url = "@Url.Action("ObtenerNivel","Main")";
+            var url = "@Url.Action("GetLevel","MainDataApi")";
             var cantidad = optionSelec.value;
             var data = { cantidad: cantidad};
             $.post(url, data).done(function (data) {
@@ -1056,7 +1048,7 @@
                 alert("Seleccione una opcion correcta o recargue la pagina y vuelva a empezar");
                 return;
             }
-            var url = "@Url.Action("ObtenerNivel","Main")";
+            var url = "@Url.Action("GetLevel","MainDataApi")";
             var cantidad = optionSelec.value;
             var data = { cantidad: cantidad};
             $.post(url, data).done(function (data) {
@@ -1132,7 +1124,7 @@
                 alert("Seleccione una opcion correcta o recargue la pagina y vuelva a empezar");
                 return;
             }
-            var url = "@Url.Action("ObtenerNivel","Main")";
+            var url = "@Url.Action("GetLevel","MainDataApi")";
             var cantidad = optionSelec.value;
             var data = { cantidad: cantidad};
             $.post(url, data).done(function (data) {
@@ -1203,7 +1195,7 @@
                 alert("Seleccione una opcion correcta o recargue la pagina y vuelva a empezar");
                 return;
             }
-            var url = "@Url.Action("ObtenerNivel","Main")";
+            var url = "@Url.Action("GetLevel","MainDataApi")";
             var cantidad = optionSelec.value;
             var data = { cantidad: cantidad};
             $.post(url, data).done(function (data) {
@@ -1274,7 +1266,7 @@
             for (let i = $tipo.options.length; i >= 0; i--) {
                 $tipo.remove(i);
             }
-            var url = "@Url.Action("PagadorSelect","Main")";
+            var url = "@Url.Action("SelectPayer","MainDataApi")";
             var cantidad = 0;
             if (optionSelec.value == 'ALDAKIN') {
                 cantidad = 1;
@@ -1312,7 +1304,7 @@
         const CalendarioSeleccionado = () => {
             //var myDate = window.document.getElementById("Calendario").value;
             //alert('date1 ' + myDate);
-            var url = "@Url.Action("ResumenSemana","Main")";
+            var url = "@Url.Action("WeekSummary","MainDataApi")";
             var cantidad = window.document.getElementById("Calendario").value;
             var data = { cantidad: cantidad};
             $.post(url, data).done(function (data) {
@@ -1347,10 +1339,6 @@
             }).fail(daError).always(function () {
                 //esto se ejecuta siempre
             });
-
-
-
-
         }
 
         const GastoSeleccionado = () => {

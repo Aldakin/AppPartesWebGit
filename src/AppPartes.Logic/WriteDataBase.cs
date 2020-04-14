@@ -16,6 +16,11 @@ namespace AppPartes.Logic
         private int iUserId = 0;
         private int iUserCondEntO = 0;
 
+        public WriteDataBase(AldakinDbContext aldakinDbContext)
+        {
+            this.aldakinDbContext = aldakinDbContext;
+            AjusteUsuario();
+        }
         private void AjusteUsuario()
         {
             var user = aldakinDbContext.Usuarios.FirstOrDefault(x => x.Name.Equals("460b244aa3e22b31a53018fc506f517f") && x.CodEnt == x.CodEntO);
@@ -409,32 +414,27 @@ namespace AppPartes.Logic
             }
             catch (Exception)
             {
-                return oReturn;// RedirectToAction("Index", new { strMessage = "proceso abortado, error en los datos;" });
+                return oReturn;
             }
             if (iIdLinea == 0)
             {
-                return oReturn;// RedirectToAction("Index", new { strMessage = "proceso abortado, error en los datos;" });
+                return oReturn;
             }
             var lSelect = aldakinDbContext.Lineas.FirstOrDefault(x => x.Idlinea == Convert.ToInt32(iIdLinea));
             DateTime day;
             if (lSelect is null)
             {
-                return oReturn;// RedirectToAction("Index", new { strMessage = "Error en la seleccion de parte" });
+                return oReturn;
             }
             day = lSelect.Inicio;
             var lEstadoDia = aldakinDbContext.Estadodias.Where(x => x.Idusuario == iUserId && DateTime.Compare(x.Dia, day.Date) == 0).ToList();//
             if (lEstadoDia.Count > 0)
             {
-                //strReturn = lSelect.Inicio.Year + "-" + lSelect.Inicio.Month + "-" + lSelect.Inicio.Day;
-                return oReturn;// RedirectToAction("Index", new { strMessage = "La semana esta cerrada, habla con tu responsable para reabirla;", strDate = strReturn, strAction = "loadWeek" });
+                return oReturn;
             }
-            //gestion borrado parte
-            //DDBB.EscribirDatos(string.Format("Delete from Lineas where idlinea = '{0}' or idoriginal = '{0}'", idLinea));
-            //DDBB.EscribirDatos(string.Format("Delete from gastos where idlinea = '{0}'", idLinea));
             var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
             try
             {
-                //var linea = new Lineas { Idlinea = lSelect.Idlinea };
                 var linea = new Lineas();
                 linea = lSelect;
                 aldakinDbContext.Lineas.Remove(linea);
@@ -449,16 +449,14 @@ namespace AppPartes.Logic
                 {
                     aldakinDbContext.Gastos.RemoveRange(gasto);
                 }
-
                 await aldakinDbContext.SaveChangesAsync();
-
                 await transaction.CommitAsync();
             }
             catch (Exception)
             {
                 await transaction.RollbackAsync();
                 strReturn = lSelect.Inicio.Year + "-" + lSelect.Inicio.Month + "-" + lSelect.Inicio.Day;
-                return oReturn;// RedirectToAction("Index", new { strMessage = "Ha ocurrido un problema durante el proceso de borrado el parte de trabajo.;", strDate = strReturn, strAction = "loadWeek" });
+                return oReturn;
             }
             var strDay = string.Empty;
             var strMonth = string.Empty;
@@ -481,7 +479,7 @@ namespace AppPartes.Logic
             strReturn = lSelect.Inicio.Year + "-" + strMonth + "-" + strDay;
             oReturn.First().iValue = 1;
             oReturn.Add(new SelectData { iValue = 1, strText = "loadWeek", strValue = strReturn });
-            return oReturn;// RedirectToAction("Index", new { strMessage = "Parte Borrado Satisfactoriamente;", strDate = strReturn, strAction = "loadWeek" });
+            return oReturn;
         }
 
         public async Task<SelectData> CloseWorkerWeekAsync(string strDataSelected)
@@ -626,9 +624,6 @@ namespace AppPartes.Logic
                 strText = string.Empty,
                 strValue = string.Empty
             };
-
-
-
             var strReturn = string.Empty;
             var bHorasViajeTemp = false;
             var gGastosTemp = false;
@@ -854,6 +849,11 @@ namespace AppPartes.Logic
                     return oReturn;
                 }
             }
+
+
+
+
+
             if (otSel.CodEnt == iUserCondEntO)
             {
                 datosLinea.Dietas = dGastos;
