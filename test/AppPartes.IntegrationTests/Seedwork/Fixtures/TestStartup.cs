@@ -4,6 +4,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System.Collections.Generic;
+using AppPartes.Web.Models;
+using Castle.Components.DictionaryAdapter;
+using Microsoft.AspNetCore.Identity;
 
 namespace AppPartes.Web
 {
@@ -16,8 +19,14 @@ namespace AppPartes.Web
         public override void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().AddRazorRuntimeCompilation().AddApplicationPart(typeof(Startup).Assembly);
-            var dataLogicMock = Mock.Of<IDataLogic>();
-            services.AddScoped<IDataLogic>(provider => dataLogicMock);
+            var workPartMock = Mock.Of<IWorkPartInformation>();
+            Mock.Get(workPartMock).Setup(x => x.SelectedCompanyReadOt(It.IsAny<int>()))
+                .Returns(new EditableList<SelectData>());
+            services.AddScoped<IWorkPartInformation>(provider => workPartMock);
+            var writeMock = Mock.Of<IWriteDataBase>();
+            services.AddScoped<IWriteDataBase>(provider => writeMock);
+            var loadIndexMock = Mock.Of<ILoadIndexController>();
+            services.AddScoped<ILoadIndexController>(provider => loadIndexMock);
         }
     }
 }

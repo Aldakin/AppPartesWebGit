@@ -23,7 +23,7 @@ namespace AppPartes.IntegrationTests.Spec
             var client = _serverFixture.GetTestClient();
 
             //Act
-            var response = await client.PostAsync("/main/entidadselectedot/1",null);
+            var response = await client.PostAsync("/main/entidadselectedot/0",null);
 
             //Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
