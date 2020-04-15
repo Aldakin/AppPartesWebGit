@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using AppPartes.Data.Models;
 
 namespace AppPartes.Logic
-{    
+{
     public class WriteDataBase : IWriteDataBase
     {
         private readonly AldakinDbContext aldakinDbContext;
@@ -19,11 +19,10 @@ namespace AppPartes.Logic
         public WriteDataBase(AldakinDbContext aldakinDbContext)
         {
             this.aldakinDbContext = aldakinDbContext;
-            AjusteUsuario();
         }
-        private void AjusteUsuario()
+        private void AjusteUsuario(int idAldakinUser)
         {
-            var user = aldakinDbContext.Usuarios.FirstOrDefault(x => x.Name.Equals("460b244aa3e22b31a53018fc506f517f") && x.CodEnt == x.CodEntO);
+            var user = aldakinDbContext.Usuarios.FirstOrDefault(x => x.Idusuario== idAldakinUser && x.CodEnt == x.CodEntO);
             if (!(user is null))
             {
                 strUserName = user.Nombrecompleto.ToString();
@@ -32,8 +31,9 @@ namespace AppPartes.Logic
                 stUserrDni = user.Name;
             }
         }
-        public async Task<string> InsertWorkerLineAsync(WorkerLineData dataToInsertLine)
+        public async Task<string> InsertWorkerLineAsync(WorkerLineData dataToInsertLine,int idAldakinUser)
         {
+            AjusteUsuario(idAldakinUser);
             string strReturn = string.Empty;
             //datos provisionles
             var datosLinea = new Lineas();
@@ -399,9 +399,9 @@ namespace AppPartes.Logic
             return (strReturn);
         }
        
-        public async Task<List<SelectData>> DeleteWorkerLineAsync(int iLine)
+        public async Task<List<SelectData>> DeleteWorkerLineAsync(int iLine, int idAldakinUser)
         {
-            AjusteUsuario();
+            AjusteUsuario(idAldakinUser);
             var oReturn = new List<SelectData>
             {
                 new SelectData { iValue = 0 }
@@ -482,10 +482,9 @@ namespace AppPartes.Logic
             return oReturn;
         }
 
-        public async Task<SelectData> CloseWorkerWeekAsync(string strDataSelected)
+        public async Task<SelectData> CloseWorkerWeekAsync(string strDataSelected, int idAldakinUser)
         {
-            //datos provisionles
-            AjusteUsuario();
+            AjusteUsuario(idAldakinUser);
             var oReturn = new SelectData
             {
                 iValue = 0 ,
@@ -614,10 +613,9 @@ namespace AppPartes.Logic
             //cmd.ExecuteNonQuery();
         }
 
-        public async Task<SelectData> EditWorkerLineAsync(WorkerLineData dataToEditLine)
+        public async Task<SelectData> EditWorkerLineAsync(WorkerLineData dataToEditLine, int idAldakinUser)
         {
-            //datos provisionles
-            AjusteUsuario();
+            AjusteUsuario(idAldakinUser);
             var oReturn = new SelectData
             {
                 iValue = 0,

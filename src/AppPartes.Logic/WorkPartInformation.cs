@@ -18,11 +18,10 @@ namespace AppPartes.Logic
         public WorkPartInformation(AldakinDbContext aldakinDbContext)
         {
             this.aldakinDbContext = aldakinDbContext;
-            AjusteUsuario();
         }
-        private void AjusteUsuario()
+        private void AjusteUsuario(int idAldakinUser)
         {
-            var user = aldakinDbContext.Usuarios.FirstOrDefault(x => x.Name.Equals("460b244aa3e22b31a53018fc506f517f") && x.CodEnt == x.CodEntO);
+            var user = aldakinDbContext.Usuarios.FirstOrDefault(x => x.Idusuario== idAldakinUser && x.CodEnt == x.CodEntO);
             if (!(user is null))
             {
                 strUserName = user.Nombrecompleto.ToString();
@@ -31,8 +30,9 @@ namespace AppPartes.Logic
                 stUserrDni = user.Name;
             }
         }
-        public List<SelectData> WeekHourResume(DateTime dtSelected)
+        public List<SelectData> WeekHourResume(DateTime dtSelected,int idAldakinUser)
         {
+            AjusteUsuario(idAldakinUser);
             List<SelectData> lReturn = new List<SelectData>();
             int iCont = 0;
             DateTime dtIniWeek, dtEndWeek;
@@ -73,8 +73,9 @@ namespace AppPartes.Logic
             #endregion
             return lReturn;
         }
-        public List<SelectData> SelectedCompanyReadOt(int iEntidad)
+        public List<SelectData> SelectedCompanyReadOt(int iEntidad, int idAldakinUser)
         {
+            AjusteUsuario(idAldakinUser);
             List<SelectData> lReturn = new List<SelectData>();
             List<Ots> listOts = null;
             //listOts = aldakinDbContext.Ots.Where(x => x.CodEnt == cantidad && x.CodEntD == 0 && x.Codigorefot != "29" && x.Cierre == null).OrderByDescending(x => x.Idots).ToList();
@@ -93,8 +94,9 @@ namespace AppPartes.Logic
             }
             return lReturn;
         }
-        public List<SelectData> SelectedCompanyReadClient(int iEntidad)
+        public List<SelectData> SelectedCompanyReadClient(int iEntidad, int idAldakinUser)
         {
+            AjusteUsuario(idAldakinUser);
             List<SelectData> lReturn = new List<SelectData>();
             List<Clientes> listaClient = null;
             if (iEntidad < 1)
@@ -119,8 +121,9 @@ namespace AppPartes.Logic
 
             return lReturn;
         }
-        public List<SelectData> SelectedClient(int iClient)
+        public List<SelectData> SelectedClient(int iClient, int idAldakinUser)
         {
+            AjusteUsuario(idAldakinUser);
             List<SelectData> lReturn = new List<SelectData>();
             List<Ots> listOts = null;
             if (iClient != 0)
@@ -145,8 +148,9 @@ namespace AppPartes.Logic
             }
             return lReturn;
         }
-        public List<SelectData> SelectedOt(int iOt)
+        public List<SelectData> SelectedOt(int iOt, int idAldakinUser)
         {
+            AjusteUsuario(idAldakinUser);
             List<SelectData> lReturn = new List<SelectData>();
             List<Presupuestos> lPresupuestos = null;
             lPresupuestos = null;
@@ -181,8 +185,9 @@ namespace AppPartes.Logic
             }
             return lReturn;
         }
-        public List<SelectData> ReadLevel1(int iData)
+        public List<SelectData> ReadLevel1(int iData, int idAldakinUser)
         {
+            AjusteUsuario(idAldakinUser);
             List<SelectData> lReturn = new List<SelectData>();
             List<Preslin> lPreslin = null;
             if (iData < 1)
@@ -204,8 +209,9 @@ namespace AppPartes.Logic
             }
             return lReturn;
         }
-        public List<SelectData> ReadLevel2(int iData,int iData2)
+        public List<SelectData> ReadLevel2(int iData,int iData2, int idAldakinUser)
         {
+            AjusteUsuario(idAldakinUser);
             List<SelectData> lReturn = new List<SelectData>();
             List<Preslin> lPreslin = null;
                 if (iData < 1 || iData2 < 1)
@@ -238,8 +244,9 @@ namespace AppPartes.Logic
             }
             return lReturn;
         }
-        public List<SelectData> ReadLevelGeneral(int iData)
+        public List<SelectData> ReadLevelGeneral(int iData, int idAldakinUser)
         {
+            AjusteUsuario(idAldakinUser);
             List<SelectData> lReturn = new List<SelectData>();
             List<Preslin> lPreslin = null;
             if (iData < 1)
@@ -269,8 +276,9 @@ namespace AppPartes.Logic
             }
             return lReturn;
         }
-        public List<SelectData> SelectedPayer(int iPayer, int iOt)
+        public List<SelectData> SelectedPayer(int iPayer, int iOt, int idAldakinUser)
         {
+            AjusteUsuario(idAldakinUser);
             List<SelectData> lReturn = new List<SelectData>();
             if (iOt < 1)
             {

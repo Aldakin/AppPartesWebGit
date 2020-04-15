@@ -30,7 +30,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AppPartes.Logic\AppPartes.Logic.csproj" />
-    <ProjectReference Include="..\AppPartes.Data\AppPartes.Data.csproj" />
   </ItemGroup>
 
 

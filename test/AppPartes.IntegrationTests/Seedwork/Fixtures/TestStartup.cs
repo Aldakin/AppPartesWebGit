@@ -20,7 +20,7 @@ namespace AppPartes.Web
         {
             services.AddMvc().AddRazorRuntimeCompilation().AddApplicationPart(typeof(Startup).Assembly);
             var workPartMock = Mock.Of<IWorkPartInformation>();
-            Mock.Get(workPartMock).Setup(x => x.SelectedCompanyReadOt(It.IsAny<int>()))
+            Mock.Get(workPartMock).Setup(x => x.SelectedCompanyReadOt(It.IsAny<int>(), It.IsAny<int>()))
                 .Returns(new EditableList<SelectData>());
             services.AddScoped<IWorkPartInformation>(provider => workPartMock);
             var writeMock = Mock.Of<IWriteDataBase>();

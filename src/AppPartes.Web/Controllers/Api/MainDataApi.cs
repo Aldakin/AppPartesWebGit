@@ -1,25 +1,45 @@
 ﻿using AppPartes.Logic;
+using AppPartes.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 
 namespace AppPartes.Web.Controllers.Api
 {
-    
+
     public class MainDataApi : ControllerBase
     {
         private readonly IWorkPartInformation _IWorkPartInformation;
         private readonly IWriteDataBase _IWriteDataBase;
         private readonly ILoadIndexController _ILoadIndexController;
-        public MainDataApi(IWorkPartInformation iWorkPartInformation, IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController/*,UserManager<ApplicationUser> manager*/)
+        private readonly UserManager<ApplicationUser> _manager;
+        public MainDataApi(IWorkPartInformation iWorkPartInformation, IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController, UserManager<ApplicationUser> manager)
         {
             _IWorkPartInformation = iWorkPartInformation;
             _IWriteDataBase = iWriteDataBase;
             _ILoadIndexController = iLoadIndexController;
-            //_manager = manager;
+            _manager = manager;
         }
+        private async Task<int> GetIdUserAldakin()
+        {
+            //TODO Asi recuperamos los datos de aldakin
+            var user = await _manager.GetUserAsync(HttpContext.User);
+            var idAldakin = user.IdAldakin;
+            if (idAldakin < 1) idAldakin = 0;
+            return idAldakin;
+        }
+        public MainDataViewLogic LoadMainView()
+        {
+            int idAldakinUser = GetIdUserAldakin().Result;
+            var oView = _ILoadIndexController.LoadMainController(idAldakinUser);
+            return oView;
+        }
+
+
+
         //[HttpPost]
         //[Route("week-summary")]
         public List<SelectData> WeekSummary(string cantidad)
@@ -29,7 +49,8 @@ namespace AppPartes.Web.Controllers.Api
             try
             {
                 dtSelected = Convert.ToDateTime(cantidad);
-                listaSelect = _IWorkPartInformation.WeekHourResume(dtSelected);
+                int idAldakinUser = GetIdUserAldakin().Result;
+                listaSelect = _IWorkPartInformation.WeekHourResume(dtSelected, idAldakinUser);
             }
             catch (Exception)
             {
@@ -37,12 +58,13 @@ namespace AppPartes.Web.Controllers.Api
             }
             return listaSelect;
         }
-        public List<SelectData> SelectedEntityOt(int cantidad)//JsonResult
+        public List<SelectData> SelectedEntityOt(int cantidad)
         {
             var listaSelect = new List<SelectData>();
             try
             {
-                listaSelect = _IWorkPartInformation.SelectedCompanyReadOt(cantidad);
+                int idAldakinUser = GetIdUserAldakin().Result;
+                listaSelect = _IWorkPartInformation.SelectedCompanyReadOt(cantidad, idAldakinUser);
             }
             catch (Exception)
             {
@@ -50,12 +72,13 @@ namespace AppPartes.Web.Controllers.Api
             }
             return listaSelect;
         }
-        public List<SelectData> SelectedEntityClient(int cantidad)//JsonResult
+        public List<SelectData> SelectedEntityClient(int cantidad)
         {
             var listaSelect = new List<SelectData>();
             try
             {
-                listaSelect = _IWorkPartInformation.SelectedCompanyReadClient(cantidad);
+                int idAldakinUser = GetIdUserAldakin().Result;
+                listaSelect = _IWorkPartInformation.SelectedCompanyReadClient(cantidad, idAldakinUser);
             }
             catch (Exception)
             {
@@ -63,12 +86,13 @@ namespace AppPartes.Web.Controllers.Api
             }
             return listaSelect;
         }
-        public List<SelectData> ClientSelected(int cantidad)//JsonResult
+        public List<SelectData> ClientSelected(int cantidad)
         {
             var listaSelect = new List<SelectData>();
             try
             {
-                listaSelect = _IWorkPartInformation.SelectedClient(cantidad);
+                int idAldakinUser = GetIdUserAldakin().Result;
+                listaSelect = _IWorkPartInformation.SelectedClient(cantidad, idAldakinUser);
             }
             catch (Exception)
             {
@@ -76,12 +100,13 @@ namespace AppPartes.Web.Controllers.Api
             }
             return listaSelect;
         }
-        public List<SelectData> OtSelected(int cantidad)//JsonResult
+        public List<SelectData> OtSelected(int cantidad)
         {
             var listaSelect = new List<SelectData>();
             try
             {
-                listaSelect = _IWorkPartInformation.SelectedOt(cantidad);
+                int idAldakinUser = GetIdUserAldakin().Result;
+                listaSelect = _IWorkPartInformation.SelectedOt(cantidad, idAldakinUser);
             }
             catch (Exception)
             {
@@ -94,7 +119,8 @@ namespace AppPartes.Web.Controllers.Api
             var listaSelect = new List<SelectData>();
             try
             {
-                listaSelect = _IWorkPartInformation.ReadLevelGeneral(cantidad);
+                int idAldakinUser = GetIdUserAldakin().Result;
+                listaSelect = _IWorkPartInformation.ReadLevelGeneral(cantidad, idAldakinUser);
             }
             catch (Exception)
             {
@@ -107,7 +133,8 @@ namespace AppPartes.Web.Controllers.Api
             var listaSelect = new List<SelectData>();
             try
             {
-                listaSelect = _IWorkPartInformation.ReadLevel1(cantidad);
+                int idAldakinUser = GetIdUserAldakin().Result;
+                listaSelect = _IWorkPartInformation.ReadLevel1(cantidad, idAldakinUser);
             }
             catch (Exception)
             {
@@ -120,7 +147,8 @@ namespace AppPartes.Web.Controllers.Api
             var listaSelect = new List<SelectData>();
             try
             {
-                listaSelect = _IWorkPartInformation.ReadLevel2(cantidad, cantidad2);
+                int idAldakinUser = GetIdUserAldakin().Result;
+                listaSelect = _IWorkPartInformation.ReadLevel2(cantidad, cantidad2, idAldakinUser);
             }
             catch (Exception)
             {
@@ -133,7 +161,8 @@ namespace AppPartes.Web.Controllers.Api
             var listaSelect = new List<SelectData>();
             try
             {
-                listaSelect = _IWorkPartInformation.SelectedPayer(cantidad, cantidad2);
+                int idAldakinUser = GetIdUserAldakin().Result;
+                listaSelect = _IWorkPartInformation.SelectedPayer(cantidad, cantidad2, idAldakinUser);
             }
             catch (Exception)
             {
@@ -170,7 +199,8 @@ namespace AppPartes.Web.Controllers.Api
                 strPreslin = strPreslin,
                 strGastos = strGastos
             };
-            strReturn = await _IWriteDataBase.InsertWorkerLineAsync(dataToInsertLine);
+            int idAldakinUser = await GetIdUserAldakin();
+            strReturn = await _IWriteDataBase.InsertWorkerLineAsync(dataToInsertLine, idAldakinUser);
 
             return RedirectToAction("Index", new { strMessage = strReturn });
         }

@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+using AppPartes.Web.Models;
 
 namespace AppPartes.Web.Controllers.Api
 {
@@ -12,19 +14,29 @@ namespace AppPartes.Web.Controllers.Api
         private readonly IWorkPartInformation _IWorkPartInformation;
         private readonly IWriteDataBase _IWriteDataBase;
         private readonly ILoadIndexController _ILoadIndexController;
-        public WeekDataApi(IWorkPartInformation iWorkPartInformation, IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController/*,UserManager<ApplicationUser> manager*/)
+        private readonly UserManager<ApplicationUser> _manager;
+        public WeekDataApi(IWorkPartInformation iWorkPartInformation, IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController,UserManager<ApplicationUser> manager)
         {
             _IWorkPartInformation = iWorkPartInformation;
             _IWriteDataBase = iWriteDataBase;
             _ILoadIndexController = iLoadIndexController;
-            //_manager = manager;
+            _manager = manager;
+        }
+        private async Task<int> GetIdUserAldakin()
+        {
+            //TODO Asi recuperamos los datos de aldakin
+            var user = await _manager.GetUserAsync(HttpContext.User);
+            var idAldakin = user.IdAldakin;
+            if (idAldakin < 1) idAldakin = 0;
+            return idAldakin;
         }
         public List<SelectData> SelectPayer(int cantidad, int cantidad2)
         {
             var listaSelect = new List<SelectData>();
             try
             {
-                listaSelect = _IWorkPartInformation.SelectedPayer(cantidad, cantidad2);
+                int idAldakin = GetIdUserAldakin().Result;
+                   listaSelect = _IWorkPartInformation.SelectedPayer(cantidad, cantidad2, idAldakin);
             }
             catch (Exception)
             {
@@ -35,13 +47,15 @@ namespace AppPartes.Web.Controllers.Api
         public async Task<List<SelectData>> DeleteLineFunction(int cantidad)
         {
             var lReturn = new List<SelectData>();
-            lReturn = await _IWriteDataBase.DeleteWorkerLineAsync(cantidad);
+            int idAldakin = GetIdUserAldakin().Result;
+            lReturn = await _IWriteDataBase.DeleteWorkerLineAsync(cantidad, idAldakin);
             return lReturn;// RedirectToAction("Index", new { strMessage = "Parte Borrado Satisfactoriamente;", strDate = strReturn, strAction = "loadWeek" });
         }
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> CloseWeek(string strDataSelected)
         {
-            var oReturn = await _IWriteDataBase.CloseWorkerWeekAsync(strDataSelected);
+            int idAldakin = GetIdUserAldakin().Result;
+            var oReturn = await _IWriteDataBase.CloseWorkerWeekAsync(strDataSelected, idAldakin);
             if (oReturn.iValue == 0)
             {
                 return RedirectToAction("Index", new { strMessage = oReturn.strText, strDate = oReturn.strValue, strAction = "" });
@@ -70,7 +84,8 @@ namespace AppPartes.Web.Controllers.Api
                 strObservaciones = strObservaciones,
                 strGastos = strGastos
             };
-            var oReturn = await _IWriteDataBase.EditWorkerLineAsync(dataEditLine);
+            int idAldakin = GetIdUserAldakin().Result;
+            var oReturn = await _IWriteDataBase.EditWorkerLineAsync(dataEditLine, idAldakin);
             if (oReturn.iValue == 0)
             {
                 return RedirectToAction("Index", new { strMessage = oReturn.strText, strDate = oReturn.strValue, strAction = "" });

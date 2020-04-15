@@ -7,7 +7,7 @@ using AppPartes.Data.Models;
 
 namespace AppPartes.Logic
 {
-    public class LoadIndexController: ILoadIndexController
+    public class LoadIndexController: ILoadIndexController 
     {
         private readonly AldakinDbContext aldakinDbContext;
         //apaño para usuario con claims
@@ -18,11 +18,10 @@ namespace AppPartes.Logic
         public LoadIndexController(AldakinDbContext aldakinDbContext)
         {
             this.aldakinDbContext = aldakinDbContext;
-            AjusteUsuario();
         }
-        private void AjusteUsuario()
+        private void AjusteUsuario( int idAldakinUser)
         {
-            var user = aldakinDbContext.Usuarios.FirstOrDefault(x => x.Name.Equals("460b244aa3e22b31a53018fc506f517f") && x.CodEnt == x.CodEntO);
+            var user = aldakinDbContext.Usuarios.FirstOrDefault(x => x.Idusuario==idAldakinUser && x.CodEnt == x.CodEntO);
             if (!(user is null))
             {
                 strUserName = user.Nombrecompleto.ToString();
@@ -31,20 +30,20 @@ namespace AppPartes.Logic
                 stUserrDni = user.Name;
             }
         }
-        public MainDataViewLogic LoadMainController()
+        public MainDataViewLogic LoadMainController(int idAldakinUser)
         {
             MainDataViewLogic oReturn = new MainDataViewLogic();
-            AjusteUsuario();
+            AjusteUsuario(idAldakinUser);
             oReturn.listOts = GetOts();
             oReturn.listCompany = GetAldakinCompanies();
             oReturn.listClient = GetAldakinClients();
             oReturn.listNight = GetAldakinNight();
             return oReturn;
         }
-        public WeekDataViewLogic LoadWeekController(string strDate = "", string strAction = "", string strId = "")
+        public WeekDataViewLogic LoadWeekController(int idAldakinUser,string strDate = "", string strAction = "", string strId = "")
         {
             WeekDataViewLogic oReturn = new WeekDataViewLogic();
-            AjusteUsuario();
+            AjusteUsuario(idAldakinUser);
             DateTime day,dtIniWeek=DateTime.Now, dtEndWeek= DateTime.Now;
             if (string.IsNullOrEmpty(strDate) && string.IsNullOrEmpty(strAction))
             {
