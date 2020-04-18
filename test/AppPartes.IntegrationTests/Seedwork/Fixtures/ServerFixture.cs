@@ -22,7 +22,7 @@ namespace AppPartes.IntegrationTests.Seedwork.Fixtures
                 {
                     var dataLogicMock = Mock.Of<ILoadIndexController>();
                     Mock.Get(dataLogicMock).Setup(dl => dl.LoadMainController(It.IsAny<int>()))
-                        .Returns(new MainDataViewLogic());
+                        .ReturnsAsync(new MainDataViewLogic());
                     services.AddScoped<ILoadIndexController>(provider => dataLogicMock);
                 })
                 .ConfigureAppConfiguration((context, b) =>
