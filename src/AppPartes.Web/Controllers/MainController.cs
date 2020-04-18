@@ -19,22 +19,62 @@ namespace AppPartes.Web.Controllers
         private readonly IWorkPartInformation _IWorkPartInformation;
         private readonly IWriteDataBase _IWriteDataBase;
         private readonly ILoadIndexController _ILoadIndexController;
-        private readonly UserManager<ApplicationUser> _manager;
-        public   MainController(IWorkPartInformation iWorkPartInformation, IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController, UserManager<ApplicationUser> manager)
+        private readonly IApplicationUserAldakin _IApplicationUserAldakin;
+        int _idAldakinUser;
+        public   MainController(IWorkPartInformation iWorkPartInformation, IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController,IApplicationUserAldakin iApplicationUserAldakin)
         {
             _IWorkPartInformation = iWorkPartInformation;
             _IWriteDataBase = iWriteDataBase;
             _ILoadIndexController = iLoadIndexController;
+            _IApplicationUserAldakin = iApplicationUserAldakin;
+            //TODO Asi recuperamos los datos de aldakin
+            GetUserId();
+        }
+        public async void GetUserId()
+        {
+            _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
         }
         public async Task<IActionResult> Index(string strMessage = "")
         {
             //TODO Asi recuperamos los datos de aldakin
-           var user = await _manager.GetUserAsync(HttpContext.User);
-            var idAldakin = user.IdAldakin;
-
+            //_idAldakinUser = await  _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User); 
             ViewBag.Message = strMessage;
-            var oView = _ILoadIndexController.LoadMainController(idAldakin);
+            var oView =await _ILoadIndexController.LoadMainController(_idAldakinUser);
             return View(oView);
+        }
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> InsertLine(string strEntidad, string strOt, string strPresupuesto, string strNivel1, string strNivel2, string strNivel3, string strNivel4, string strNivel5, string strNivel6, string strNivel7, string strCalendario, string strHoraInicio, string strMinutoInicio, string strHoraFin, string strMinutoFin, string bHorasViaje, string bGastos, string strParte, string strPernoctacion, string strObservaciones, string strPreslin, string strGastos)
+        {
+            var strReturn = string.Empty;
+            var dataToInsertLine = new WorkerLineData
+            {
+                strEntidad = strEntidad,
+                strOt = strOt,
+                strPresupuesto = strPresupuesto,
+                strNivel1 = strNivel1,
+                strNivel2 = strNivel2,
+                strNivel3 = strNivel3,
+                strNivel4 = strNivel4,
+                strNivel5 = strNivel5,
+                strNivel6 = strNivel6,
+                strNivel7 = strNivel7,
+                strCalendario = strCalendario,
+                strHoraInicio = strHoraInicio,
+                strMinutoInicio = strMinutoInicio,
+                strHoraFin = strHoraFin,
+                strMinutoFin = strMinutoFin,
+                bHorasViaje = bHorasViaje,
+                bGastos = bGastos,
+                strParte = strParte,
+                strPernoctacion = strPernoctacion,
+                strObservaciones = strObservaciones,
+                strPreslin = strPreslin,
+                strGastos = strGastos
+            };
+            //strReturn = await MainDataApi.InsertLine(dataToInsertLine);
+            strReturn = await _IWriteDataBase.InsertWorkerLineAsync(dataToInsertLine, _idAldakinUser);
+
+            return RedirectToAction("Index", new { strMessage = strReturn });
         }
     }
     //.Replace(',', '.')

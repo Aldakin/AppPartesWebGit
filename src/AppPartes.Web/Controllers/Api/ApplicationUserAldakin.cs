@@ -8,23 +8,22 @@ using Microsoft.AspNetCore.Identity;
 using AppPartes.Web.Models;
 using AppPartes.Data.Models;
 using Microsoft.AspNetCore.Http;
+using System.Web;
+using System.Security.Claims;
 
 namespace AppPartes.Web.Controllers.Api
 {
-    public class ApplicationUserAldakin : ControllerBase
+    public class ApplicationUserAldakin : IApplicationUserAldakin
     {
-        private readonly AldakinDbContext _aldakinDbContext;
         private readonly UserManager<ApplicationUser> _manager;
-        private Usuarios _user;
-        public  ApplicationUserAldakin(UserManager<ApplicationUser> manager, AldakinDbContext aldakinDbContext)
+        public  ApplicationUserAldakin( UserManager<ApplicationUser> manager)//(UserManager<ApplicationUser> manager, AldakinDbContext aldakinDbContext)
         {
-            _aldakinDbContext = aldakinDbContext;
             _manager = manager;
         }
-        private async Task<int> GetIdUserAldakin()
+        public async Task<int> GetIdUserAldakin(ClaimsPrincipal httpUser)
         {
-            //TODO Asi recuperamos los datos de aldakin
-            var user = await _manager.GetUserAsync(HttpContext.User);
+            ////TODO Asi recuperamos los datos de aldakin
+            var user = await _manager.GetUserAsync(httpUser);
             var idAldakin = user.IdAldakin;
             if (idAldakin < 1) idAldakin = 0;
             return idAldakin;

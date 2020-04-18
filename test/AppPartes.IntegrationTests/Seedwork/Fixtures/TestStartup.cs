@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using AppPartes.Web.Models;
 using Castle.Components.DictionaryAdapter;
 using Microsoft.AspNetCore.Identity;
+using System.Threading.Tasks;
 
 namespace AppPartes.Web
 {
@@ -21,7 +22,7 @@ namespace AppPartes.Web
             services.AddMvc().AddRazorRuntimeCompilation().AddApplicationPart(typeof(Startup).Assembly);
             var workPartMock = Mock.Of<IWorkPartInformation>();
             Mock.Get(workPartMock).Setup(x => x.SelectedCompanyReadOt(It.IsAny<int>(), It.IsAny<int>()))
-                .Returns(new EditableList<SelectData>());
+                .Returns(new EditableList<List<SelectData>>());
             services.AddScoped<IWorkPartInformation>(provider => workPartMock);
             var writeMock = Mock.Of<IWriteDataBase>();
             services.AddScoped<IWriteDataBase>(provider => writeMock);

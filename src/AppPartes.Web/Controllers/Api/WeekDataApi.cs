@@ -22,7 +22,7 @@ namespace AppPartes.Web.Controllers.Api
             _ILoadIndexController = iLoadIndexController;
             _manager = manager;
         }
-        private async Task<int> GetIdUserAldakin()
+        private async Task<int> GetIdUserAldakinAsync()
         {
             //TODO Asi recuperamos los datos de aldakin
             var user = await _manager.GetUserAsync(HttpContext.User);
@@ -30,13 +30,13 @@ namespace AppPartes.Web.Controllers.Api
             if (idAldakin < 1) idAldakin = 0;
             return idAldakin;
         }
-        public List<SelectData> SelectPayer(int cantidad, int cantidad2)
+        public async Task<List<SelectData>> SelectPayer(int cantidad, int cantidad2)
         {
             var listaSelect = new List<SelectData>();
             try
             {
-                int idAldakin = GetIdUserAldakin().Result;
-                   listaSelect = _IWorkPartInformation.SelectedPayer(cantidad, cantidad2, idAldakin);
+                int idAldakin =await GetIdUserAldakinAsync();
+                   listaSelect =await _IWorkPartInformation.SelectedPayer(cantidad, cantidad2, idAldakin);
             }
             catch (Exception)
             {
@@ -47,14 +47,14 @@ namespace AppPartes.Web.Controllers.Api
         public async Task<List<SelectData>> DeleteLineFunction(int cantidad)
         {
             var lReturn = new List<SelectData>();
-            int idAldakin = GetIdUserAldakin().Result;
+            int idAldakin =await GetIdUserAldakinAsync();
             lReturn = await _IWriteDataBase.DeleteWorkerLineAsync(cantidad, idAldakin);
             return lReturn;// RedirectToAction("Index", new { strMessage = "Parte Borrado Satisfactoriamente;", strDate = strReturn, strAction = "loadWeek" });
         }
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> CloseWeek(string strDataSelected)
         {
-            int idAldakin = GetIdUserAldakin().Result;
+            int idAldakin =await GetIdUserAldakinAsync();
             var oReturn = await _IWriteDataBase.CloseWorkerWeekAsync(strDataSelected, idAldakin);
             if (oReturn.iValue == 0)
             {
@@ -84,7 +84,7 @@ namespace AppPartes.Web.Controllers.Api
                 strObservaciones = strObservaciones,
                 strGastos = strGastos
             };
-            int idAldakin = GetIdUserAldakin().Result;
+            int idAldakin = await GetIdUserAldakinAsync();
             var oReturn = await _IWriteDataBase.EditWorkerLineAsync(dataEditLine, idAldakin);
             if (oReturn.iValue == 0)
             {

@@ -1,5 +1,6 @@
 using AppPartes.Data.Models;
 using AppPartes.Logic;
+using AppPartes.Web.Controllers.Api;
 using AppPartes.Web.Data;
 using AppPartes.Web.Models;
 using Microsoft.AspNetCore.Builder;
@@ -37,6 +38,7 @@ namespace AppPartes.Web
             services.AddScoped<IWorkPartInformation, WorkPartInformation>();
             services.AddScoped<IWriteDataBase, WriteDataBase>();
             services.AddScoped<ILoadIndexController, LoadIndexController>();
+            services.AddScoped<IApplicationUserAldakin, ApplicationUserAldakin>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,9 +21,9 @@ namespace AppPartes.Logic
         {
             this.aldakinDbContext = aldakinDbContext;
         }
-        private void AjusteUsuario(int idAldakinUser)
+        private async void GetUserDataAsync(int idAldakinUser)
         {
-            var user = aldakinDbContext.Usuarios.FirstOrDefault(x => x.Idusuario== idAldakinUser && x.CodEnt == x.CodEntO);
+            var user =await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario== idAldakinUser && x.CodEnt == x.CodEntO);
             if (!(user is null))
             {
                 strUserName = user.Nombrecompleto.ToString();
@@ -33,7 +34,7 @@ namespace AppPartes.Logic
         }
         public async Task<string> InsertWorkerLineAsync(WorkerLineData dataToInsertLine,int idAldakinUser)
         {
-            AjusteUsuario(idAldakinUser);
+            GetUserDataAsync(idAldakinUser);
             string strReturn = string.Empty;
             //datos provisionles
             var datosLinea = new Lineas();
@@ -90,7 +91,7 @@ namespace AppPartes.Logic
                 strReturn = "Se ha producido un error en el procesamiento de los datos;";
                 return (strReturn);
             }
-            var lEstadoDia = aldakinDbContext.Estadodias.Where(x => x.Idusuario == iUserId && DateTime.Compare(x.Dia, day) == 0).ToList();//
+            var lEstadoDia =await aldakinDbContext.Estadodias.Where(x => x.Idusuario == iUserId && DateTime.Compare(x.Dia, day) == 0).ToListAsync();//
             if (lEstadoDia.Count > 0)
             {
 
@@ -103,7 +104,7 @@ namespace AppPartes.Logic
                 return (strReturn);
             }
             //rango usado
-            var lLineas = aldakinDbContext.Lineas.Where(x => DateTime.Compare(x.Inicio.Date, day.Date) == 0 && x.Idusuario == iUserId && x.Validado == 0 && x.Registrado == 0).ToList();
+            var lLineas =await aldakinDbContext.Lineas.Where(x => DateTime.Compare(x.Inicio.Date, day.Date) == 0 && x.Idusuario == iUserId && x.Validado == 0 && x.Registrado == 0).ToListAsync();
             if (lLineas != null)
             {
                 foreach (var x in lLineas)
@@ -123,7 +124,8 @@ namespace AppPartes.Logic
             //gastos
             float dGastos = 0;
             float dKilometros = 0;
-            var iCodEntOt = aldakinDbContext.Ots.FirstOrDefault(t => t.Idots == Convert.ToInt32(dataToInsertLine.strOt)).CodEnt;
+            var icodEntOt =await aldakinDbContext.Ots.FirstOrDefaultAsync(t => t.Idots == Convert.ToInt32(dataToInsertLine.strOt));
+            var iCodEntOt = icodEntOt.CodEnt;
             var lGastos = new List<Gastos>();
             if (!(string.IsNullOrEmpty(dataToInsertLine.strGastos)))
             {
@@ -154,7 +156,7 @@ namespace AppPartes.Logic
                             }
                             try
                             {
-                                var pagador = aldakinDbContext.Tipogastos.FirstOrDefault(x => x.CodEnt == iCodEntOt && string.Equals(x.Tipo, substring[2]) && x.Pagador == Convert.ToInt32(substring[1]));
+                                var pagador =await aldakinDbContext.Tipogastos.FirstOrDefaultAsync(x => x.CodEnt == iCodEntOt && string.Equals(x.Tipo, substring[2]) && x.Pagador == Convert.ToInt32(substring[1]));
                                 if (pagador is null)
                                 {
                                     //si hay error no hace nada con la lineapara que siga con la siguiente
@@ -207,7 +209,7 @@ namespace AppPartes.Logic
 
             //trabajos realizados
 
-            var otSel = aldakinDbContext.Ots.FirstOrDefault(x => x.Idots == Convert.ToInt32(dataToInsertLine.strOt) && x.Codigorefot != "29" && x.Cierre == null);
+            var otSel =await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == Convert.ToInt32(dataToInsertLine.strOt) && x.Codigorefot != "29" && x.Cierre == null);
             if (otSel is null)
             {
                 strReturn = "En la Ot que esta usande se ha encontrado un problema, recargue la pagina;";
@@ -309,7 +311,7 @@ namespace AppPartes.Logic
             }
             else
             {
-                var user = aldakinDbContext.Usuarios.FirstOrDefault(x => x.Name == stUserrDni && x.CodEnt == Convert.ToInt16(dataToInsertLine.strEntidad));
+                var user =await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Name == stUserrDni && x.CodEnt == Convert.ToInt16(dataToInsertLine.strEntidad));
                 if (!(user is null))
                 {
                     var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
@@ -358,7 +360,8 @@ namespace AppPartes.Logic
                         var observaciones = Salida + " " + datosLinea.Observaciones.ToUpper();
 
                         //from ots where cierre is null and year(apertura) = year(iinicio) and  cod_ent = icod_ent and cod_ent_d = (select cod_ent from lineas where idlinea = iidoriginal)
-                        var iOt = aldakinDbContext.Ots.FirstOrDefault(x => x.Cierre == null && x.Apertura.Year == datosLinea.Inicio.Year && x.CodEnt == iUserCondEntO && x.CodEntD == aldakinDbContext.Lineas.FirstOrDefault(y => y.Idlinea == linea.Idlinea).CodEnt).Idots;
+                        var ot =await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Cierre == null && x.Apertura.Year == datosLinea.Inicio.Year && x.CodEnt == iUserCondEntO && x.CodEntD == aldakinDbContext.Lineas.FirstOrDefault(y => y.Idlinea == linea.Idlinea).CodEnt);
+                        var iOt=ot.Idots;
                         var lineaSecundaria = new Lineas
                         {
                             Idot = iOt,
@@ -401,7 +404,7 @@ namespace AppPartes.Logic
        
         public async Task<List<SelectData>> DeleteWorkerLineAsync(int iLine, int idAldakinUser)
         {
-            AjusteUsuario(idAldakinUser);
+            GetUserDataAsync(idAldakinUser);
             var oReturn = new List<SelectData>
             {
                 new SelectData { iValue = 0 }
@@ -420,14 +423,14 @@ namespace AppPartes.Logic
             {
                 return oReturn;
             }
-            var lSelect = aldakinDbContext.Lineas.FirstOrDefault(x => x.Idlinea == Convert.ToInt32(iIdLinea));
+            var lSelect = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(iIdLinea));
             DateTime day;
             if (lSelect is null)
             {
                 return oReturn;
             }
             day = lSelect.Inicio;
-            var lEstadoDia = aldakinDbContext.Estadodias.Where(x => x.Idusuario == iUserId && DateTime.Compare(x.Dia, day.Date) == 0).ToList();//
+            var lEstadoDia =await aldakinDbContext.Estadodias.Where(x => x.Idusuario == iUserId && DateTime.Compare(x.Dia, day.Date) == 0).ToListAsync();//
             if (lEstadoDia.Count > 0)
             {
                 return oReturn;
@@ -438,13 +441,13 @@ namespace AppPartes.Logic
                 var linea = new Lineas();
                 linea = lSelect;
                 aldakinDbContext.Lineas.Remove(linea);
-                var lineaSecundaria = aldakinDbContext.Lineas.FirstOrDefault(x => x.Idoriginal == lSelect.Idlinea);
+                var lineaSecundaria =await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idoriginal == lSelect.Idlinea);
                 if (!(lineaSecundaria is null))
                 {
                     aldakinDbContext.Lineas.Remove(lineaSecundaria);
                 }
 
-                var gasto = aldakinDbContext.Gastos.Where(x => x.Idlinea == lSelect.Idlinea).ToList();
+                var gasto =await aldakinDbContext.Gastos.Where(x => x.Idlinea == lSelect.Idlinea).ToListAsync();
                 if (!(gasto is null))
                 {
                     aldakinDbContext.Gastos.RemoveRange(gasto);
@@ -484,7 +487,7 @@ namespace AppPartes.Logic
 
         public async Task<SelectData> CloseWorkerWeekAsync(string strDataSelected, int idAldakinUser)
         {
-            AjusteUsuario(idAldakinUser);
+            GetUserDataAsync(idAldakinUser);
             var oReturn = new SelectData
             {
                 iValue = 0 ,
@@ -502,7 +505,7 @@ namespace AppPartes.Logic
                 oReturn.strText = "Proceso abortado, error en los datos;";
                 return oReturn;
             }
-            var lEstadoDia = aldakinDbContext.Estadodias.Where(x => x.Idusuario == iUserId && DateTime.Compare(x.Dia, dtSelected) == 0).ToList();//
+            var lEstadoDia =await aldakinDbContext.Estadodias.Where(x => x.Idusuario == iUserId && DateTime.Compare(x.Dia, dtSelected) == 0).ToListAsync();//
             if (lEstadoDia.Count > 0)
             {
                 oReturn.iValue = 0;
@@ -564,7 +567,7 @@ namespace AppPartes.Logic
             for (var date = dtIniWeek; date < dtEndWeek; date = date.AddDays(1.0))
             {
                 double dHorasDia = 0;
-                listPartes = aldakinDbContext.Lineas.Where(x => x.Inicio.Date == date.Date && x.CodEnt == iUserCondEntO && x.Idusuario == iUserId).OrderBy(x => x.Inicio).ToList();
+                listPartes =await aldakinDbContext.Lineas.Where(x => x.Inicio.Date == date.Date && x.CodEnt == iUserCondEntO && x.Idusuario == iUserId).OrderBy(x => x.Inicio).ToListAsync();
                 foreach (var l in listPartes)
                 {
                     dHorasDia = dHorasDia + (l.Fin - l.Inicio).TotalHours;
@@ -615,7 +618,7 @@ namespace AppPartes.Logic
 
         public async Task<SelectData> EditWorkerLineAsync(WorkerLineData dataToEditLine, int idAldakinUser)
         {
-            AjusteUsuario(idAldakinUser);
+            GetUserDataAsync(idAldakinUser);
             var oReturn = new SelectData
             {
                 iValue = 0,
@@ -627,7 +630,7 @@ namespace AppPartes.Logic
             var gGastosTemp = false;
             var iPernoctacion = 0;
             DateTime day, dtInicio, dtFin;
-            var datosLinea = aldakinDbContext.Lineas.FirstOrDefault(x => x.Idlinea == Convert.ToInt32(dataToEditLine.strIdLinea));
+            var datosLinea =await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(dataToEditLine.strIdLinea));
             try
             {
                 if (string.IsNullOrEmpty(dataToEditLine.strObservaciones))
@@ -683,7 +686,7 @@ namespace AppPartes.Logic
             day = Convert.ToDateTime(dataToEditLine.strCalendario);
             dtInicio = Convert.ToDateTime(dataToEditLine.strCalendario + " " + dataToEditLine.strHoraInicio + ":" + dataToEditLine.strMinutoInicio + ":00");
             dtFin = Convert.ToDateTime(dataToEditLine.strCalendario + " " + dataToEditLine.strHoraFin + ":" + dataToEditLine.strMinutoFin + ":00");
-            var lEstadoDia = aldakinDbContext.Estadodias.Where(x => x.Idusuario == iUserId && DateTime.Compare(x.Dia, day) == 0).ToList();//
+            var lEstadoDia =await aldakinDbContext.Estadodias.Where(x => x.Idusuario == iUserId && DateTime.Compare(x.Dia, day) == 0).ToListAsync();//
             if (lEstadoDia.Count > 0)
             {
                 strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
@@ -701,7 +704,7 @@ namespace AppPartes.Logic
                 return oReturn;
             }
             //Rango usado
-            var lLineas = aldakinDbContext.Lineas.Where(x => DateTime.Compare(x.Inicio.Date, day.Date) == 0 && x.Idusuario == iUserId && x.Validado == 0 && x.Registrado == 0 && x.Idlinea != datosLinea.Idlinea && x.Idoriginal != datosLinea.Idlinea).ToList();
+            var lLineas =await aldakinDbContext.Lineas.Where(x => DateTime.Compare(x.Inicio.Date, day.Date) == 0 && x.Idusuario == iUserId && x.Validado == 0 && x.Registrado == 0 && x.Idlinea != datosLinea.Idlinea && x.Idoriginal != datosLinea.Idlinea).ToListAsync();
             if (lLineas != null)
             {
                 foreach (var x in lLineas)
@@ -743,7 +746,8 @@ namespace AppPartes.Logic
             //gastos
             float dGastos = 0;
             float dKilometros = 0;
-            var iCodEntOt = aldakinDbContext.Ots.FirstOrDefault(t => t.Idots == Convert.ToInt32(dataToEditLine.strOt)).CodEnt;
+            var codEntOt =await aldakinDbContext.Ots.FirstOrDefaultAsync(t => t.Idots == Convert.ToInt32(dataToEditLine.strOt));
+            var iCodEntOt = codEntOt.CodEnt;
             var lGastos = new List<Gastos>();
             if (!(string.IsNullOrEmpty(dataToEditLine.strGastos)))
             {
@@ -774,7 +778,7 @@ namespace AppPartes.Logic
                             }
                             try
                             {
-                                var pagador = aldakinDbContext.Tipogastos.FirstOrDefault(x => x.CodEnt == iCodEntOt && string.Equals(x.Tipo, substring[2]) && x.Pagador == Convert.ToInt32(substring[1]));
+                                var pagador =await aldakinDbContext.Tipogastos.FirstOrDefaultAsync(x => x.CodEnt == iCodEntOt && string.Equals(x.Tipo, substring[2]) && x.Pagador == Convert.ToInt32(substring[1]));
                                 if (pagador is null)
                                 {
                                     //si hay error no hace nada con la lineapara que siga con la siguiente
@@ -823,7 +827,7 @@ namespace AppPartes.Logic
                     }
                 }
             }
-            var otSel = aldakinDbContext.Ots.FirstOrDefault(x => x.Idots == Convert.ToInt32(dataToEditLine.strOt) && x.Codigorefot != "29" && x.Cierre == null);
+            var otSel =await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == Convert.ToInt32(dataToEditLine.strOt) && x.Codigorefot != "29" && x.Cierre == null);
             if (otSel is null)
             {
                 oReturn.strText = "En la Ot que esta usande se ha encontrado un problema, recargue la pagina;";
@@ -872,7 +876,7 @@ namespace AppPartes.Logic
 
                     aldakinDbContext.Lineas.Update(datosLinea);
                     await aldakinDbContext.SaveChangesAsync();
-                    var gasto = aldakinDbContext.Gastos.Where(x => x.Idlinea == datosLinea.Idlinea).ToList();
+                    var gasto =await aldakinDbContext.Gastos.Where(x => x.Idlinea == datosLinea.Idlinea).ToListAsync();
                     if (!(gasto is null))
                     {
                         aldakinDbContext.Gastos.RemoveRange(gasto);
@@ -905,7 +909,7 @@ namespace AppPartes.Logic
             }
             else
             {
-                var user = aldakinDbContext.Usuarios.FirstOrDefault(x => x.Name == stUserrDni && x.CodEnt == otSel.CodEnt);
+                var user =await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Name == stUserrDni && x.CodEnt == otSel.CodEnt);
                 if (!(user is null))
                 {
                     datosLinea.Dietas = dGastos;
@@ -925,7 +929,7 @@ namespace AppPartes.Logic
                     {
                         aldakinDbContext.Lineas.Update(datosLinea);
                         await aldakinDbContext.SaveChangesAsync();
-                        var gasto = aldakinDbContext.Gastos.Where(x => x.Idlinea == datosLinea.Idlinea).ToList();
+                        var gasto =await aldakinDbContext.Gastos.Where(x => x.Idlinea == datosLinea.Idlinea).ToListAsync();
                         if (!(gasto is null))
                         {
                             aldakinDbContext.Gastos.RemoveRange(gasto);
@@ -953,10 +957,11 @@ namespace AppPartes.Logic
                         Salida = string.Format("{0}|{1}", Primerdigito, Resto);
                         var observaciones = Salida + " " + datosLinea.Observaciones.ToUpper();
 
-                        var secundarioAntigua = aldakinDbContext.Lineas.FirstOrDefault(x => x.Idoriginal == datosLinea.Idlinea);
+                        var secundarioAntigua =await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idoriginal == datosLinea.Idlinea);
                         aldakinDbContext.Lineas.Remove(secundarioAntigua);
                         //from ots where cierre is null and year(apertura) = year(iinicio) and  cod_ent = icod_ent and cod_ent_d = (select cod_ent from lineas where idlinea = iidoriginal)
-                        var iOt = aldakinDbContext.Ots.FirstOrDefault(x => x.Cierre == null && x.Apertura.Year == datosLinea.Inicio.Year && x.CodEnt == iUserCondEntO && x.CodEntD == aldakinDbContext.Lineas.FirstOrDefault(y => y.Idlinea == datosLinea.Idlinea).CodEnt).Idots;
+                        var ot =await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Cierre == null && x.Apertura.Year == datosLinea.Inicio.Year && x.CodEnt == iUserCondEntO && x.CodEntD == aldakinDbContext.Lineas.FirstOrDefault(y => y.Idlinea == datosLinea.Idlinea).CodEnt);
+                        var iOt = ot.Idots;
                         var lineaSecundaria = new Lineas
                         {
                             Idot = iOt,
