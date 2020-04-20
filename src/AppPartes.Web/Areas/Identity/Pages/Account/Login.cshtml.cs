@@ -31,7 +31,7 @@ namespace AppPartes.Web.Areas.Identity.Pages.Account
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
-            _ILoadIndexController = iLoadIndexController;
+            //_ILoadIndexController = iLoadIndexController;
             //var xx = _ILoadIndexController.LoadLoginController();
         }
 
