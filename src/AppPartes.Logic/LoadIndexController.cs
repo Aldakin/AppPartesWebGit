@@ -111,6 +111,12 @@ namespace AppPartes.Logic
             }
             return oReturn;
         }
+        public async Task<LoginDataViewLogic> LoadLoginController()
+        {
+            var lReturn = new LoginDataViewLogic();
+            lReturn.listCompany = await GetAllAldakinCompanies();
+            return lReturn;
+        }
         private async Task<List<Ots>> GetOts()
         {
             var lReturn = new List<Ots>();
@@ -126,6 +132,12 @@ namespace AppPartes.Logic
             var aux = await aldakinDbContext.Entidad.FirstOrDefaultAsync(x => x.CodEnt == iUserCondEntO);
             lReturn = await aldakinDbContext.Entidad.Where(x => x.CodEnt != iUserCondEntO).OrderByDescending(x => x.Nombre).ToListAsync();
             lReturn.Insert(0, aux);
+            return lReturn;
+        }
+        private async Task<List<Entidad>> GetAllAldakinCompanies()
+        {
+            var lReturn = new List<Entidad>();
+            lReturn = await aldakinDbContext.Entidad.Where(x => x.CodEnt !=0).ToListAsync();
             return lReturn;
         }
         private async Task<List<Clientes>> GetAldakinClients()

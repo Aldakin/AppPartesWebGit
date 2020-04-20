@@ -85,6 +85,9 @@ namespace AppPartes.Logic
         public bool SemanaCerrada { get; set; }
         public string DateSelected { get; set; }
         public string Mensaje { get; set; }
-
+    }
+    public class LoginDataViewLogic
+    {
+        public List<Entidad> listCompany { set; get; }
     }
 }

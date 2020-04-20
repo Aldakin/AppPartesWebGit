@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using AppPartes.Logic;
 
 namespace AppPartes.Web.Areas.Identity.Pages.Account
 {
@@ -21,14 +22,17 @@ namespace AppPartes.Web.Areas.Identity.Pages.Account
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        //private readonly ILoadIndexController _ILoadIndexController;
 
         public LoginModel(SignInManager<ApplicationUser> signInManager,
             ILogger<LoginModel> logger,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager/*, ILoadIndexController iLoadIndexController*/)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _ILoadIndexController = iLoadIndexController;
+            //var xx = _ILoadIndexController.LoadLoginController();
         }
 
         [BindProperty]
