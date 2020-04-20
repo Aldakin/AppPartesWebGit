@@ -17,13 +17,13 @@ namespace AppPartes.IntegrationTests.Spec
         }
 
         [Fact]
-        public async Task Index_ShouldReturnHttp200()
+        public async Task SelectedEntityOt_ShouldReturnHttp200()
         {
             //Arrange
             var client = _serverFixture.GetTestClient();
 
             //Act
-            var response = await client.GetAsync("/maindataapi/selectedcompanyreadot/0");
+            var response = await client.GetAsync("/maindataapi/SelectedEntityOt/0");
 
             //Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);

@@ -1,10 +1,9 @@
-﻿using System;
+﻿using AppPartes.Data.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
-using System.Data.Entity;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using AppPartes.Data.Models;
 
 namespace AppPartes.Logic
 {
@@ -22,7 +21,7 @@ namespace AppPartes.Logic
         }
         private async void GetUserDataAsync(int idAldakinUser)
         {
-            var user =await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario== idAldakinUser && x.CodEnt == x.CodEntO);
+            var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == idAldakinUser && x.CodEnt == x.CodEntO);
             if (!(user is null))
             {
                 strUserName = user.Nombrecompleto.ToString();
@@ -31,18 +30,17 @@ namespace AppPartes.Logic
                 stUserrDni = user.Name;
             }
         }
-        public async Task<List<SelectData>> WeekHourResume(DateTime dtSelected,int idAldakinUser)
+        public async Task<List<SelectData>> WeekHourResume(DateTime dtSelected, int idAldakinUser)
         {
             GetUserDataAsync(idAldakinUser);
-            List<SelectData> lReturn = new List<SelectData>();
-            int iCont = 0;
-            DateTime dtIniWeek, dtEndWeek;
-            IniEndWeek(dtSelected, out dtIniWeek, out dtEndWeek);
+            var lReturn = new List<SelectData>();
+            var iCont = 0;
+            IniEndWeek(dtSelected, out var dtIniWeek, out var dtEndWeek);
             #region list hours per day in a week
             for (var date = dtIniWeek; date < dtEndWeek; date = date.AddDays(1.0))
             {
                 var strRangosHora = "";
-                var listPartes =await  aldakinDbContext.Lineas.Where(x => x.Inicio.Date == date.Date && x.CodEnt == iUserCondEntO && x.Idusuario == iUserId).OrderBy(x => x.Inicio).ToListAsync();
+                var listPartes = await aldakinDbContext.Lineas.Where(x => x.Inicio.Date == date.Date && x.CodEnt == iUserCondEntO && x.Idusuario == iUserId).OrderBy(x => x.Inicio).ToListAsync();
                 foreach (var l in listPartes)
                 {
                     var strTempIni = string.Empty;
@@ -77,7 +75,7 @@ namespace AppPartes.Logic
         public async Task<List<SelectData>> SelectedCompanyReadOt(int iEntidad, int idAldakinUser)
         {
             GetUserDataAsync(idAldakinUser);
-            List<SelectData> lReturn = new List<SelectData>();
+            var lReturn = new List<SelectData>();
             List<Ots> listOts = null;
             //listOts = aldakinDbContext.Ots.Where(x => x.CodEnt == cantidad && x.CodEntD == 0 && x.Codigorefot != "29" && x.Cierre == null).OrderByDescending(x => x.Idots).ToList();
             if (iEntidad < 1)
@@ -87,7 +85,7 @@ namespace AppPartes.Logic
             var totalOts = aldakinDbContext.Ots.Where(x => x.CodEnt == iEntidad && x.CodEntD == 0 && x.Codigorefot != "29" && x.Cierre == null);
             var totalType1Ots = totalOts.Where(x => x.Tipoot == 1);
             var totalType2Ots = totalOts.Join(aldakinDbContext.Presupuestos.Where(x => x.CodEnt == iEntidad), o => o.Idots, i => i.Idot, (o, p) => o);//original
-            listOts =await totalType1Ots.Concat(totalType2Ots).Distinct().OrderBy(x => x.Numero).ToListAsync();
+            listOts = await totalType1Ots.Concat(totalType2Ots).Distinct().OrderBy(x => x.Numero).ToListAsync();
             foreach (var p in listOts)
             {
                 var strTemp = p.Numero + "||" + p.Nombre;
@@ -98,21 +96,21 @@ namespace AppPartes.Logic
         public async Task<List<SelectData>> SelectedCompanyReadClient(int iEntidad, int idAldakinUser)
         {
             GetUserDataAsync(idAldakinUser);
-            List<SelectData> lReturn = new List<SelectData>();
+            var lReturn = new List<SelectData>();
             List<Clientes> listaClient = null;
             if (iEntidad < 1)
             {
                 throw new Exception();
             }
             listaClient = await (from c in aldakinDbContext.Clientes
-                           from o in aldakinDbContext.Ots
-                           where (
-                           (c.Idclientes == o.Cliente)
-                           && (o.Cierre == null)
-                           && (o.Codigorefot != "29")
-                           && (c.CodEnt == iEntidad)
-                           )
-                           select c).Distinct().OrderBy(c => c.Nombre).ToListAsync();
+                                 from o in aldakinDbContext.Ots
+                                 where (
+                                 (c.Idclientes == o.Cliente)
+                                 && (o.Cierre == null)
+                                 && (o.Codigorefot != "29")
+                                 && (c.CodEnt == iEntidad)
+                                 )
+                                 select c).Distinct().OrderBy(c => c.Nombre).ToListAsync();
             //select distinct Clientes.* from Clientes, Ots where Clientes.idclientes = Ots.cliente and Ots.cierre IS NULL and Ots.codigorefot != 29 and Clientes.cod_ent = { 0}", cod_ent)
             foreach (var p in listaClient)
             {
@@ -125,11 +123,11 @@ namespace AppPartes.Logic
         public async Task<List<SelectData>> SelectedClient(int iClient, int idAldakinUser)
         {
             GetUserDataAsync(idAldakinUser);
-            List<SelectData> lReturn = new List<SelectData>();
+            var lReturn = new List<SelectData>();
             List<Ots> listOts = null;
             if (iClient != 0)
             {
-                listOts =await aldakinDbContext.Ots.Where(x => x.Cierre == null && x.Cliente == iClient && x.Codigorefot != "29" && x.CodEntD != -1).OrderByDescending(x => x.Idots).ToListAsync();
+                listOts = await aldakinDbContext.Ots.Where(x => x.Cierre == null && x.Cliente == iClient && x.Codigorefot != "29" && x.CodEntD != -1).OrderByDescending(x => x.Idots).ToListAsync();
                 foreach (var p in listOts)
                 {
                     var strTemp = p.Numero + "||" + p.Nombre;
@@ -152,19 +150,19 @@ namespace AppPartes.Logic
         public async Task<List<SelectData>> SelectedOt(int iOt, int idAldakinUser)
         {
             GetUserDataAsync(idAldakinUser);
-            List<SelectData> lReturn = new List<SelectData>();
+            var lReturn = new List<SelectData>();
             List<Presupuestos> lPresupuestos = null;
             lPresupuestos = null;
             if (iOt > 0)
             {
-                var lTempOts =await aldakinDbContext.Ots.Where(x => x.Idots == iOt).OrderByDescending(x => x.Idots).ToListAsync();
+                var lTempOts = await aldakinDbContext.Ots.Where(x => x.Idots == iOt).OrderByDescending(x => x.Idots).ToListAsync();
                 if (lTempOts[0].Tipoot == 1)
                 {
                     lPresupuestos = null;
                 }
                 else if (lTempOts[0].Tipoot == 2)
                 {
-                    lPresupuestos =await aldakinDbContext.Presupuestos.Where(x => x.Idot == iOt).ToListAsync();
+                    lPresupuestos = await aldakinDbContext.Presupuestos.Where(x => x.Idot == iOt).ToListAsync();
                 }
                 if (lPresupuestos == null)
                 {
@@ -189,13 +187,13 @@ namespace AppPartes.Logic
         public async Task<List<SelectData>> ReadLevel1(int iData, int idAldakinUser)
         {
             GetUserDataAsync(idAldakinUser);
-            List<SelectData> lReturn = new List<SelectData>();
+            var lReturn = new List<SelectData>();
             List<Preslin> lPreslin = null;
             if (iData < 1)
             {
                 throw new Exception();
             }
-            lPreslin =await aldakinDbContext.Preslin.Where(x => x.Idpresupuesto == iData && x.Horas != 0 && x.Nivel == 1).ToListAsync();
+            lPreslin = await aldakinDbContext.Preslin.Where(x => x.Idpresupuesto == iData && x.Horas != 0 && x.Nivel == 1).ToListAsync();
             if (lPreslin == null)
             {
                 lReturn = null;
@@ -210,45 +208,45 @@ namespace AppPartes.Logic
             }
             return lReturn;
         }
-        public async Task<List<SelectData>> ReadLevel2(int iData,int iData2, int idAldakinUser)
+        public async Task<List<SelectData>> ReadLevel2(int iData, int iData2, int idAldakinUser)
         {
             GetUserDataAsync(idAldakinUser);
-            List<SelectData> lReturn = new List<SelectData>();
+            var lReturn = new List<SelectData>();
             List<Preslin> lPreslin = null;
-                if (iData < 1 || iData2 < 1)
+            if (iData < 1 || iData2 < 1)
             {
                 throw new Exception();
             }
-                lPreslin = await aldakinDbContext.Preslin.Where(x => x.Idpresupuesto == iData2 && x.Horas != 0 && x.Nivel == 1).ToListAsync();
-                //List<Preslin> lNivelTemp = lPreslin.Where(x => x.Idpreslin == cantidad).ToList();
-                var lNivelTemp = lPreslin.FirstOrDefault(x => x.Idpreslin == iData);
-                if (!(lNivelTemp is null))
-                {
-                    lPreslin = await aldakinDbContext.Preslin.Where(x => x.Horas != 0 && x.Idpresupuesto == lNivelTemp.Idpresupuesto && x.CodpPes == lNivelTemp.CodhPes && x.Version == lNivelTemp.Version && x.Anexo == lNivelTemp.Anexo).ToListAsync();
-                }
-                else
-                {
-                    lPreslin = null;
-                }
-                //cmd = new MySqlCommand(String.Format("SELECT idpreslin, idpresupuesto, codh_pes, codp_pes, nivel,nombre, horas, version, anexo FROM preslin where horas != 0 and idpresupuesto ={0} and codp_pes = {1} and version = {2} and anexo = {3} ORDER BY nombre", pres.idPresupuesto, pres.codh_pes, pres.Version, pres.Anexo), conexionBD);//ORDER BY codh_pes
-                if (lPreslin == null)
-                {
+            lPreslin = await aldakinDbContext.Preslin.Where(x => x.Idpresupuesto == iData2 && x.Horas != 0 && x.Nivel == 1).ToListAsync();
+            //List<Preslin> lNivelTemp = lPreslin.Where(x => x.Idpreslin == cantidad).ToList();
+            var lNivelTemp = lPreslin.FirstOrDefault(x => x.Idpreslin == iData);
+            if (!(lNivelTemp is null))
+            {
+                lPreslin = await aldakinDbContext.Preslin.Where(x => x.Horas != 0 && x.Idpresupuesto == lNivelTemp.Idpresupuesto && x.CodpPes == lNivelTemp.CodhPes && x.Version == lNivelTemp.Version && x.Anexo == lNivelTemp.Anexo).ToListAsync();
+            }
+            else
+            {
+                lPreslin = null;
+            }
+            //cmd = new MySqlCommand(String.Format("SELECT idpreslin, idpresupuesto, codh_pes, codp_pes, nivel,nombre, horas, version, anexo FROM preslin where horas != 0 and idpresupuesto ={0} and codp_pes = {1} and version = {2} and anexo = {3} ORDER BY nombre", pres.idPresupuesto, pres.codh_pes, pres.Version, pres.Anexo), conexionBD);//ORDER BY codh_pes
+            if (lPreslin == null)
+            {
                 lReturn = null;
-                }
-                else
+            }
+            else
+            {
+                foreach (var p in lPreslin)
                 {
-                    foreach (Preslin p in lPreslin)
-                    {
-                        string strTemp = p.Nombre;
+                    var strTemp = p.Nombre;
                     lReturn.Add(new SelectData { iValue = p.Idpreslin, strText = strTemp });
-                    }
+                }
             }
             return lReturn;
         }
         public async Task<List<SelectData>> ReadLevelGeneral(int iData, int idAldakinUser)
         {
             GetUserDataAsync(idAldakinUser);
-            List<SelectData> lReturn = new List<SelectData>();
+            var lReturn = new List<SelectData>();
             List<Preslin> lPreslin = null;
             if (iData < 1)
             {
@@ -261,7 +259,7 @@ namespace AppPartes.Logic
             }
             else
             {
-                lPreslin =await aldakinDbContext.Preslin.Where(x => x.Horas != 0 && x.Idpresupuesto == lNivelTemp.Idpresupuesto && x.CodpPes == lNivelTemp.CodhPes && x.Version == lNivelTemp.Version && x.Anexo == lNivelTemp.Anexo).ToListAsync();
+                lPreslin = await aldakinDbContext.Preslin.Where(x => x.Horas != 0 && x.Idpresupuesto == lNivelTemp.Idpresupuesto && x.CodpPes == lNivelTemp.CodhPes && x.Version == lNivelTemp.Version && x.Anexo == lNivelTemp.Anexo).ToListAsync();
                 if (lPreslin == null)
                 {
                     lReturn = null;
@@ -280,13 +278,13 @@ namespace AppPartes.Logic
         public async Task<List<SelectData>> SelectedPayer(int iPayer, int iOt, int idAldakinUser)
         {
             GetUserDataAsync(idAldakinUser);
-            List<SelectData> lReturn = new List<SelectData>();
+            var lReturn = new List<SelectData>();
             if (iOt < 1)
             {
                 throw new Exception();
             }
 
-            var tipoGasto =await aldakinDbContext.Tipogastos.Where(x => x.Pagador == iPayer && x.CodEnt == aldakinDbContext.Ots.FirstOrDefault(o => o.Idots == iOt).CodEnt).ToListAsync();
+            var tipoGasto = await aldakinDbContext.Tipogastos.Where(x => x.Pagador == iPayer && x.CodEnt == aldakinDbContext.Ots.FirstOrDefault(o => o.Idots == iOt).CodEnt).ToListAsync();
             if (!(tipoGasto == null))
             {
                 foreach (var p in tipoGasto)
