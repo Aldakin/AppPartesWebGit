@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using AppPartes.Logic;
+using AppPartes.Data.Models;
 
 namespace AppPartes.Web.Areas.Identity.Pages.Account
 {
@@ -22,17 +23,16 @@ namespace AppPartes.Web.Areas.Identity.Pages.Account
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
-        //private readonly ILoadIndexController _ILoadIndexController;
+        private readonly ILoadIndexController _ILoadIndexController;
 
         public LoginModel(SignInManager<ApplicationUser> signInManager,
             ILogger<LoginModel> logger,
-            UserManager<ApplicationUser> userManager/*, ILoadIndexController iLoadIndexController*/)
+            UserManager<ApplicationUser> userManager, ILoadIndexController iLoadIndexController)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
-            //_ILoadIndexController = iLoadIndexController;
-            //var xx = _ILoadIndexController.LoadLoginController();
+            _ILoadIndexController = iLoadIndexController;
         }
 
         [BindProperty]
@@ -41,14 +41,14 @@ namespace AppPartes.Web.Areas.Identity.Pages.Account
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
 
         public string ReturnUrl { get; set; }
-
+        public LoginDataViewLogic lEntity { get; set; }
         [TempData]
         public string ErrorMessage { get; set; }
 
         public class InputModel
         {
             [Required]
-            public string Entity { get; set; }
+            public string Company { get; set; }
             [Required]
             //[EmailAddress]
             [DataType(DataType.Text)]
@@ -76,6 +76,7 @@ namespace AppPartes.Web.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             ReturnUrl = returnUrl;
+            lEntity =await _ILoadIndexController.LoadLoginController();
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -92,22 +93,22 @@ namespace AppPartes.Web.Areas.Identity.Pages.Account
                         {
                             if (Convert.ToInt32(Input.Email) < 10)
                             {
-                                Input.Email = Input.Entity + "000" + Input.Email;
+                                Input.Email = Input.Company + "000" + Input.Email;
                             }
                             else
                             {
 
-                                Input.Email = Input.Entity + "00" + Input.Email;
+                                Input.Email = Input.Company + "00" + Input.Email;
                             }
                         }
                         else
                         {
-                            Input.Email = Input.Entity + "0" + Input.Email;
+                            Input.Email = Input.Company + "0" + Input.Email;
                         }
                     }else
                     {
 
-                        Input.Email = Input.Entity +  Input.Email;
+                        Input.Email = Input.Company +  Input.Email;
                     }
                 }
                 catch(Exception ex)
