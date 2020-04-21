@@ -17,24 +17,28 @@
 
                     <label asp-for="Input.Company">Select your Company</label>
                     @*<select asp-for="lEntity"
-                asp-items="@(new SelectList(Model.lEntity,"CodEnt","Nombre"))">
-            <option>Please select one</option>
-        </select>*@
-                <select asp-for="Input.Company" required>
-                    <option value=""></option>
-                    @foreach (var dept in Model.lEntity.listCompany)
-                    {
-                        <option value="@dept.CodEnt">
-                            @dept.Nombre
-                        </option>
-                    }
-                </select>
-                        @*<select asp-for="Input.Entity">
-                <option value="1">ALDAKIN S.L.</option>
-                <option value="5">ELECTROTECNICA ALAVESA S.L.</option>
-                <option value="6">ALDAKIN GIPUZKOA S.L.</option>
-                <option value="7">ALDAKIN AUTOMATION S.L.</option>
-            </select>*@
+                                asp-items="@(new SelectList(Model.lEntity,"CodEnt","Nombre"))">
+                            <option>Please select one</option>
+                        </select>*@
+                    <select asp-for="Input.Company" required>
+                        <option value=""></option>
+
+                        @if (Model.lEntity.listCompany != null)
+                        {
+                            foreach (var dept in Model.lEntity.listCompany)
+                            {
+                                <option value="@dept.CodEnt">
+                                    @dept.Nombre
+                                </option>
+                            }
+                        }
+                    </select>
+                    @*<select asp-for="Input.Entity">
+                            <option value="1">ALDAKIN S.L.</option>
+                            <option value="5">ELECTROTECNICA ALAVESA S.L.</option>
+                            <option value="6">ALDAKIN GIPUZKOA S.L.</option>
+                            <option value="7">ALDAKIN AUTOMATION S.L.</option>
+                        </select>*@
                 </div>
                 <div class="form-group">
                     @*<label asp-for="Input.Email"></label>*@

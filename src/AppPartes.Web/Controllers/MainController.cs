@@ -16,28 +16,21 @@ namespace AppPartes.Web.Controllers
     [Authorize]
     public class MainController : Controller
     {
-        private readonly IWorkPartInformation _IWorkPartInformation;
         private readonly IWriteDataBase _IWriteDataBase;
+        private readonly IWorkPartInformation _IWorkPartInformation;
         private readonly ILoadIndexController _ILoadIndexController;
         private readonly IApplicationUserAldakin _IApplicationUserAldakin;
-        int _idAldakinUser;
+        private int _idAldakinUser;
         public   MainController(IWorkPartInformation iWorkPartInformation, IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController,IApplicationUserAldakin iApplicationUserAldakin)
         {
-            _IWorkPartInformation = iWorkPartInformation;
             _IWriteDataBase = iWriteDataBase;
+            _IWorkPartInformation = iWorkPartInformation;
             _ILoadIndexController = iLoadIndexController;
             _IApplicationUserAldakin = iApplicationUserAldakin;
-            //TODO Asi recuperamos los datos de aldakin
-            GetUserId();
-        }
-        public async void GetUserId()
-        {
-            _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
         }
         public async Task<IActionResult> Index(string strMessage = "")
         {
-            //TODO Asi recuperamos los datos de aldakin
-            //_idAldakinUser = await  _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User); 
+            _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
             ViewBag.Message = strMessage;
             var oView =await _ILoadIndexController.LoadMainController(_idAldakinUser);
             return View(oView);

@@ -16,11 +16,11 @@ namespace AppPartes.Web.Controllers.Api
     public class ApplicationUserAldakin : IApplicationUserAldakin
     {
         private readonly UserManager<ApplicationUser> _manager;
-        public  ApplicationUserAldakin( UserManager<ApplicationUser> manager)//(UserManager<ApplicationUser> manager, AldakinDbContext aldakinDbContext)
+        public   ApplicationUserAldakin( UserManager<ApplicationUser> manager)//(UserManager<ApplicationUser> manager, AldakinDbContext aldakinDbContext)
         {
             _manager = manager;
         }
-        public async Task<int> GetIdUserAldakin(ClaimsPrincipal httpUser)
+        public  async Task<int> GetIdUserAldakin(ClaimsPrincipal httpUser)
         {
             ////TODO Asi recuperamos los datos de aldakin
             var user = await _manager.GetUserAsync(httpUser);

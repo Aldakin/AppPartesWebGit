@@ -19,11 +19,11 @@ namespace AppPartes.Web.Controllers
     public class WeekReviewController : Controller
     {
         //apaño para usuario con claims
-        private int iUserCondEntO = 0;
-        private int iUserId = 0;
-        private string strUserName = "";
-        private string stUserrDni = "";
-        private List<Lineas> listPartes = new List<Lineas>();
+        //private int iUserCondEntO = 0;
+        //private int iUserId = 0;
+        //private string strUserName = "";
+        //private string stUserrDni = "";
+        //private List<Lineas> listPartes = new List<Lineas>();
         //private readonly AldakinDbContext aldakinDbContext;
 
 
@@ -31,6 +31,7 @@ namespace AppPartes.Web.Controllers
         private readonly IWorkPartInformation _IWorkPartInformation;
         private readonly ILoadIndexController _ILoadIndexController;
         private readonly IApplicationUserAldakin _IApplicationUserAldakin;
+        private int _idAldakinUser;
 
         public WeekReviewController(IWriteDataBase iWriteDataBase, IWorkPartInformation iWorkPartInformation, ILoadIndexController iLoadIndexController, IApplicationUserAldakin iApplicationUserAldakin)
         {
@@ -42,15 +43,14 @@ namespace AppPartes.Web.Controllers
         public async Task<IActionResult> Index(string strMessage = "", string strDate = "", string strAction = "", string strId = "")
         {
             ViewBag.Message = strMessage;
-            var idAldakin = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
-            var oView =await _ILoadIndexController.LoadWeekController(idAldakin,strDate, strAction, strId);
+            _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
+            var oView =await _ILoadIndexController.LoadWeekController(_idAldakinUser, strDate, strAction, strId);
             if (!(oView.Mensaje is null))
             {
                 ViewBag.Message = "ocurrio un error!!!";
             }
             return View(oView);
-        }
-       
+        }       
     }
 
 }

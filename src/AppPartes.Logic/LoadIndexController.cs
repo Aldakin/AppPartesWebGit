@@ -22,6 +22,7 @@ namespace AppPartes.Logic
         private async void GetUserDataAsync(int idAldakinUser)
         {
             var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == idAldakinUser && x.CodEnt == x.CodEntO);
+            //var user =  aldakinDbContext.Usuarios.FirstOrDefault(x => x.Idusuario == idAldakinUser && x.CodEnt == x.CodEntO);
             if (!(user is null))
             {
                 strUserName = user.Nombrecompleto.ToString();

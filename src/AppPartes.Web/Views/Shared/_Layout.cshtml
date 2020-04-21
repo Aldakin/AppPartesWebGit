@@ -32,7 +32,7 @@
                         @{
                             //el if true cambiar por si se esta autenticado    
                             //aqui tambien se incluiran las diferentes opciones segun nivel de usuario
-                            if (true)
+                            if (@User.Identity.IsAuthenticated)
                             {
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-area="" asp-controller="Main" asp-action="Index">Cargar Parte</a>

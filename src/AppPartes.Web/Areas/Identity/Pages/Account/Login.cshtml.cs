@@ -113,10 +113,10 @@ namespace AppPartes.Web.Areas.Identity.Pages.Account
                 }
                 catch(Exception ex)
                 {
+                    lEntity = await _ILoadIndexController.LoadLoginController();
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                     return Page();
                 }
-
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
@@ -136,8 +136,12 @@ namespace AppPartes.Web.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    lEntity = await _ILoadIndexController.LoadLoginController();
+                    ModelState.AddModelError(string.Empty, "User not found.");
                     return Page();
+                    ////Error Situation
+                    //ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    //return Page();
                 }
             }
 
