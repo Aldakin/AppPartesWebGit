@@ -49,52 +49,17 @@ namespace AppPartes.Web.Controllers.Api
             var lReturn = new List<SelectData>();
             int idAldakin =await GetIdUserAldakinAsync();
             lReturn = await _IWriteDataBase.DeleteWorkerLineAsync(cantidad, idAldakin);
-            return lReturn;// RedirectToAction("Index", new { strMessage = "Parte Borrado Satisfactoriamente;", strDate = strReturn, strAction = "loadWeek" });
+            return lReturn;
         }
-        [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> CloseWeek(string strDataSelected)
+        public async Task<SelectData> CloseFunction(string strDataSelected)
         {
-            int idAldakin =await GetIdUserAldakinAsync();
-            var oReturn = await _IWriteDataBase.CloseWorkerWeekAsync(strDataSelected, idAldakin);
-            if (oReturn.iValue == 0)
-            {
-                return RedirectToAction("Index", new { strMessage = oReturn.strText, strDate = oReturn.strValue, strAction = "" });
-            }
-            else
-            {
-                return RedirectToAction("Index", new { strMessage = oReturn.strText, strDate = oReturn.strValue, strAction = "loadWeek" });
-            }
-        }
-        [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditLine(string strIdLinea, string ot, string strCalendario, string strHoraInicio, string strMinutoInicio, string strHoraFin, string strMinutoFin, string bHorasViaje, string bGastos, string strParte, string strPernoctacion, string strObservaciones, string strGastos)
-        {
-            var dataEditLine = new WorkerLineData
-            {
-                strIdLinea = strIdLinea,
-                strOt = ot,
-                strCalendario = strCalendario,
-                strHoraInicio = strHoraInicio,
-                strMinutoInicio = strMinutoInicio,
-                strHoraFin = strHoraFin,
-                strMinutoFin = strMinutoFin,
-                bHorasViaje = bHorasViaje,
-                bGastos = bGastos,
-                strParte = strParte,
-                strPernoctacion = strPernoctacion,
-                strObservaciones = strObservaciones,
-                strGastos = strGastos
-            };
+            var lReturn = new SelectData();
             int idAldakin = await GetIdUserAldakinAsync();
-            var oReturn = await _IWriteDataBase.EditWorkerLineAsync(dataEditLine, idAldakin);
-            if (oReturn.iValue == 0)
-            {
-                return RedirectToAction("Index", new { strMessage = oReturn.strText, strDate = oReturn.strValue, strAction = "" });
-            }
-            else
-            {
-                return RedirectToAction("Index", new { strMessage = oReturn.strText, strDate = oReturn.strValue, strAction = "loadWeek" });
-            }
+            lReturn = await _IWriteDataBase.CloseWorkerWeekAsync(strDataSelected, idAldakin);
+            return lReturn;
         }
-
+        public int iValue { set; get; }
+        public string strText { set; get; }
+        public string strValue { set; get; }
     }
 }

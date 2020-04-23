@@ -10,31 +10,29 @@ namespace AppPartes.Logic
     public class LoadIndexController : ILoadIndexController
     {
         private readonly AldakinDbContext aldakinDbContext;
+        private readonly IWriteDataBase _iWriteDataBase;
         //apaño para usuario con claims
-        private string strUserName = "";
-        private string stUserrDni = "";
-        private int iUserId = 0;
-        private int iUserCondEntO = 0;
-        public LoadIndexController(AldakinDbContext aldakinDbContext)
+        private string _strUserName = "";
+        private string _stUserDni = "";
+        private int _iUserId ;
+        private int _iUserCondEntO ;
+        public LoadIndexController(AldakinDbContext aldakinDbContext, IWriteDataBase iWriteDataBase)
         {
             this.aldakinDbContext = aldakinDbContext;
+            _iWriteDataBase = iWriteDataBase;
         }
-        private async void GetUserDataAsync(int idAldakinUser)
+        private async void WriteUserDataAsync(int idAldakinUser)
         {
-            //var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == idAldakinUser && x.CodEnt == x.CodEntO);
-            var user = aldakinDbContext.Usuarios.FirstOrDefault(x => x.Idusuario == idAldakinUser && x.CodEnt == x.CodEntO);
-            if (!(user is null))
-            {
-                strUserName = user.Nombrecompleto.ToString();
-                iUserId = Convert.ToInt16(user.Idusuario);
-                iUserCondEntO = Convert.ToInt16(user.CodEntO);
-                stUserrDni = user.Name;
-            }
+            var user = await _iWriteDataBase.GetUserDataAsync(idAldakinUser);
+            _strUserName = user.strUserName;
+            _iUserId = user.iUserId;
+            _iUserCondEntO = user.iUserCondEntO;
+            _stUserDni = user.stUserrDni;
         }
         public async Task<MainDataViewLogic> LoadMainController(int idAldakinUser)
         {
             var oReturn = new MainDataViewLogic();
-            GetUserDataAsync(idAldakinUser);
+            WriteUserDataAsync(idAldakinUser);
             oReturn.listOts = await GetOts();
             oReturn.listCompany = await GetAldakinCompanies();
             oReturn.listClient = await GetAldakinClients();
@@ -44,7 +42,7 @@ namespace AppPartes.Logic
         public async Task<WeekDataViewLogic> LoadWeekController(int idAldakinUser, string strDate = "", string strAction = "", string strId = "")
         {
             var oReturn = new WeekDataViewLogic();
-            GetUserDataAsync(idAldakinUser);
+            WriteUserDataAsync(idAldakinUser);
             DateTime day, dtIniWeek = DateTime.Now, dtEndWeek = DateTime.Now;
             if (string.IsNullOrEmpty(strDate) && string.IsNullOrEmpty(strAction))
             {
@@ -73,13 +71,14 @@ namespace AppPartes.Logic
                             oReturn.listSemana = await ResumeHourPerDay(dtIniWeek, dtEndWeek);
 
                             oReturn.listPartes = await GetWeekWorkerParts(dtIniWeek, dtEndWeek);
-                            if (!(aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Dia == dtSelected.Date && x.Idusuario == iUserId) is null))
+                            var weekStatus =await  aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Dia == dtSelected.Date && x.Idusuario == _iUserId);
+                            if (weekStatus is null)
                             {
-                                oReturn.SemanaCerrada = true;
+                                oReturn.SemanaCerrada = false;
                             }
                             else
                             {
-                                oReturn.SemanaCerrada = false;
+                                oReturn.SemanaCerrada = true;
                             }
                             oReturn.DateSelected = dtSelected.ToString("yyyy-MM-dd"); // dtSelected.Date;
                         }
@@ -96,7 +95,7 @@ namespace AppPartes.Logic
                         }
 
                         day = lSelect.Inicio;
-                        lEstadoDia = await aldakinDbContext.Estadodias.Where(x => x.Idusuario == iUserId && DateTime.Compare(x.Dia, day.Date) == 0).ToListAsync();//
+                        lEstadoDia = await aldakinDbContext.Estadodias.Where(x => x.Idusuario == _iUserId && DateTime.Compare(x.Dia, day.Date) == 0).ToListAsync();//
                         if (lEstadoDia.Count > 0)
                         {
                             oReturn.Mensaje = "La semana esta cerrada, habla con tu responsable para reabirla;";
@@ -121,17 +120,17 @@ namespace AppPartes.Logic
         private async Task<List<Ots>> GetOts()
         {
             var lReturn = new List<Ots>();
-            var totalOts = aldakinDbContext.Ots.Where(x => x.CodEnt == iUserCondEntO && x.CodEntD == 0 && x.Codigorefot != "29" && x.Cierre == null);
+            var totalOts = aldakinDbContext.Ots.Where(x => x.CodEnt == _iUserCondEntO && x.CodEntD == 0 && x.Codigorefot != "29" && x.Cierre == null);
             var totalType1Ots = totalOts.Where(x => x.Tipoot == 1);
-            var totalType2Ots = totalOts.Join(aldakinDbContext.Presupuestos.Where(x => x.CodEnt == iUserCondEntO), o => o.Idots, i => i.Idot, (o, p) => o);//original
+            var totalType2Ots = totalOts.Join(aldakinDbContext.Presupuestos.Where(x => x.CodEnt == _iUserCondEntO), o => o.Idots, i => i.Idot, (o, p) => o);//original
             lReturn = await totalType1Ots.Concat(totalType2Ots).Distinct().OrderBy(x => x.Numero).ToListAsync();
             return lReturn;
         }
         private async Task<List<Entidad>> GetAldakinCompanies()
         {
             var lReturn = new List<Entidad>();
-            var aux = await aldakinDbContext.Entidad.FirstOrDefaultAsync(x => x.CodEnt == iUserCondEntO);
-            lReturn = await aldakinDbContext.Entidad.Where(x => x.CodEnt != iUserCondEntO).OrderByDescending(x => x.Nombre).ToListAsync();
+            var aux = await aldakinDbContext.Entidad.FirstOrDefaultAsync(x => x.CodEnt == _iUserCondEntO);
+            lReturn = await aldakinDbContext.Entidad.Where(x => x.CodEnt != _iUserCondEntO).OrderByDescending(x => x.Nombre).ToListAsync();
             lReturn.Insert(0, aux);
             return lReturn;
         }
@@ -150,7 +149,7 @@ namespace AppPartes.Logic
                              (c.Idclientes == o.Cliente)
                              && (o.Cierre == null)
                              && (o.Codigorefot != "29")
-                             && (c.CodEnt == iUserCondEntO)
+                             && (c.CodEnt == _iUserCondEntO)
                              )
                              select c).Distinct().OrderBy(c => c.Nombre).ToListAsync();
             return lReturn;
@@ -158,7 +157,7 @@ namespace AppPartes.Logic
         private async Task<List<Pernoctaciones>> GetAldakinNight()
         {
             var lReturn = new List<Pernoctaciones>();
-            lReturn = await aldakinDbContext.Pernoctaciones.Where(x => x.CodEnt == iUserCondEntO).ToListAsync();
+            lReturn = await aldakinDbContext.Pernoctaciones.Where(x => x.CodEnt == _iUserCondEntO).ToListAsync();
             return lReturn;
         }
         private async Task<List<Pernoctaciones>> GetAldakinNight(Lineas lSelect)
@@ -173,7 +172,7 @@ namespace AppPartes.Logic
             for (var date = dtIniWeek; date < dtEndWeek; date = date.AddDays(1.0))
             {
                 double dHorasDia = 0;
-                var Temp = await aldakinDbContext.Lineas.Where(x => x.Inicio.Date == date.Date && x.CodEnt == iUserCondEntO && x.Idusuario == iUserId).OrderBy(x => x.Inicio).ToListAsync();
+                var Temp = await aldakinDbContext.Lineas.Where(x => x.Inicio.Date == date.Date && x.CodEnt == _iUserCondEntO && x.Idusuario == _iUserId).OrderBy(x => x.Inicio).ToListAsync();
                 foreach (var l in Temp)
                 {
                     dHorasDia = dHorasDia + (l.Fin - l.Inicio).TotalHours;
@@ -189,7 +188,7 @@ namespace AppPartes.Logic
             var NombreCliente = string.Empty;
             var strPernocta = string.Empty;
             var strPreslin = string.Empty;
-            var lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.Idusuario == iUserId && x.CodEnt == iUserCondEntO).OrderBy(x => x.Inicio).ToListAsync();
+            var lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.Idusuario == _iUserId && x.CodEnt == _iUserCondEntO).OrderBy(x => x.Inicio).ToListAsync();
 
             //aqui tengo que recorrer lisPartes e ir volvandolo a otra clase nueva para nomstrar losnombres de las ots y empresas...
             //ademas tengo que ver si es la linea original o la secundaria para que si es la secundaria la cambie por la principal
@@ -205,7 +204,7 @@ namespace AppPartes.Logic
                 }
                 else
                 {
-                    var pernocta = await aldakinDbContext.Pernoctaciones.FirstOrDefaultAsync(x => x.Tipo == l.Facturable && x.CodEnt == iUserCondEntO);
+                    var pernocta = await aldakinDbContext.Pernoctaciones.FirstOrDefaultAsync(x => x.Tipo == l.Facturable && x.CodEnt == _iUserCondEntO);
                     strPernocta = pernocta.Descripcion;
                 }
                 if (l.Idoriginal == 0)

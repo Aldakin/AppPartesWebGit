@@ -105,7 +105,7 @@
                             <h3>Editar parte de trabajo</h3>
                             @foreach (var dept in Model.listSelect)
                             {
-                                <form asp-action="EditLine" asp-controller="WeekDataApi" method="POST">
+                                <form asp-action="EditLine" asp-controller="WeekReview" method="POST">
                                     <input type="hidden" id="ot" name="ot" value="@dept.Idot" readonly />
                                     <div class="row gtr-uniform">
                                         <!--<div class="col-6 col-12-xsmall">
@@ -324,10 +324,8 @@
                             <hr class="major" />
                             <p>Desea cerrar la semana?</p>
 
-                            <form asp-controller="WeekDataApi" asp-action="CloseWeek" method="POST">
-                                <input type="hidden" name="strDataSelected" value="@Model.DateSelected" />
-                                <input type="submit" value="CerrarSemana" />
-                            </form>
+                                <input type="hidden" id="strDataSelected" name="strDataSelected" value="@Model.DateSelected" />
+                                <input type="submit" name="strAction" onclick="closeWeekConfirm('strDataSelected');" value="CerrarSemana" />
                         </div>
                         <header id="header">
                         </header>
@@ -531,6 +529,30 @@
                 alert('Borrado cancelado');
             }
         }
+        function closeWeekConfirm(strData) {
+            var opcion = confirm("¿Seguro que desea Cerrar?");
+            var data =  document.getElementById(strData);
+            alert('dada' + data.value);
+            if (opcion == true) {
+                var url = "@Url.Action("CloseFunction","WeekDataApi")";
+                var data = { strDataSelected: data.value};
+                $.post(url, data).done(function (data) {
+                    if (data.length>1) {
+                        window.location.href = "WeekReview?strMessage=Semana cerrada correctamente;&strDate=" + JSON.stringify(data[1].strValue).replace(/['"]+/g, '') + "&strAction=" + JSON.stringify(data[1].strText).replace(/['"]+/g, '') + "";
+                        }
+                    else {
+                        window.location.href = "WeekReview?strMessage=Error durante el cerrado de la semana;";
+                    }
+                    //window.location.href = "WeekReview?strMessage=Parte borrado correctamente;";
+
+
+                })
+            } else {
+                alert('Cerrado de semana cancelado');
+            }
+        }
+
+
         const GastoSeleccionado = () => {
             if (document.getElementById('gastos').checked)
             {

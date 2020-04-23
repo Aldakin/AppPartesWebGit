@@ -6,6 +6,7 @@ namespace AppPartes.Logic
 {
     public interface IWriteDataBase
     {
+        Task<UserData> GetUserDataAsync(int idAldakinUser);
         Task<string> InsertWorkerLineAsync(WorkerLineData dataToInsertLine, int idAldakinUser);
         Task<List<SelectData>> DeleteWorkerLineAsync(int iLine, int idAldakinUser);
         Task<SelectData> EditWorkerLineAsync(WorkerLineData dataToEditLine, int idAldakinUser);

@@ -9,29 +9,28 @@ namespace AppPartes.Logic
     public class WorkPartInformation : IWorkPartInformation
     {
         private readonly AldakinDbContext aldakinDbContext;
+        private readonly IWriteDataBase _iWriteDataBase;
         //apaño para usuario con claims
-        private string strUserName = "";
-        private string stUserrDni = "";
-        private int iUserId = 0;
-        private int iUserCondEntO = 0;
-        public WorkPartInformation(AldakinDbContext aldakinDbContext)
+        private string _strUserName = "";
+        private string _stUserDni = "";
+        private int _iUserId = 0;
+        private int _iUserCondEntO = 0;
+        public WorkPartInformation(AldakinDbContext aldakinDbContext, IWriteDataBase iWriteDataBase)
         {
             this.aldakinDbContext = aldakinDbContext;
+            _iWriteDataBase = iWriteDataBase;
         }
-        private async void GetUserDataAsync(int idAldakinUser)
+        private async void WriteUserDataAsync(int idAldakinUser)
         {
-            var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == idAldakinUser && x.CodEnt == x.CodEntO);
-            if (!(user is null))
-            {
-                strUserName = user.Nombrecompleto.ToString();
-                iUserId = Convert.ToInt16(user.Idusuario);
-                iUserCondEntO = Convert.ToInt16(user.CodEntO);
-                stUserrDni = user.Name;
-            }
+            var user= await _iWriteDataBase.GetUserDataAsync(idAldakinUser);
+            _strUserName = user.strUserName;
+            _iUserId = user.iUserId;
+            _iUserCondEntO = user.iUserCondEntO;
+            _stUserDni = user.stUserrDni;
         }
         public async Task<List<SelectData>> WeekHourResume(DateTime dtSelected, int idAldakinUser)
         {
-            GetUserDataAsync(idAldakinUser);
+            WriteUserDataAsync(idAldakinUser);
             var lReturn = new List<SelectData>();
             var iCont = 0;
             IniEndWeek(dtSelected, out var dtIniWeek, out var dtEndWeek);
@@ -39,7 +38,7 @@ namespace AppPartes.Logic
             for (var date = dtIniWeek; date < dtEndWeek; date = date.AddDays(1.0))
             {
                 var strRangosHora = "";
-                var listPartes = await aldakinDbContext.Lineas.Where(x => x.Inicio.Date == date.Date && x.CodEnt == iUserCondEntO && x.Idusuario == iUserId).OrderBy(x => x.Inicio).ToListAsync();
+                var listPartes = await aldakinDbContext.Lineas.Where(x => x.Inicio.Date == date.Date && x.CodEnt == _iUserCondEntO && x.Idusuario == _iUserId).OrderBy(x => x.Inicio).ToListAsync();
                 foreach (var l in listPartes)
                 {
                     var strTempIni = string.Empty;
@@ -73,7 +72,7 @@ namespace AppPartes.Logic
         }
         public async Task<List<SelectData>> SelectedCompanyReadOt(int iEntidad, int idAldakinUser)
         {
-            GetUserDataAsync(idAldakinUser);
+            WriteUserDataAsync(idAldakinUser);
             var lReturn = new List<SelectData>();
             List<Ots> listOts = null;
             //listOts = aldakinDbContext.Ots.Where(x => x.CodEnt == cantidad && x.CodEntD == 0 && x.Codigorefot != "29" && x.Cierre == null).OrderByDescending(x => x.Idots).ToList();
@@ -94,7 +93,7 @@ namespace AppPartes.Logic
         }
         public async Task<List<SelectData>> SelectedCompanyReadClient(int iEntidad, int idAldakinUser)
         {
-            GetUserDataAsync(idAldakinUser);
+            WriteUserDataAsync(idAldakinUser);
             var lReturn = new List<SelectData>();
             List<Clientes> listaClient = null;
             if (iEntidad < 1)
@@ -121,7 +120,7 @@ namespace AppPartes.Logic
         }
         public async Task<List<SelectData>> SelectedClient(int iClient, int idAldakinUser)
         {
-            GetUserDataAsync(idAldakinUser);
+            WriteUserDataAsync(idAldakinUser);
             var lReturn = new List<SelectData>();
             List<Ots> listOts = null;
             if (iClient != 0)
@@ -136,7 +135,7 @@ namespace AppPartes.Logic
             else
             {
                 listOts = null;
-                listOts = await aldakinDbContext.Ots.Where(x => x.CodEnt == iUserCondEntO && x.CodEntD == 0 && x.Codigorefot != "29" && x.Cierre == null).OrderByDescending(x => x.Idots).ToListAsync();
+                listOts = await aldakinDbContext.Ots.Where(x => x.CodEnt == _iUserCondEntO && x.CodEntD == 0 && x.Codigorefot != "29" && x.Cierre == null).OrderByDescending(x => x.Idots).ToListAsync();
                 foreach (var p in listOts)
                 {
                     var strTemp = p.Numero + "||" + p.Nombre;
@@ -148,7 +147,7 @@ namespace AppPartes.Logic
         }
         public async Task<List<SelectData>> SelectedOt(int iOt, int idAldakinUser)
         {
-            GetUserDataAsync(idAldakinUser);
+            WriteUserDataAsync(idAldakinUser);
             var lReturn = new List<SelectData>();
             List<Presupuestos> lPresupuestos = null;
             lPresupuestos = null;
@@ -185,7 +184,7 @@ namespace AppPartes.Logic
         }
         public async Task<List<SelectData>> ReadLevel1(int iData, int idAldakinUser)
         {
-            GetUserDataAsync(idAldakinUser);
+            WriteUserDataAsync(idAldakinUser);
             var lReturn = new List<SelectData>();
             List<Preslin> lPreslin = null;
             if (iData < 1)
@@ -209,7 +208,7 @@ namespace AppPartes.Logic
         }
         public async Task<List<SelectData>> ReadLevel2(int iData, int iData2, int idAldakinUser)
         {
-            GetUserDataAsync(idAldakinUser);
+            WriteUserDataAsync(idAldakinUser);
             var lReturn = new List<SelectData>();
             List<Preslin> lPreslin = null;
             if (iData < 1 || iData2 < 1)
@@ -244,7 +243,7 @@ namespace AppPartes.Logic
         }
         public async Task<List<SelectData>> ReadLevelGeneral(int iData, int idAldakinUser)
         {
-            GetUserDataAsync(idAldakinUser);
+            WriteUserDataAsync(idAldakinUser);
             var lReturn = new List<SelectData>();
             List<Preslin> lPreslin = null;
             if (iData < 1)
@@ -276,7 +275,7 @@ namespace AppPartes.Logic
         }
         public async Task<List<SelectData>> SelectedPayer(int iPayer, int iOt, int idAldakinUser)
         {
-            GetUserDataAsync(idAldakinUser);
+            WriteUserDataAsync(idAldakinUser);
             var lReturn = new List<SelectData>();
             if (iOt < 1)
             {

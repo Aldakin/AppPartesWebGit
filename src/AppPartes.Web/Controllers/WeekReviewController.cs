@@ -50,7 +50,40 @@ namespace AppPartes.Web.Controllers
                 ViewBag.Message = "ocurrio un error!!!";
             }
             return View(oView);
-        }       
+        }
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditLine(string strIdLinea, string ot, string strCalendario, string strHoraInicio, string strMinutoInicio, string strHoraFin, string strMinutoFin, string bHorasViaje, string bGastos, string strParte, string strPernoctacion, string strObservaciones, string strGastos)
+        {
+            var dataEditLine = new WorkerLineData
+            {
+                strIdLinea = strIdLinea,
+                strOt = ot,
+                strCalendario = strCalendario,
+                strHoraInicio = strHoraInicio,
+                strMinutoInicio = strMinutoInicio,
+                strHoraFin = strHoraFin,
+                strMinutoFin = strMinutoFin,
+                bHorasViaje = bHorasViaje,
+                bGastos = bGastos,
+                strParte = strParte,
+                strPernoctacion = strPernoctacion,
+                strObservaciones = strObservaciones,
+                strGastos = strGastos
+            };
+            _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
+            var oReturn = await _IWriteDataBase.EditWorkerLineAsync(dataEditLine, _idAldakinUser);
+            if (oReturn.iValue == 0)
+            {
+                return RedirectToAction("Index", new { strMessage = oReturn.strText, strDate = oReturn.strValue, strAction = "" });
+            }
+            else
+            {
+                return RedirectToAction("Index", new { strMessage = oReturn.strText, strDate = oReturn.strValue, strAction = "loadWeek" });
+            }
+        }
+        
+
+
     }
 
 }

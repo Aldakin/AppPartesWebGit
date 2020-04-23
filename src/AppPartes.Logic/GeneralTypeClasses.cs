@@ -68,6 +68,13 @@ namespace AppPartes.Logic
         public string Gastos { get; set; }
         public int ContGastos { get; set; }
     }
+    public class UserData
+    {
+        public string strUserName { set; get; }
+        public string stUserrDni { set; get; }
+        public int iUserId { set; get; }
+        public int iUserCondEntO { set; get; }
+    }
 
     public class MainDataViewLogic
     {
