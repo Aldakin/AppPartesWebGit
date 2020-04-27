@@ -532,14 +532,14 @@
         function closeWeekConfirm(strData) {
             var opcion = confirm("¿Seguro que desea Cerrar?");
             var data =  document.getElementById(strData);
-            alert('dada' + data.value);
             if (opcion == true) {
                 var url = "@Url.Action("CloseFunction","WeekDataApi")";
                 var data = { strDataSelected: data.value};
                 $.post(url, data).done(function (data) {
-                    if (data.length>1) {
+                    if (JSON.stringify(data[1].iValue) >1) {
+                        
                         window.location.href = "WeekReview?strMessage=Semana cerrada correctamente;&strDate=" + JSON.stringify(data[1].strValue).replace(/['"]+/g, '') + "&strAction=" + JSON.stringify(data[1].strText).replace(/['"]+/g, '') + "";
-                        }
+                    }
                     else {
                         window.location.href = "WeekReview?strMessage=Error durante el cerrado de la semana;";
                     }

@@ -22,7 +22,7 @@ namespace AppPartes.Logic
         }
         private async void WriteUserDataAsync(int idAldakinUser)
         {
-            var user= await _iWriteDataBase.GetUserDataAsync(idAldakinUser);
+            var user = await _iWriteDataBase.GetUserDataAsync(idAldakinUser);
             _strUserName = user.strUserName;
             _iUserId = user.iUserId;
             _iUserCondEntO = user.iUserCondEntO;

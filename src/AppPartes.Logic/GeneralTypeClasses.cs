@@ -1,6 +1,6 @@
-﻿using System;
+﻿using AppPartes.Data.Models;
+using System;
 using System.Collections.Generic;
-using AppPartes.Data.Models;
 
 namespace AppPartes.Logic
 {

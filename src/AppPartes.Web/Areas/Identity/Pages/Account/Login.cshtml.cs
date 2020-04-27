@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using AppPartes.Logic;
 using AppPartes.Web.Models;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
-using AppPartes.Logic;
-using AppPartes.Data.Models;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace AppPartes.Web.Areas.Identity.Pages.Account
 {
@@ -76,7 +73,7 @@ namespace AppPartes.Web.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             ReturnUrl = returnUrl;
-            lEntity =await _ILoadIndexController.LoadLoginController();
+            lEntity = await _ILoadIndexController.LoadLoginController();
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -87,7 +84,7 @@ namespace AppPartes.Web.Areas.Identity.Pages.Account
             {
                 try
                 {
-                    if(Convert.ToInt32(Input.Email)<1000)
+                    if (Convert.ToInt32(Input.Email) < 1000)
                     {
                         if (Convert.ToInt32(Input.Email) < 100)
                         {
@@ -105,13 +102,14 @@ namespace AppPartes.Web.Areas.Identity.Pages.Account
                         {
                             Input.Email = Input.Company + "0" + Input.Email;
                         }
-                    }else
+                    }
+                    else
                     {
 
-                        Input.Email = Input.Company +  Input.Email;
+                        Input.Email = Input.Company + Input.Email;
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     lEntity = await _ILoadIndexController.LoadLoginController();
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");

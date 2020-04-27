@@ -14,8 +14,8 @@ namespace AppPartes.Logic
         //apaño para usuario con claims
         private string _strUserName = "";
         private string _stUserDni = "";
-        private int _iUserId ;
-        private int _iUserCondEntO ;
+        private int _iUserId;
+        private int _iUserCondEntO;
         public LoadIndexController(AldakinDbContext aldakinDbContext, IWriteDataBase iWriteDataBase)
         {
             this.aldakinDbContext = aldakinDbContext;
@@ -71,7 +71,7 @@ namespace AppPartes.Logic
                             oReturn.listSemana = await ResumeHourPerDay(dtIniWeek, dtEndWeek);
 
                             oReturn.listPartes = await GetWeekWorkerParts(dtIniWeek, dtEndWeek);
-                            var weekStatus =await  aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Dia == dtSelected.Date && x.Idusuario == _iUserId);
+                            var weekStatus = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Dia == dtSelected.Date && x.Idusuario == _iUserId);
                             if (weekStatus is null)
                             {
                                 oReturn.SemanaCerrada = false;
@@ -137,7 +137,7 @@ namespace AppPartes.Logic
         private async Task<List<Entidad>> GetAllAldakinCompanies()
         {
             var lReturn = new List<Entidad>();
-            lReturn = await aldakinDbContext.Entidad.Where(x => x.CodEnt !=0).ToListAsync();
+            lReturn = await aldakinDbContext.Entidad.Where(x => x.CodEnt != 0).ToListAsync();
             return lReturn;
         }
         private async Task<List<Clientes>> GetAldakinClients()

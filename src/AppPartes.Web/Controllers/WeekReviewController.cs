@@ -1,15 +1,8 @@
-﻿using AppPartes.Data.Models;
-using AppPartes.Logic;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
-using AppPartes.Web.Models;
-using Microsoft.AspNetCore.Authorization;
+﻿using AppPartes.Logic;
 using AppPartes.Web.Controllers.Api;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 //https://programacion.net/articulo/como_resaltar_fechas_especificas_en_jquery_ui_datepicker_1731
 
@@ -44,7 +37,7 @@ namespace AppPartes.Web.Controllers
         {
             ViewBag.Message = strMessage;
             _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
-            var oView =await _ILoadIndexController.LoadWeekController(_idAldakinUser, strDate, strAction, strId);
+            var oView = await _ILoadIndexController.LoadWeekController(_idAldakinUser, strDate, strAction, strId);
             if (!(oView.Mensaje is null))
             {
                 ViewBag.Message = "ocurrio un error!!!";
@@ -81,7 +74,7 @@ namespace AppPartes.Web.Controllers
                 return RedirectToAction("Index", new { strMessage = oReturn.strText, strDate = oReturn.strValue, strAction = "loadWeek" });
             }
         }
-        
+
 
 
     }

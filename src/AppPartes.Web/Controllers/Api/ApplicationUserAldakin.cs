@@ -1,26 +1,18 @@
-﻿using AppPartes.Logic;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using AppPartes.Web.Models;
 using Microsoft.AspNetCore.Identity;
-using AppPartes.Web.Models;
-using AppPartes.Data.Models;
-using Microsoft.AspNetCore.Http;
-using System.Web;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace AppPartes.Web.Controllers.Api
 {
     public class ApplicationUserAldakin : IApplicationUserAldakin
     {
         private readonly UserManager<ApplicationUser> _manager;
-        public   ApplicationUserAldakin( UserManager<ApplicationUser> manager)//(UserManager<ApplicationUser> manager, AldakinDbContext aldakinDbContext)
+        public ApplicationUserAldakin(UserManager<ApplicationUser> manager)//(UserManager<ApplicationUser> manager, AldakinDbContext aldakinDbContext)
         {
             _manager = manager;
         }
-        public  async Task<int> GetIdUserAldakin(ClaimsPrincipal httpUser)
+        public async Task<int> GetIdUserAldakin(ClaimsPrincipal httpUser)
         {
             ////TODO Asi recuperamos los datos de aldakin
             var user = await _manager.GetUserAsync(httpUser);

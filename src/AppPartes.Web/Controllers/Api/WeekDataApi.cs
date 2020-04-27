@@ -1,11 +1,10 @@
 ﻿using AppPartes.Logic;
+using AppPartes.Web.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
-using AppPartes.Web.Models;
 
 namespace AppPartes.Web.Controllers.Api
 {
@@ -15,7 +14,7 @@ namespace AppPartes.Web.Controllers.Api
         private readonly IWriteDataBase _IWriteDataBase;
         private readonly ILoadIndexController _ILoadIndexController;
         private readonly UserManager<ApplicationUser> _manager;
-        public WeekDataApi(IWorkPartInformation iWorkPartInformation, IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController,UserManager<ApplicationUser> manager)
+        public WeekDataApi(IWorkPartInformation iWorkPartInformation, IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController, UserManager<ApplicationUser> manager)
         {
             _IWorkPartInformation = iWorkPartInformation;
             _IWriteDataBase = iWriteDataBase;
@@ -35,8 +34,8 @@ namespace AppPartes.Web.Controllers.Api
             var listaSelect = new List<SelectData>();
             try
             {
-                int idAldakin =await GetIdUserAldakinAsync();
-                   listaSelect =await _IWorkPartInformation.SelectedPayer(cantidad, cantidad2, idAldakin);
+                int idAldakin = await GetIdUserAldakinAsync();
+                listaSelect = await _IWorkPartInformation.SelectedPayer(cantidad, cantidad2, idAldakin);
             }
             catch (Exception)
             {
@@ -47,7 +46,7 @@ namespace AppPartes.Web.Controllers.Api
         public async Task<List<SelectData>> DeleteLineFunction(int cantidad)
         {
             var lReturn = new List<SelectData>();
-            int idAldakin =await GetIdUserAldakinAsync();
+            int idAldakin = await GetIdUserAldakinAsync();
             lReturn = await _IWriteDataBase.DeleteWorkerLineAsync(cantidad, idAldakin);
             return lReturn;
         }

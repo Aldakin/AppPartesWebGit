@@ -1,12 +1,4 @@
-﻿using System;
-using AppPartes.Web.Data;
-using AppPartes.Web.Models;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Hosting;
 
 [assembly: HostingStartup(typeof(AppPartes.Web.Areas.Identity.IdentityHostingStartup))]
 namespace AppPartes.Web.Areas.Identity
@@ -15,7 +7,8 @@ namespace AppPartes.Web.Areas.Identity
     {
         public void Configure(IWebHostBuilder builder)
         {
-            builder.ConfigureServices((context, services) => {
+            builder.ConfigureServices((context, services) =>
+            {
             });
         }
     }

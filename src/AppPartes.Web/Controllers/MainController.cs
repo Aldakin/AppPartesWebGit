@@ -1,14 +1,8 @@
-﻿using AppPartes.Data.Models;
-using AppPartes.Logic;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AppPartes.Web.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+﻿using AppPartes.Logic;
 using AppPartes.Web.Controllers.Api;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 
 namespace AppPartes.Web.Controllers
@@ -21,7 +15,7 @@ namespace AppPartes.Web.Controllers
         private readonly ILoadIndexController _ILoadIndexController;
         private readonly IApplicationUserAldakin _IApplicationUserAldakin;
         private int _idAldakinUser;
-        public   MainController(IWorkPartInformation iWorkPartInformation, IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController,IApplicationUserAldakin iApplicationUserAldakin)
+        public MainController(IWorkPartInformation iWorkPartInformation, IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController, IApplicationUserAldakin iApplicationUserAldakin)
         {
             _IWriteDataBase = iWriteDataBase;
             _IWorkPartInformation = iWorkPartInformation;
@@ -32,7 +26,7 @@ namespace AppPartes.Web.Controllers
         {
             _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
             ViewBag.Message = strMessage;
-            var oView =await _ILoadIndexController.LoadMainController(_idAldakinUser);
+            var oView = await _ILoadIndexController.LoadMainController(_idAldakinUser);
             return View(oView);
         }
         [HttpPost, ValidateAntiForgeryToken]

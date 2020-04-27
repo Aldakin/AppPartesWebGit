@@ -1,11 +1,8 @@
 ﻿using AppPartes.Logic;
-using AppPartes.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 
 namespace AppPartes.Web.Controllers.Api
 {
@@ -32,8 +29,8 @@ namespace AppPartes.Web.Controllers.Api
         }
         public async Task<MainDataViewLogic> LoadMainView()
         {
-            int idAldakinUser =await GetIdUserAldakinAsync();
-            var oView =await _ILoadIndexController.LoadMainController(idAldakinUser);
+            int idAldakinUser = await GetIdUserAldakinAsync();
+            var oView = await _ILoadIndexController.LoadMainController(idAldakinUser);
             return oView;
         }
         //[HttpPost]
@@ -45,8 +42,8 @@ namespace AppPartes.Web.Controllers.Api
             try
             {
                 dtSelected = Convert.ToDateTime(cantidad);
-                int idAldakinUser =await GetIdUserAldakinAsync();
-                listaSelect =await _IWorkPartInformation.WeekHourResume(dtSelected, idAldakinUser);
+                int idAldakinUser = await GetIdUserAldakinAsync();
+                listaSelect = await _IWorkPartInformation.WeekHourResume(dtSelected, idAldakinUser);
             }
             catch (Exception)
             {
@@ -59,8 +56,8 @@ namespace AppPartes.Web.Controllers.Api
             var listaSelect = new List<SelectData>();
             try
             {
-                int idAldakinUser =await GetIdUserAldakinAsync();
-                listaSelect =await _IWorkPartInformation.SelectedCompanyReadOt(cantidad, idAldakinUser);
+                int idAldakinUser = await GetIdUserAldakinAsync();
+                listaSelect = await _IWorkPartInformation.SelectedCompanyReadOt(cantidad, idAldakinUser);
             }
             catch (Exception)
             {
@@ -73,7 +70,7 @@ namespace AppPartes.Web.Controllers.Api
             var listaSelect = new List<SelectData>();
             try
             {
-                int idAldakinUser =await GetIdUserAldakinAsync();
+                int idAldakinUser = await GetIdUserAldakinAsync();
                 listaSelect = await _IWorkPartInformation.SelectedCompanyReadClient(cantidad, idAldakinUser);
             }
             catch (Exception)
@@ -87,7 +84,7 @@ namespace AppPartes.Web.Controllers.Api
             var listaSelect = new List<SelectData>();
             try
             {
-                int idAldakinUser =await GetIdUserAldakinAsync();
+                int idAldakinUser = await GetIdUserAldakinAsync();
                 listaSelect = await _IWorkPartInformation.SelectedClient(cantidad, idAldakinUser);
             }
             catch (Exception)
@@ -101,7 +98,7 @@ namespace AppPartes.Web.Controllers.Api
             var listaSelect = new List<SelectData>();
             try
             {
-                int idAldakinUser =await GetIdUserAldakinAsync();
+                int idAldakinUser = await GetIdUserAldakinAsync();
                 listaSelect = await _IWorkPartInformation.SelectedOt(cantidad, idAldakinUser);
             }
             catch (Exception)
@@ -115,7 +112,7 @@ namespace AppPartes.Web.Controllers.Api
             var listaSelect = new List<SelectData>();
             try
             {
-                int idAldakinUser =await GetIdUserAldakinAsync();
+                int idAldakinUser = await GetIdUserAldakinAsync();
                 listaSelect = await _IWorkPartInformation.ReadLevelGeneral(cantidad, idAldakinUser);
             }
             catch (Exception)
@@ -129,8 +126,8 @@ namespace AppPartes.Web.Controllers.Api
             var listaSelect = new List<SelectData>();
             try
             {
-                int idAldakinUser =await GetIdUserAldakinAsync();
-                listaSelect =await _IWorkPartInformation.ReadLevel1(cantidad, idAldakinUser);
+                int idAldakinUser = await GetIdUserAldakinAsync();
+                listaSelect = await _IWorkPartInformation.ReadLevel1(cantidad, idAldakinUser);
             }
             catch (Exception)
             {
@@ -143,8 +140,8 @@ namespace AppPartes.Web.Controllers.Api
             var listaSelect = new List<SelectData>();
             try
             {
-                int idAldakinUser =await GetIdUserAldakinAsync();
-                listaSelect =await _IWorkPartInformation.ReadLevel2(cantidad, cantidad2, idAldakinUser);
+                int idAldakinUser = await GetIdUserAldakinAsync();
+                listaSelect = await _IWorkPartInformation.ReadLevel2(cantidad, cantidad2, idAldakinUser);
             }
             catch (Exception)
             {
