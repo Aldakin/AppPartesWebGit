@@ -1,4 +1,5 @@
 ﻿using AppPartes.IntegrationTests.Seedwork.Fixtures;
+using AppPartes.Logic;
 using FluentAssertions;
 using System.Net;
 using System.Threading.Tasks;
@@ -23,7 +24,7 @@ namespace AppPartes.IntegrationTests.Spec
             var client = _serverFixture.GetTestClient();
 
             //Act
-            var response = await client.GetAsync("/maindataapi/SelectedEntityOt");
+            var response = await client.GetAsync("/maindataapi/SelectedEntityOt?cantidad=0");
 
             //Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AppPartes.Web.Controllers.Api
 {
-
+    //[Route("api/[controller]")]
     public class MainDataApi : ControllerBase
     {
         private readonly IWorkPartInformation _IWorkPartInformation;
@@ -51,6 +51,7 @@ namespace AppPartes.Web.Controllers.Api
             }
             return listaSelect;
         }
+        //[HttpGet("selectentityot")]
         public async Task<List<SelectData>> SelectedEntityOt(int cantidad)
         {
             var listaSelect = new List<SelectData>();

@@ -32,14 +32,24 @@ namespace AppPartes.Logic
         public async Task<UserData> GetUserDataAsync(int idAldakinUser)
         {
             UserData oReturn = new UserData();
-            oReturn = null;
-            var user = aldakinDbContext.Usuarios.FirstOrDefault(x => x.Idusuario == idAldakinUser && x.CodEnt == x.CodEntO);
-            if (!(user is null))
+            try
             {
-                oReturn.strUserName = user.Nombrecompleto.ToString();
-                oReturn.iUserId = Convert.ToInt16(user.Idusuario);
-                oReturn.iUserCondEntO = Convert.ToInt16(user.CodEntO);
-                oReturn.stUserrDni = user.Name;
+                var user = aldakinDbContext.Usuarios.FirstOrDefault(x => x.Idusuario == idAldakinUser && x.CodEnt == x.CodEntO);
+                if (!(user is null))
+                {
+                    var writeUser = new UserData
+                    {
+                        strUserName = user.Nombrecompleto.ToString(),
+                        iUserId = Convert.ToInt16(user.Idusuario),
+                        iUserCondEntO = Convert.ToInt16(user.CodEntO),
+                        stUserrDni = user.Name
+                    };
+                    oReturn = writeUser;
+                }
+            }
+            catch (Exception ex)
+            {
+                oReturn = null;
             }
             return oReturn;
         }
@@ -60,12 +70,10 @@ namespace AppPartes.Logic
                 {
                     dataToInsertLine.strObservaciones = string.Empty;
                 }
-
                 if (string.IsNullOrEmpty(dataToInsertLine.strParte))
                 {
                     dataToInsertLine.strParte = string.Empty;
                 }
-
                 if (string.IsNullOrEmpty(dataToInsertLine.bHorasViaje))
                 {
                     bHorasViajeTemp = false;
@@ -105,7 +113,6 @@ namespace AppPartes.Logic
             var lEstadoDia = await aldakinDbContext.Estadodias.Where(x => x.Idusuario == _iUserId && DateTime.Compare(x.Dia, day) == 0).ToListAsync();//
             if (lEstadoDia.Count > 0)
             {
-
                 strReturn = "La semana esta cerrada, habla con tu responsable para reabirla;";
                 return (strReturn);
             }
@@ -114,30 +121,17 @@ namespace AppPartes.Logic
                 strReturn = "Hora de Fin de Parte anterior a la Hora de inicio de Parte;";
                 return (strReturn);
             }
-            //rango usado
+            //Review if range of time is used
             var lLineas = await aldakinDbContext.Lineas.Where(x => DateTime.Compare(x.Inicio.Date, day.Date) == 0 && x.Idusuario == _iUserId && x.Validado == 0 && x.Registrado == 0).ToListAsync();
-            if (lLineas != null)
-            {
-                foreach (var x in lLineas)
-                {
-                    if (DateTime.Compare(dtFin, x.Inicio) > 0 && DateTime.Compare(dtFin, x.Fin) < 0)
-                    {
-                        strReturn = "Rango de Horas ya utilizado;";
-                        return (strReturn);
-                    }
-                    if (DateTime.Compare(dtInicio, x.Inicio) > 0 && DateTime.Compare(dtInicio, x.Fin) < 0)
-                    {
-                        strReturn = "Rango de Horas ya utilizado;";
-                        return (strReturn);
-                    }
-                }
-            }
+            if (RangeIsUsed(lLineas, dtFin, dtInicio, ref strReturn)) return strReturn;
+            
             //gastos
             float dGastos = 0;
             float dKilometros = 0;
             var icodEntOt = await aldakinDbContext.Ots.FirstOrDefaultAsync(t => t.Idots == Convert.ToInt32(dataToInsertLine.strOt));
             var iCodEntOt = icodEntOt.CodEnt;
             var lGastos = new List<Gastos>();
+
             if (!(string.IsNullOrEmpty(dataToInsertLine.strGastos)))
             {
                 string line;
@@ -272,7 +266,6 @@ namespace AppPartes.Logic
             //inserccion segun codent...
             if (otSel.CodEnt == _iUserCondEntO)
             {
-
                 var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
                 try
                 {
@@ -412,13 +405,10 @@ namespace AppPartes.Logic
             strReturn = "Parte rellenado satisfactoriamente";
             return (strReturn);
         }
-        public async Task<List<SelectData>> DeleteWorkerLineAsync(int iLine, int idAldakinUser)
+
+        public async Task<Lineas> ReviewLineData(int iLine,int idAldakinUser)
         {
-            WriteUserDataAsync(idAldakinUser);
-            var oReturn = new List<SelectData>
-            {
-                new SelectData { iValue = 0 }
-            };
+            var oReturn = new Lineas();
             var strReturn = string.Empty;
             var iIdLinea = 0;
             try
@@ -427,24 +417,66 @@ namespace AppPartes.Logic
             }
             catch (Exception)
             {
+                oReturn = null;
                 return oReturn;
             }
             if (iIdLinea == 0)
             {
+                oReturn = null;
                 return oReturn;
             }
-            var lSelect = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(iIdLinea));
+            oReturn = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(iIdLinea));
             DateTime day;
-            if (lSelect is null)
+            if (oReturn is null)
             {
+                oReturn = null;
                 return oReturn;
             }
-            day = lSelect.Inicio;
+            day = oReturn.Inicio;
             var lEstadoDia = await aldakinDbContext.Estadodias.Where(x => x.Idusuario == _iUserId && DateTime.Compare(x.Dia, day.Date) == 0).ToListAsync();//
             if (lEstadoDia.Count > 0)
             {
+                oReturn=null;
                 return oReturn;
             }
+            return oReturn;
+        }
+        public async Task<List<SelectData>> DeleteWorkerLineAsync(int iLine, int idAldakinUser)
+        {
+            WriteUserDataAsync(idAldakinUser);
+            string strReturn;
+            var oReturn = new List<SelectData>
+            {
+                new SelectData { iValue = 0 }
+            };
+            //var strReturn = string.Empty;
+            //var iIdLinea = 0;
+            //try
+            //{
+            //    iIdLinea = Convert.ToInt32(iLine);
+            //}
+            //catch (Exception)
+            //{
+            //    return oReturn;
+            //}
+            //if (iIdLinea == 0)
+            //{
+            //    return oReturn;
+            //}
+            //var lSelect = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(iIdLinea));
+            //DateTime day;
+            //if (lSelect is null)
+            //{
+            //    return oReturn;
+            //}
+            //day = lSelect.Inicio;
+            //var lEstadoDia = await aldakinDbContext.Estadodias.Where(x => x.Idusuario == _iUserId && DateTime.Compare(x.Dia, day.Date) == 0).ToListAsync();//
+            //if (lEstadoDia.Count > 0)
+            //{
+            //    return oReturn;
+            //}
+            var lSelect =await ReviewLineData(iLine,idAldakinUser);
+            if (lSelect is null) return oReturn;
             var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
             try
             {
@@ -456,7 +488,6 @@ namespace AppPartes.Logic
                 {
                     aldakinDbContext.Lineas.Remove(lineaSecundaria);
                 }
-
                 var gasto = await aldakinDbContext.Gastos.Where(x => x.Idlinea == lSelect.Idlinea).ToListAsync();
                 if (!(gasto is null))
                 {
@@ -601,7 +632,7 @@ namespace AppPartes.Logic
 
             var strReturn = dtSelected.Year + "-" + dtSelected.Month + "-" + dtSelected.Day;
             oReturn.iValue = 1;
-            oReturn.strText = "loadWeek;";
+            oReturn.strText = "Semana Cerrada satisfactoriamente;";
             oReturn.strValue = dtSelected.ToString();
             return oReturn;
         }
@@ -694,27 +725,13 @@ namespace AppPartes.Logic
             }
             //Rango usado
             var lLineas = await aldakinDbContext.Lineas.Where(x => DateTime.Compare(x.Inicio.Date, day.Date) == 0 && x.Idusuario == _iUserId && x.Validado == 0 && x.Registrado == 0 && x.Idlinea != datosLinea.Idlinea && x.Idoriginal != datosLinea.Idlinea).ToListAsync();
-            if (lLineas != null)
+            if (RangeIsUsed(lLineas, dtFin, dtInicio, ref strReturn))
             {
-                foreach (var x in lLineas)
-                {
-                    if (DateTime.Compare(dtFin, x.Inicio) > 0 && DateTime.Compare(dtFin, x.Fin) < 0)
-                    {
-                        strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
-                        oReturn.strText = "Rango de Horas ya utilizado;";
-                        oReturn.iValue = 1;
-                        oReturn.strValue = strReturn;
-                        return oReturn;
-                    }
-                    if (DateTime.Compare(dtInicio, x.Inicio) > 0 && DateTime.Compare(dtInicio, x.Fin) < 0)
-                    {
-                        strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
-                        oReturn.strText = "Rango de Horas ya utilizado;";
-                        oReturn.iValue = 1;
-                        oReturn.strValue = strReturn;
-                        return oReturn;
-                    }
-                }
+                strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
+                oReturn.strText = "Rango de Horas ya utilizado;";
+                oReturn.iValue = 1;
+                oReturn.strValue = strReturn;
+                return oReturn;
             }
             //
             var dHorasTrabajadas = (dtFin - dtInicio).TotalHours;
@@ -840,11 +857,6 @@ namespace AppPartes.Logic
                     return oReturn;
                 }
             }
-
-
-
-
-
             if (otSel.CodEnt == _iUserCondEntO)
             {
                 datosLinea.Dietas = dGastos;
@@ -1002,7 +1014,7 @@ namespace AppPartes.Logic
         public async Task<bool> ReadUserMessageAsync(int iIdMessage)
         {
             bool bReturn = false;
-            var message =await aldakinDbContext.Mensajes.FirstOrDefaultAsync(x => x.Idmensajes == iIdMessage);
+            var message = await aldakinDbContext.Mensajes.FirstOrDefaultAsync(x => x.Idmensajes == iIdMessage);
             var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
             try
             {
@@ -1051,11 +1063,35 @@ namespace AppPartes.Logic
                 }
                 strReturn = "Mensaje enviado correctamente";
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 strReturn = "Ocurrio un Error con los datos del mensaje";
             }
             return strReturn;
+        }
+
+        private bool RangeIsUsed(List<Lineas> lLineas, DateTime dtFin, DateTime dtInicio, ref string strReturn)
+        {
+            bool bReturn;
+            strReturn = string.Empty;
+            bReturn = false;//true==error
+            if (lLineas != null)
+            {
+                foreach (var x in lLineas)
+                {
+                    if (DateTime.Compare(dtFin, x.Inicio) > 0 && DateTime.Compare(dtFin, x.Fin) < 0)
+                    {
+                        bReturn = true;
+                        strReturn = "Rango de Horas ya utilizado;";
+                    }
+                    if (DateTime.Compare(dtInicio, x.Inicio) > 0 && DateTime.Compare(dtInicio, x.Fin) < 0)
+                    {
+                        bReturn = true;
+                        strReturn = "Rango de Horas ya utilizado;";
+                    }
+                }
+            }
+            return bReturn;
         }
     }
 
