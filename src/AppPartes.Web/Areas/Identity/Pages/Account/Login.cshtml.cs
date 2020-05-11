@@ -73,7 +73,7 @@ namespace AppPartes.Web.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             ReturnUrl = returnUrl;
-            lEntity = await _ILoadIndexController.LoadLoginController();
+            lEntity = await _ILoadIndexController.LoadLoginControllerAsync();
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -111,7 +111,7 @@ namespace AppPartes.Web.Areas.Identity.Pages.Account
                 }
                 catch (Exception ex)
                 {
-                    lEntity = await _ILoadIndexController.LoadLoginController();
+                    lEntity = await _ILoadIndexController.LoadLoginControllerAsync();
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                     return Page();
                 }
@@ -134,7 +134,7 @@ namespace AppPartes.Web.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    lEntity = await _ILoadIndexController.LoadLoginController();
+                    lEntity = await _ILoadIndexController.LoadLoginControllerAsync();
                     ModelState.AddModelError(string.Empty, "User not found.");
                     return Page();
                     ////Error Situation

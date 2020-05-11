@@ -68,6 +68,20 @@ namespace AppPartes.Logic
         public string Gastos { get; set; }
         public int ContGastos { get; set; }
     }
+    public class LineMessage
+    {
+        public int Idmensajes { get; set; }
+        public int De { get; set; }
+        public string strDe { get; set; }
+        public int A { get; set; }
+        public string strA { get; set; }
+        public DateTime Fecha { get; set; }
+        public string Asunto { get; set; }
+        public string Mensaje { get; set; }
+        public int Idlinea { get; set; }
+        public int Inicial { get; set; }
+        public bool Estado { get; set; }
+    }
     public class UserData
     {
         public string strUserName { set; get; }
@@ -82,6 +96,7 @@ namespace AppPartes.Logic
         public List<Entidad> listCompany { set; get; }
         public List<Clientes> listClient { set; get; }
         public List<Pernoctaciones> listNight { set; get; }
+        public bool bMessage { set; get; }
     }
     public class WeekDataViewLogic
     {
@@ -92,9 +107,17 @@ namespace AppPartes.Logic
         public bool SemanaCerrada { get; set; }
         public string DateSelected { get; set; }
         public string Mensaje { get; set; }
+        public bool bMessage { set; get; }
     }
     public class LoginDataViewLogic
     {
         public List<Entidad> listCompany { set; get; }
+        public bool bMessage { set; get; }
+    }
+    public class MessageViewLogic
+    {
+        public List<LineMessage> listMessages { get; set; }
+        public LineMessage oMessage { get; set; }
+        public bool bMessage { set; get; }
     }
 }

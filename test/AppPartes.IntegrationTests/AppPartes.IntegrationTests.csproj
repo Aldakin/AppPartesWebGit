@@ -16,4 +16,8 @@
     <ProjectReference Include="..\..\src\AppPartes.Web\AppPartes.Web.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="Moq" Version="4.14.1" />
+  </ItemGroup>
+
 </Project>

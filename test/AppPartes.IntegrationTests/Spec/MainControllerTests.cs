@@ -23,10 +23,11 @@ namespace AppPartes.IntegrationTests.Spec
             var client = _serverFixture.GetTestClient();
 
             //Act
-            var response = await client.GetAsync("/maindataapi/SelectedEntityOt/0");
+            var response = await client.GetAsync("/MainDataApi/SelectedEntityOt/0");
 
             //Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
         }
+
     }
 }

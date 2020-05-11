@@ -30,6 +30,12 @@
                         {
                             <div class="alert alert-warning">@ViewBag.Message</div>
                         }
+                        if (Model.bMessage)
+                        {
+                            <p>
+                                Tiene mensajes pendientes de leer<b><a class="nav-link text-dark" asp-area="" asp-controller="Message" asp-action="Index">Leer Mensajes</a></b>
+                            </p>
+                        }
                     }
                     <div class="col-12">
                         <div class="col-12">
@@ -109,9 +115,9 @@
                                     <input type="hidden" id="ot" name="ot" value="@dept.Idot" readonly />
                                     <div class="row gtr-uniform">
                                         <!--<div class="col-6 col-12-xsmall">
-                                            <label for="start">Fecha actual parte:</label>
-                                            <input type="text" name="strCalendarioAnterior" id="demo-name" value="@dept.Inicio.Year-@dept.Inicio.Month-@dept.Inicio.Day" readonly />
-                                        </div>-->
+                            <label for="start">Fecha actual parte:</label>
+                            <input type="text" name="strCalendarioAnterior" id="demo-name" value="@dept.Inicio.Year-@dept.Inicio.Month-@dept.Inicio.Day" readonly />
+                        </div>-->
                                         <div class="col-12">
                                             <label for="start">Fecha nueva parte(si procede cambiar):</label>
                                             <input type="date" id="Calendario" name="strCalendario"
@@ -260,7 +266,7 @@
                                                     }
                                                 }
                                                 <!--<option value="NACIONAL">NACIONAL</option>
-                                                <option value="INTERNACIONAL">INTERNACIONAL</option>-->
+                                <option value="INTERNACIONAL">INTERNACIONAL</option>-->
                                             </select>
                                         </div>
                                         <div class="col-12">
@@ -319,13 +325,13 @@
                                 else
                                 {
                                     <h4>Estado semana: Abierta</h4>
+                                    <hr class="major" />
+                                    <p>Desea cerrar la semana?</p>
+
+                                    <input type="hidden" id="strDataSelected" name="strDataSelected" value="@Model.DateSelected" />
+                                    <input type="submit" name="strAction" onclick="closeWeekConfirm('strDataSelected');" value="Cerrar Semana" />
                                 }
                             }
-                            <hr class="major" />
-                            <p>Desea cerrar la semana?</p>
-
-                                <input type="hidden" id="strDataSelected" name="strDataSelected" value="@Model.DateSelected" />
-                                <input type="submit" name="strAction" onclick="closeWeekConfirm('strDataSelected');" value="CerrarSemana" />
                         </div>
                         <header id="header">
                         </header>
@@ -339,7 +345,10 @@
                                     <table>
                                         <thead>
                                             <tr>
-                                                <th></th>
+                                                @if (!Model.SemanaCerrada)
+                                                {
+                                                    <th></th>
+                                                }
                                                 <th>Inicio</th>
                                                 <th>Fin</th>
                                                 <th>Empresa</th>
@@ -348,12 +357,12 @@
                                                 <th>Presupuesto</th>
                                                 <!--<th>Nombre Presupuesto</th>-->
                                                 <!--<th>Nivel1</th>
-                                                <th>Nivel2</th>
-                                                <th>Nivel3</th>
-                                                <th>Nivel4</th>
-                                                <th>Nivel5</th>
-                                                <th>Nivel6</th>
-                                                <th>Nivel7</th>-->
+                                <th>Nivel2</th>
+                                <th>Nivel3</th>
+                                <th>Nivel4</th>
+                                <th>Nivel5</th>
+                                <th>Nivel6</th>
+                                <th>Nivel7</th>-->
                                                 <th>Horas de Viaje</th>
                                                 <th>Horas</th>
                                                 <th>Gastos</th>
@@ -367,17 +376,21 @@
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td>
-                                                    <form asp-controller="WeekReview" asp-action="Index" method="POST">
-                                                        <input type="hidden" name="strId" value="@dept.Idlinea" />
-                                                        <input type="hidden" name="strAction" value="editLine" />
-                                                        <input type="submit" value="Editar" />
-                                                    </form>
-                                                    <input type="hidden" id="idLinea" name="idLinea" value="@dept.Idlinea" />
-                                                    <input type="hidden" id="dtIni" name="dtIni" value="@dept.Inicio.Date" />
-                                                    <!--<input type="submit" name="strAction" onclick="deleteConfirmation('idLinea','dtIni');" value="Borrar" />-->
-                                                    <input type="submit" name="strAction" onclick="deleteConfirmation(@dept.Idlinea);" value="Borrar" />
-                                                </td>
+
+                                                @if (!Model.SemanaCerrada)
+                                                {
+                                                    <td>
+                                                        <form asp-controller="WeekReview" asp-action="Index" method="POST">
+                                                            <input type="hidden" name="strId" value="@dept.Idlinea" />
+                                                            <input type="hidden" name="strAction" value="editLine" />
+                                                            <input type="submit" value="Editar" />
+                                                        </form>
+                                                        <input type="hidden" id="idLinea" name="idLinea" value="@dept.Idlinea" />
+                                                        <input type="hidden" id="dtIni" name="dtIni" value="@dept.Inicio.Date" />
+                                                        <!--<input type="submit" name="strAction" onclick="deleteConfirmation('idLinea','dtIni');" value="Borrar" />-->
+                                                        <input type="submit" name="strAction" onclick="deleteConfirmation(@dept.Idlinea);" value="Borrar" />
+                                                    </td>
+                                                }
                                                 <td>@dept.Inicio</td>
                                                 <td>@dept.Fin</td>
                                                 <td>@dept.NombreCliente</td>
@@ -386,12 +399,12 @@
                                                 <td>@dept.NombrePreslin</td>
                                                 <!--<td>Nombre Presupuesto</td>-->
                                                 <!--<td>Nivel1</td>
-                                                <td>Nivel2</td>
-                                                <td>Nivel3</td>
-                                                <td>Nivel4</td>
-                                                <td>Nivel5</td>
-                                                <td>Nivel6</td>
-                                                <td>Nivel7</td>-->
+                                <td>Nivel2</td>
+                                <td>Nivel3</td>
+                                <td>Nivel4</td>
+                                <td>Nivel5</td>
+                                <td>Nivel6</td>
+                                <td>Nivel7</td>-->
                                                 <td>@dept.Horasviaje</td>
                                                 <td>@dept.Horas</td>
                                                 <td>@dept.Dietas</td>
@@ -406,11 +419,11 @@
                                         </tbody>
 
                                         @*<tfoot>
-                                                <tr>
-                                                    <td colspan="2"></td>
-                                                    <td>100.00</td>
-                                                </tr>
-                                            </tfoot>*@
+                                <tr>
+                                    <td colspan="2"></td>
+                                    <td>100.00</td>
+                                </tr>
+                            </tfoot>*@
                                     </table>
                                 </div>
                             }
@@ -536,12 +549,11 @@
                 var url = "@Url.Action("CloseFunction","WeekDataApi")";
                 var data = { strDataSelected: data.value};
                 $.post(url, data).done(function (data) {
-                    if (JSON.stringify(data[1].iValue) >1) {
-                        
-                        window.location.href = "WeekReview?strMessage=Semana cerrada correctamente;&strDate=" + JSON.stringify(data[1].strValue).replace(/['"]+/g, '') + "&strAction=" + JSON.stringify(data[1].strText).replace(/['"]+/g, '') + "";
+                    if (JSON.stringify(data.iValue) >1) {
+                        window.location.href = "WeekReview?strMessage=Semana cerrada correctamente;&strDate=" + JSON.stringify(data.strValue).replace(/['"]+/g, '') + "&strAction=" + JSON.stringify(data.strText).replace(/['"]+/g, '') + "";
                     }
                     else {
-                        window.location.href = "WeekReview?strMessage=Error durante el cerrado de la semana;";
+                        window.location.href = "WeekReview?strMessage="+ JSON.stringify(data.strText).replace(/['"]+/g, '');
                     }
                     //window.location.href = "WeekReview?strMessage=Parte borrado correctamente;";
 

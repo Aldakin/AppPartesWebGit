@@ -25,27 +25,30 @@
                     
         <partial name="_LoginPartial" />
             
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        @{
-                            //el if true cambiar por si se esta autenticado    
-                            //aqui tambien se incluiran las diferentes opciones segun nivel de usuario
-                            if (@User.Identity.IsAuthenticated)
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Main" asp-action="Index">Cargar Parte</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="WeekReview" asp-action="Index">Ver Partes</a>
-                                </li>
-                            }
-                        }
-                        @*<li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                </li>*@
-                    </ul>
+        <ul class="navbar-nav flex-grow-1">
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+            </li>
+            @{
+                //el if true cambiar por si se esta autenticado
+                //aqui tambien se incluiran las diferentes opciones segun nivel de usuario
+                if (@User.Identity.IsAuthenticated)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Main" asp-action="Index">Cargar Parte</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="WeekReview" asp-action="Index">Ver Partes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Message" asp-action="Index">Mensajes</a>
+                    </li>
+                }
+            }
+            @*<li class="nav-item">
+                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </li>*@
+        </ul>
                 </div>
             </div>
         </nav>

@@ -30,7 +30,7 @@ namespace AppPartes.Web.Controllers.Api
         public async Task<MainDataViewLogic> LoadMainView()
         {
             int idAldakinUser = await GetIdUserAldakinAsync();
-            var oView = await _ILoadIndexController.LoadMainController(idAldakinUser);
+            var oView = await _ILoadIndexController.LoadMainControllerAsync(idAldakinUser);
             return oView;
         }
         //[HttpPost]

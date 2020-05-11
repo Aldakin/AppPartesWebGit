@@ -29,32 +29,29 @@ namespace AppPartes.Logic
             _iUserCondEntO = user.iUserCondEntO;
             _stUserDni = user.stUserrDni;
         }
-        public async Task<MainDataViewLogic> LoadMainController(int idAldakinUser)
+        public async Task<MainDataViewLogic> LoadMainControllerAsync(int idAldakinUser)
         {
             var oReturn = new MainDataViewLogic();
             WriteUserDataAsync(idAldakinUser);
-            oReturn.listOts = await GetOts();
-            oReturn.listCompany = await GetAldakinCompanies();
-            oReturn.listClient = await GetAldakinClients();
-            oReturn.listNight = await GetAldakinNight();
+            oReturn.listOts = await GetOtsAsync();
+            oReturn.listCompany = await GetAldakinCompaniesAsync();
+            oReturn.listClient = await GetAldakinClientsAsync();
+            oReturn.listNight = await GetAldakinNightAsync();
+            oReturn.bMessage = await PendingMessage();
             return oReturn;
         }
-        public async Task<WeekDataViewLogic> LoadWeekController(int idAldakinUser, string strDate = "", string strAction = "", string strId = "")
+        public async Task<WeekDataViewLogic> LoadWeekControllerAsync(int idAldakinUser, string strDate = "", string strAction = "", string strId = "")
         {
             var oReturn = new WeekDataViewLogic();
             WriteUserDataAsync(idAldakinUser);
             DateTime day, dtIniWeek = DateTime.Now, dtEndWeek = DateTime.Now;
+            oReturn.bMessage = await PendingMessage();
             if (string.IsNullOrEmpty(strDate) && string.IsNullOrEmpty(strAction))
             {
                 //oReturn.Mensaje = "";
             }
             else
             {
-                //var listVisual = new List<LineaVisual>();
-                //var NombreOt = string.Empty;
-                //var NombreCliente = string.Empty;
-                //var strPernocta = string.Empty;
-                //var strPreslin = string.Empty;
                 if ((string.IsNullOrEmpty(strId)))
                 {
                     strId = "0";
@@ -68,9 +65,9 @@ namespace AppPartes.Logic
                         {
                             var dtSelected = Convert.ToDateTime(strDate);
                             WorkPartInformation.IniEndWeek(dtSelected, out dtIniWeek, out dtEndWeek);
-                            oReturn.listSemana = await ResumeHourPerDay(dtIniWeek, dtEndWeek);
+                            oReturn.listSemana = await ResumeHourPerDayAsync(dtIniWeek, dtEndWeek);
 
-                            oReturn.listPartes = await GetWeekWorkerParts(dtIniWeek, dtEndWeek);
+                            oReturn.listPartes = await GetWeekWorkerPartsAsync(dtIniWeek, dtEndWeek);
                             var weekStatus = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Dia == dtSelected.Date && x.Idusuario == _iUserId);
                             if (weekStatus is null)
                             {
@@ -100,8 +97,8 @@ namespace AppPartes.Logic
                         {
                             oReturn.Mensaje = "La semana esta cerrada, habla con tu responsable para reabirla;";
                         }
-                        oReturn.listSelect = await GetDayWorkerPart(lSelect);
-                        oReturn.listPernocta = await GetAldakinNight(lSelect);
+                        oReturn.listSelect = await GetDayWorkerPartAsync(lSelect);
+                        oReturn.listPernocta = await GetAldakinNightAsync(lSelect);
                         oReturn.DateSelected = lSelect.Inicio.Date.ToString("yyyy-MM-dd"); // dtSelected.Date;
                         break;
                     default:
@@ -111,13 +108,104 @@ namespace AppPartes.Logic
             }
             return oReturn;
         }
-        public async Task<LoginDataViewLogic> LoadLoginController()
+        public async Task<LoginDataViewLogic> LoadLoginControllerAsync()
         {
             var lReturn = new LoginDataViewLogic();
-            lReturn.listCompany = await GetAllAldakinCompanies();
+            lReturn.listCompany = await GetAllAldakinCompaniesAsync();
             return lReturn;
         }
-        private async Task<List<Ots>> GetOts()
+        public async Task<MessageViewLogic> LoadMessageControllerAsync(int idAldakinUser, int idMessage)
+        {
+            var oReturn = new MessageViewLogic();
+            WriteUserDataAsync(idAldakinUser);
+            if (idMessage > 0)
+            {
+                oReturn.oMessage = await GetMessageAsync(idMessage);
+            }
+            else
+            {
+                oReturn.oMessage = null;
+            }
+            oReturn.listMessages = await GetAllMessagesAsync();            
+            return oReturn;
+        }
+
+        private async Task<bool> PendingMessage()
+        {
+            bool bReturn = true;
+            var message = await aldakinDbContext.Mensajes.FirstOrDefaultAsync(x => x.A == _iUserId && x.Estado == true);
+            if (message is null)   bReturn = false ;
+            return bReturn;
+        }
+        private async Task<List<LineMessage>> GetAllMessagesAsync()
+        {
+            var lReturn = new List<LineMessage>();
+            try
+            {
+                var lTemp = await aldakinDbContext.Mensajes.Where(x => x.A == _iUserId && x.Estado == true).OrderByDescending(x=>x.Fecha).ToListAsync();
+                foreach (Mensajes m in lTemp)
+                {
+                    var de = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == m.De);
+                    if ((m.Idlinea < 1)||(m.Idlinea is null))
+                    {
+                        m.Idlinea = 0;
+                    }
+                    if (string.IsNullOrEmpty(m.Asunto)) m.Asunto = string.Empty;
+                    if (string.IsNullOrEmpty(m.Mensaje)) m.Mensaje = string.Empty;
+                    lReturn.Add
+                        (new LineMessage
+                        {
+                            Idmensajes = m.Idmensajes,
+                            De = m.De,
+                            strDe = de.Nombrecompleto,
+                            A = m.A,
+                            strA = _strUserName,
+                            Fecha = m.Fecha,
+                            Asunto = m.Asunto,
+                            Mensaje = m.Mensaje,
+                            Idlinea = m.Idlinea ?? 0,
+                            Inicial = m.Inicial,
+                            Estado = m.Estado
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                lReturn = null;
+            }
+            return lReturn;
+        }
+        private async Task<LineMessage> GetMessageAsync(int idMessage)
+        {
+            try
+            {
+                var oTemp = await aldakinDbContext.Mensajes.FirstOrDefaultAsync(x => x.Idmensajes == idMessage && x.A == _iUserId);
+                var strDe = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == oTemp.De);
+
+                var oReturn = new LineMessage
+                {
+                    Idmensajes = oTemp.Idmensajes,
+                    De = oTemp.De,
+                    strDe = strDe.Nombrecompleto,
+                    A = oTemp.A,
+                    strA = _strUserName,
+                    Fecha = oTemp.Fecha,
+                    Asunto = oTemp.Asunto,
+                    Mensaje = oTemp.Mensaje,
+                    Idlinea = oTemp.Idlinea ?? 0,
+                    Inicial = oTemp.Inicial,
+                    Estado = oTemp.Estado
+                };
+                if (!await _iWriteDataBase.ReadUserMessageAsync(idMessage)) oReturn = null;
+
+                return oReturn;
+            }
+            catch(Exception ex)
+            {
+                return null;
+            }
+        }
+        private async Task<List<Ots>> GetOtsAsync()
         {
             var lReturn = new List<Ots>();
             var totalOts = aldakinDbContext.Ots.Where(x => x.CodEnt == _iUserCondEntO && x.CodEntD == 0 && x.Codigorefot != "29" && x.Cierre == null);
@@ -126,7 +214,7 @@ namespace AppPartes.Logic
             lReturn = await totalType1Ots.Concat(totalType2Ots).Distinct().OrderBy(x => x.Numero).ToListAsync();
             return lReturn;
         }
-        private async Task<List<Entidad>> GetAldakinCompanies()
+        private async Task<List<Entidad>> GetAldakinCompaniesAsync()
         {
             var lReturn = new List<Entidad>();
             var aux = await aldakinDbContext.Entidad.FirstOrDefaultAsync(x => x.CodEnt == _iUserCondEntO);
@@ -134,13 +222,13 @@ namespace AppPartes.Logic
             lReturn.Insert(0, aux);
             return lReturn;
         }
-        private async Task<List<Entidad>> GetAllAldakinCompanies()
+        private async Task<List<Entidad>> GetAllAldakinCompaniesAsync()
         {
             var lReturn = new List<Entidad>();
             lReturn = await aldakinDbContext.Entidad.Where(x => x.CodEnt != 0).ToListAsync();
             return lReturn;
         }
-        private async Task<List<Clientes>> GetAldakinClients()
+        private async Task<List<Clientes>> GetAldakinClientsAsync()
         {
             var lReturn = new List<Clientes>();
             lReturn = await (from c in aldakinDbContext.Clientes
@@ -154,19 +242,19 @@ namespace AppPartes.Logic
                              select c).Distinct().OrderBy(c => c.Nombre).ToListAsync();
             return lReturn;
         }
-        private async Task<List<Pernoctaciones>> GetAldakinNight()
+        private async Task<List<Pernoctaciones>> GetAldakinNightAsync()
         {
             var lReturn = new List<Pernoctaciones>();
             lReturn = await aldakinDbContext.Pernoctaciones.Where(x => x.CodEnt == _iUserCondEntO).ToListAsync();
             return lReturn;
         }
-        private async Task<List<Pernoctaciones>> GetAldakinNight(Lineas lSelect)
+        private async Task<List<Pernoctaciones>> GetAldakinNightAsync(Lineas lSelect)
         {
             var lReturn = new List<Pernoctaciones>();
             lReturn = await aldakinDbContext.Pernoctaciones.Where(x => x.CodEnt == lSelect.CodEnt).ToListAsync();
             return lReturn;
         }
-        private async Task<List<double>> ResumeHourPerDay(DateTime dtIniWeek, DateTime dtEndWeek)
+        private async Task<List<double>> ResumeHourPerDayAsync(DateTime dtIniWeek, DateTime dtEndWeek)
         {
             var lReturn = new List<double>();
             for (var date = dtIniWeek; date < dtEndWeek; date = date.AddDays(1.0))
@@ -181,8 +269,9 @@ namespace AppPartes.Logic
             }
             return lReturn;
         }
-        private async Task<List<LineaVisual>> GetWeekWorkerParts(DateTime dtIniWeek, DateTime dtEndWeek)
+        private async Task<List<LineaVisual>> GetWeekWorkerPartsAsync(DateTime dtIniWeek, DateTime dtEndWeek)
         {
+            string strObservaciones;
             var lReturn = new List<LineaVisual>();
             var NombreOt = string.Empty;
             var NombreCliente = string.Empty;
@@ -209,6 +298,14 @@ namespace AppPartes.Logic
                 }
                 if (l.Idoriginal == 0)
                 {
+                    if (l.Observaciones.Length > 50)
+                    {
+                        strObservaciones = l.Observaciones.Substring(0, 45) + "...";
+                    }
+                    else
+                    {
+                        strObservaciones = l.Observaciones;
+                    }
                     lReturn.Add(new LineaVisual
                     {
                         Idlinea = l.Idlinea,
@@ -218,7 +315,7 @@ namespace AppPartes.Logic
                         NombrePreslin = strPreslin,
                         Dietas = l.Dietas,
                         Km = l.Km,
-                        Observaciones = l.Observaciones,
+                        Observaciones = strObservaciones,
                         Horasviaje = l.Horasviaje,
                         Horas = l.Horas,
                         Inicio = l.Inicio,
@@ -263,7 +360,7 @@ namespace AppPartes.Logic
             }
             return lReturn;
         }
-        private async Task<List<LineaVisual>> GetDayWorkerPart(Lineas lSelect)
+        private async Task<List<LineaVisual>> GetDayWorkerPartAsync(Lineas lSelect)
         {
             var lReturn = new List<LineaVisual>();
             var NombreOt = string.Empty;

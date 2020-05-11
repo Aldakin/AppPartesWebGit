@@ -21,7 +21,7 @@ namespace AppPartes.IntegrationTests.Seedwork.Fixtures
                 .ConfigureServices(services =>
                 {
                     var dataLogicMock = Mock.Of<ILoadIndexController>();
-                    Mock.Get(dataLogicMock).Setup(dl => dl.LoadMainController(It.IsAny<int>()))
+                    Mock.Get(dataLogicMock).Setup(dl => dl.LoadMainControllerAsync(It.IsAny<int>()))
                         .ReturnsAsync(new MainDataViewLogic());
                     services.AddScoped<ILoadIndexController>(provider => dataLogicMock);
                 })

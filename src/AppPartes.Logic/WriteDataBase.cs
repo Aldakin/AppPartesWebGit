@@ -32,7 +32,7 @@ namespace AppPartes.Logic
         public async Task<UserData> GetUserDataAsync(int idAldakinUser)
         {
             UserData oReturn = new UserData();
-            //var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == idAldakinUser && x.CodEnt == x.CodEntO);
+            oReturn = null;
             var user = aldakinDbContext.Usuarios.FirstOrDefault(x => x.Idusuario == idAldakinUser && x.CodEnt == x.CodEntO);
             if (!(user is null))
             {
@@ -223,11 +223,11 @@ namespace AppPartes.Logic
             var otSel = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == Convert.ToInt32(dataToInsertLine.strOt) && x.Codigorefot != "29" && x.Cierre == null);
             if (otSel is null)
             {
-                strReturn = "En la Ot que esta usande se ha encontrado un problema, recargue la pagina;";
+                strReturn = "En la Ot que esta usando se ha encontrado un problema, recargue la pagina;";
                 return (strReturn);
             }
 
-            if (otSel.Nombre.Length > 10 && otSel.Nombre.Substring(0, 20) == "TRABAJOS REALIZADOS ")
+            if (otSel.Nombre.Length > 20 && otSel.Nombre.Substring(0, 20) == "TRABAJOS REALIZADOS ")
             {
                 try
                 {
@@ -412,7 +412,6 @@ namespace AppPartes.Logic
             strReturn = "Parte rellenado satisfactoriamente";
             return (strReturn);
         }
-
         public async Task<List<SelectData>> DeleteWorkerLineAsync(int iLine, int idAldakinUser)
         {
             WriteUserDataAsync(idAldakinUser);
@@ -495,7 +494,6 @@ namespace AppPartes.Logic
             oReturn.Add(new SelectData { iValue = 1, strText = "loadWeek", strValue = strReturn });
             return oReturn;
         }
-
         public async Task<SelectData> CloseWorkerWeekAsync(string strDataSelected, int idAldakinUser)
         {
             WriteUserDataAsync(idAldakinUser);
@@ -607,7 +605,6 @@ namespace AppPartes.Logic
             oReturn.strValue = dtSelected.ToString();
             return oReturn;
         }
-
         public async Task<SelectData> EditWorkerLineAsync(WorkerLineData dataToEditLine, int idAldakinUser)
         {
             WriteUserDataAsync(idAldakinUser);
@@ -1002,7 +999,64 @@ namespace AppPartes.Logic
             oReturn.strValue = strReturn;
             return oReturn;
         }
-
+        public async Task<bool> ReadUserMessageAsync(int iIdMessage)
+        {
+            bool bReturn = false;
+            var message =await aldakinDbContext.Mensajes.FirstOrDefaultAsync(x => x.Idmensajes == iIdMessage);
+            var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+            try
+            {
+                message.Estado = false;
+                message.Vistodestino = DateTime.Now;
+                aldakinDbContext.Mensajes.Update(message);
+                await aldakinDbContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+                bReturn = true;
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                bReturn = true;
+            }
+            return bReturn;
+        }
+        public async Task<string> AnswerMessageAsync(LineMessage line)
+        {
+            string strReturn;
+            try
+            {
+                var message = new Mensajes
+                {
+                    De = line.De,
+                    A = line.A,
+                    Fecha = DateTime.Now,
+                    Asunto = line.Asunto,
+                    Mensaje = line.Mensaje,
+                    Vistoremite = DateTime.Now,
+                    Idlinea = line.Idlinea,
+                    Inicial = line.Inicial,
+                    Estado = true
+                };
+                var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+                try
+                {
+                    aldakinDbContext.Mensajes.Add(message);
+                    await aldakinDbContext.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    strReturn = "Ocurrio un Error al enviar el mensaje";
+                }
+                strReturn = "Mensaje enviado correctamente";
+            }
+            catch(Exception ex)
+            {
+                strReturn = "Ocurrio un Error con los datos del mensaje";
+            }
+            return strReturn;
+        }
     }
 
 }

@@ -37,7 +37,7 @@ namespace AppPartes.Web.Controllers
         {
             ViewBag.Message = strMessage;
             _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
-            var oView = await _ILoadIndexController.LoadWeekController(_idAldakinUser, strDate, strAction, strId);
+            var oView = await _ILoadIndexController.LoadWeekControllerAsync(_idAldakinUser, strDate, strAction, strId);
             if (!(oView.Mensaje is null))
             {
                 ViewBag.Message = "ocurrio un error!!!";

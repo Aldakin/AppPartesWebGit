@@ -1,0 +1,122 @@
+﻿@model AppPartes.Logic.MessageViewLogic
+@{
+    ViewData["Title"] = "Index";
+}
+<body class="is-preload">
+
+    <!-- Wrapper -->
+    <div id="wrapper">
+
+        <!-- Main -->
+        <div id="main">
+            <!--<div class="inner">-->
+            <!-- Header -->
+            <header id="header">
+                <a href="#" class="logo"><strong>Mensajes</strong></a>
+            </header>
+            <section>
+                @{
+                    if (!string.IsNullOrEmpty(ViewBag.Message))
+                    {
+                        <div class="alert alert-warning">@ViewBag.Message</div>
+                    }
+                }
+
+                @*<div class="col-12">
+                        <a class="button" asp-area="" asp-controller="Message" asp-action="Index">Refrescar</a>
+                        <hr class="major" />
+                    </div>*@
+
+                @if (Model.oMessage != null)
+                {
+                    <div class="row gtr-200">
+                        <div class="col-12">
+
+                            <!-- Blockquote -->
+                            <h3>Asunto: @Model.oMessage.Asunto</h3>
+                            <h4>Remitente @Model.oMessage.strDe</h4>
+                            <h4>Fecha: @Model.oMessage.Fecha</h4>
+                            <h4>Texto:</h4>
+                            <blockquote>@Model.oMessage.Mensaje</blockquote>
+
+                        </div>
+                        <div class="col-12">
+                            <form asp-action="Answer" asp-controller="Message" method="POST">
+                                <!-- Blockquote -->
+                                <h4>Destino @Model.oMessage.strDe</h4>
+                                <h3>Asunto:</h3>
+                                <input type="text" id="strSubject" name="strSubject" value="RE:@Model.oMessage.Asunto" readonly />
+                                <h4>Texto:</h4>
+                                <blockquote>
+                                    <textarea name="strAnswer" id="strAnswer" value="" rows="6"></textarea>
+                                </blockquote>
+                                <input type="hidden" name="iIdLinea" value="@Model.oMessage.Idlinea" />
+                                <input type="hidden" name="idOriginal" value="@Model.oMessage.Idmensajes" />
+                                <input type="hidden" name="iAddress" value="@Model.oMessage.De" />
+                                <input type="submit" value="Responder" class="primary" />
+                            </form>
+                        </div>
+
+                    </div>
+                }
+
+
+                <div class="col-12">
+                    @if (Model.listMessages.Count > 0)
+                    {
+                        <h3>Editar parte de trabajo</h3>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Emisor</th>
+                                        <th>Fecha</th>
+                                        <th>Asunto</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+
+                                @foreach (var dept in Model.listMessages)
+                                {
+
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <form asp-controller="Message" asp-action="Index" method="POST">
+                                                    <input type="hidden" id="idMessage" name="idMessage" value="@dept.Idmensajes" />
+                                                    <input type="submit" value="Ver" />
+                                                </form>
+                                            </td>
+                                            <th>@dept.strDe</th>
+                                            <th>@dept.Fecha</th>
+                                            <th>@dept.Asunto</th>
+                                            @if (@dept.Estado)
+                                            {
+                                                <th>Pendiente</th>
+                                            }
+                                            else
+                                            {
+                                                <th>Leido</th>
+                                            }
+                                        </tr>
+                                    </tbody>
+                                }
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <h4>No hay mensajes pendientes</h4>
+                    }
+                </div>
+                <hr class="major" />
+                <div class="col-12">
+
+                </div>
+            </section>
+        </div>
+    </div>
+</body>
+
+

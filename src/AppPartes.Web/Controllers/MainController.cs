@@ -26,7 +26,7 @@ namespace AppPartes.Web.Controllers
         {
             _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
             ViewBag.Message = strMessage;
-            var oView = await _ILoadIndexController.LoadMainController(_idAldakinUser);
+            var oView = await _ILoadIndexController.LoadMainControllerAsync(_idAldakinUser);
             return View(oView);
         }
         [HttpPost, ValidateAntiForgeryToken]

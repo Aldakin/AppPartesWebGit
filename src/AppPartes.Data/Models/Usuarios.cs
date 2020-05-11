@@ -5,6 +5,8 @@ namespace AppPartes.Data.Models
 {
     public partial class Usuarios
     {
+        public object idusuario;
+
         public Usuarios()
         {
             Lineas = new HashSet<Lineas>();
