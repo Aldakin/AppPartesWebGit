@@ -8,6 +8,7 @@ namespace AppPartes.Logic
         Task<WeekDataViewLogic> LoadWeekControllerAsync(int idAldakin, string strDate = "", string strAction = "", string strId = "");
         Task<LoginDataViewLogic> LoadLoginControllerAsync();
         Task<MessageViewLogic> LoadMessageControllerAsync(int idAldakinUser, int idMessage);
+        Task<HomeDataViewLogic> LoadHomeControllerAsync(int idAldakinUser);
 
     }
 }

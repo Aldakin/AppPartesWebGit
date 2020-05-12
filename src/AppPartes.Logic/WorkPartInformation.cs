@@ -15,6 +15,7 @@ namespace AppPartes.Logic
         private string _stUserDni = "";
         private int _iUserId = 0;
         private int _iUserCondEntO = 0;
+        private int _iUserLevel = 0;
         public WorkPartInformation(AldakinDbContext aldakinDbContext, IWriteDataBase iWriteDataBase)
         {
             this.aldakinDbContext = aldakinDbContext;
@@ -27,6 +28,7 @@ namespace AppPartes.Logic
             _iUserId = user.iUserId;
             _iUserCondEntO = user.iUserCondEntO;
             _stUserDni = user.stUserrDni;
+            _iUserLevel = user.iLevel;
         }
         public async Task<List<SelectData>> WeekHourResume(DateTime dtSelected, int idAldakinUser)
         {

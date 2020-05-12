@@ -13,5 +13,6 @@ namespace AppPartes.Logic
         Task<SelectData> CloseWorkerWeekAsync(string strDataSelected, int idAldakinUser);
         Task<bool> ReadUserMessageAsync(int iIdMessage);
         Task<string> AnswerMessageAsync(LineMessage line);
+        Task<string> UpdateEntityDataOrCsvAsync(int iIdEntity, int idAldakinUser, string strAction = "AC");
     }
 }

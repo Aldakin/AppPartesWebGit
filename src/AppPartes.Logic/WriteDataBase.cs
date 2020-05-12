@@ -16,7 +16,7 @@ namespace AppPartes.Logic
         private string _stUserDni = "";
         private int _iUserId = 0;
         private int _iUserCondEntO = 0;
-
+        private int _iUserLevel = 0;
         public WriteDataBase(AldakinDbContext aldakinDbContext)
         {
             this.aldakinDbContext = aldakinDbContext;
@@ -28,6 +28,7 @@ namespace AppPartes.Logic
             _iUserId = user.iUserId;
             _iUserCondEntO = user.iUserCondEntO;
             _stUserDni = user.stUserrDni;
+            _iUserLevel = user.iLevel;
         }
         public async Task<UserData> GetUserDataAsync(int idAldakinUser)
         {
@@ -42,7 +43,8 @@ namespace AppPartes.Logic
                         strUserName = user.Nombrecompleto.ToString(),
                         iUserId = Convert.ToInt16(user.Idusuario),
                         iUserCondEntO = Convert.ToInt16(user.CodEntO),
-                        stUserrDni = user.Name
+                        stUserrDni = user.Name,
+                        iLevel = user.Autorizacion
                     };
                     oReturn = writeUser;
                 }
@@ -124,7 +126,7 @@ namespace AppPartes.Logic
             //Review if range of time is used
             var lLineas = await aldakinDbContext.Lineas.Where(x => DateTime.Compare(x.Inicio.Date, day.Date) == 0 && x.Idusuario == _iUserId && x.Validado == 0 && x.Registrado == 0).ToListAsync();
             if (RangeIsUsed(lLineas, dtFin, dtInicio, ref strReturn)) return strReturn;
-            
+
             //gastos
             float dGastos = 0;
             float dKilometros = 0;
@@ -405,42 +407,6 @@ namespace AppPartes.Logic
             strReturn = "Parte rellenado satisfactoriamente";
             return (strReturn);
         }
-
-        public async Task<Lineas> ReviewLineData(int iLine,int idAldakinUser)
-        {
-            var oReturn = new Lineas();
-            var strReturn = string.Empty;
-            var iIdLinea = 0;
-            try
-            {
-                iIdLinea = Convert.ToInt32(iLine);
-            }
-            catch (Exception)
-            {
-                oReturn = null;
-                return oReturn;
-            }
-            if (iIdLinea == 0)
-            {
-                oReturn = null;
-                return oReturn;
-            }
-            oReturn = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(iIdLinea));
-            DateTime day;
-            if (oReturn is null)
-            {
-                oReturn = null;
-                return oReturn;
-            }
-            day = oReturn.Inicio;
-            var lEstadoDia = await aldakinDbContext.Estadodias.Where(x => x.Idusuario == _iUserId && DateTime.Compare(x.Dia, day.Date) == 0).ToListAsync();//
-            if (lEstadoDia.Count > 0)
-            {
-                oReturn=null;
-                return oReturn;
-            }
-            return oReturn;
-        }
         public async Task<List<SelectData>> DeleteWorkerLineAsync(int iLine, int idAldakinUser)
         {
             WriteUserDataAsync(idAldakinUser);
@@ -475,7 +441,7 @@ namespace AppPartes.Logic
             //{
             //    return oReturn;
             //}
-            var lSelect =await ReviewLineData(iLine,idAldakinUser);
+            var lSelect = await ReviewLineData(iLine, _iUserId);
             if (lSelect is null) return oReturn;
             var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
             try
@@ -874,7 +840,6 @@ namespace AppPartes.Logic
                 var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
                 try
                 {
-
                     aldakinDbContext.Lineas.Update(datosLinea);
                     await aldakinDbContext.SaveChangesAsync();
                     var gasto = await aldakinDbContext.Gastos.Where(x => x.Idlinea == datosLinea.Idlinea).ToListAsync();
@@ -1069,7 +1034,49 @@ namespace AppPartes.Logic
             }
             return strReturn;
         }
-
+        public async Task<string> UpdateEntityDataOrCsvAsync(int iIdEntity, int idAldakinUser, string strAction = "AC")
+        {
+            string strReturn = string.Empty;
+            WriteUserDataAsync(idAldakinUser);
+            string strTemp = strAction + iIdEntity;
+            try
+            {
+                if (_iUserLevel >= 3)
+                {
+                    var temp = await aldakinDbContext.Servicios.FirstOrDefaultAsync(x => x.CodEnt == iIdEntity && x.Condicion == strTemp);
+                    if (!(temp is null))
+                    {
+                        temp.Ejecutar = 1;
+                        var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+                        try
+                        {
+                            aldakinDbContext.Servicios.Update(temp);
+                            await aldakinDbContext.SaveChangesAsync();
+                            await transaction.CommitAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            await transaction.RollbackAsync();
+                            strReturn = "Ha ocurrido un error al mandar actualizar los datos de la delegación";
+                        }
+                        strReturn = "La actualización durara aproximadamente 15 minutos.";
+                    }
+                    else
+                    {
+                        strReturn = "Ha ocurrido un error al mandar actualizar los datos de la delegación";
+                    }
+                }
+                else
+                {
+                    strReturn = "No tiene permiso para ejecutar esta accion.";
+                }
+            }
+            catch (Exception ex)
+            {
+                strReturn = "Ha ocurrido un error al mandar actualizar los datos de la delegación";
+            }
+            return strReturn;
+        }
         private bool RangeIsUsed(List<Lineas> lLineas, DateTime dtFin, DateTime dtInicio, ref string strReturn)
         {
             bool bReturn;
@@ -1092,6 +1099,41 @@ namespace AppPartes.Logic
                 }
             }
             return bReturn;
+        }
+        private async Task<Lineas> ReviewLineData(int iLine, int idAldakinUser)
+        {
+            var oReturn = new Lineas();
+            var strReturn = string.Empty;
+            var iIdLinea = 0;
+            try
+            {
+                iIdLinea = Convert.ToInt32(iLine);
+            }
+            catch (Exception)
+            {
+                oReturn = null;
+                return oReturn;
+            }
+            if (iIdLinea == 0)
+            {
+                oReturn = null;
+                return oReturn;
+            }
+            oReturn = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(iIdLinea));
+            DateTime day;
+            if (oReturn is null)
+            {
+                oReturn = null;
+                return oReturn;
+            }
+            day = oReturn.Inicio;
+            var lEstadoDia = await aldakinDbContext.Estadodias.Where(x => x.Idusuario == _iUserId && DateTime.Compare(x.Dia, day.Date) == 0).ToListAsync();//
+            if (lEstadoDia.Count > 0)
+            {
+                oReturn = null;
+                return oReturn;
+            }
+            return oReturn;
         }
     }
 

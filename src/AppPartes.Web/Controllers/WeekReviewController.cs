@@ -38,10 +38,15 @@ namespace AppPartes.Web.Controllers
             ViewBag.Message = strMessage;
             _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
             var oView = await _ILoadIndexController.LoadWeekControllerAsync(_idAldakinUser, strDate, strAction, strId);
+            if (!(string.IsNullOrEmpty(oView.strError)))
+            {
+                ViewBag.Message = oView.strError;
+            }
             if (!(oView.Mensaje is null))
             {
-                ViewBag.Message = "ocurrio un error!!!";
+                ViewBag.Message = oView.Mensaje;
             }
+
             return View(oView);
         }
         [HttpPost, ValidateAntiForgeryToken]

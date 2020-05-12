@@ -16,6 +16,7 @@ namespace AppPartes.Logic
         private string _stUserDni = "";
         private int _iUserId;
         private int _iUserCondEntO;
+        private int _iUserLevel;
         public LoadIndexController(AldakinDbContext aldakinDbContext, IWriteDataBase iWriteDataBase)
         {
             this.aldakinDbContext = aldakinDbContext;
@@ -28,113 +29,202 @@ namespace AppPartes.Logic
             _iUserId = user.iUserId;
             _iUserCondEntO = user.iUserCondEntO;
             _stUserDni = user.stUserrDni;
+            _iUserLevel = user.iLevel;
+        }
+        private UserData WriteUserData()
+        {
+            var oReturn = new UserData
+            {
+                strUserName = _strUserName,
+                iUserId = _iUserId,
+                iUserCondEntO = _iUserCondEntO,
+                stUserrDni = _stUserDni,
+                iLevel = _iUserLevel
+            };
+            return oReturn;
+        }
+        private async Task<List<Entidad>> GetAldakinCompaniesAndRunningAsync(string strAction="AC")
+        {
+            var lReturn = new List<Entidad>();
+            var aux = await aldakinDbContext.Entidad.FirstOrDefaultAsync(x => x.CodEnt == _iUserCondEntO);
+            var lTemp = await aldakinDbContext.Entidad.Where(x => x.CodEnt != _iUserCondEntO).OrderByDescending(x => x.Nombre).ToListAsync();
+            lTemp.Insert(0, aux);
+            foreach (Entidad e in lTemp)
+            {
+                string strTemp = strAction + e.CodEnt;
+                var temp = await aldakinDbContext.Servicios.FirstOrDefaultAsync(x => x.CodEnt == e.CodEnt && x.Condicion== strTemp);
+                if (temp.Ejecutar==1)
+                {
+                    lReturn.Add( new Entidad {
+                        CodEnt=e.CodEnt,
+                        Nombre=e.Nombre+"(Running)"
+                        });
+                }
+                else
+                {
+                    lReturn.Add(new Entidad
+                    {
+                        CodEnt = e.CodEnt,
+                        Nombre = e.Nombre + "(NotRunning)"
+                    });
+                }
+            }
+            return lReturn;
+        }
+        public async Task<HomeDataViewLogic> LoadHomeControllerAsync(int idAldakinUser)
+        {
+            var oReturn = new HomeDataViewLogic();
+            try
+            {
+                WriteUserDataAsync(idAldakinUser);
+                oReturn.user = WriteUserData();
+                oReturn.listCompanyUpdate = await GetAldakinCompaniesAndRunningAsync("AC");
+                oReturn.listCompanyCsv = await GetAldakinCompaniesAndRunningAsync("CS");
+                oReturn.strError = string.Empty;
+            }
+            catch(Exception ex)
+            {
+                oReturn.strError = "Error durnate la carga de la pagina";
+            }
+            return oReturn;
         }
         public async Task<MainDataViewLogic> LoadMainControllerAsync(int idAldakinUser)
         {
             var oReturn = new MainDataViewLogic();
-            WriteUserDataAsync(idAldakinUser);
-            oReturn.listOts = await GetOtsAsync();
-            oReturn.listCompany = await GetAldakinCompaniesAsync();
-            oReturn.listClient = await GetAldakinClientsAsync();
-            oReturn.listNight = await GetAldakinNightAsync();
-            oReturn.bMessage = await PendingMessage();
+            try
+            {
+                WriteUserDataAsync(idAldakinUser);
+                oReturn.listOts = await GetOtsAsync();
+                oReturn.listCompany = await GetAldakinCompaniesAsync();
+                oReturn.listClient = await GetAldakinClientsAsync();
+                oReturn.listNight = await GetAldakinNightAsync();
+                oReturn.bMessage = await PendingMessage();
+                oReturn.strError = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                oReturn.strError = "Error durnate la carga de la pagina";
+            }
             return oReturn;
         }
         public async Task<WeekDataViewLogic> LoadWeekControllerAsync(int idAldakinUser, string strDate = "", string strAction = "", string strId = "")
         {
             var oReturn = new WeekDataViewLogic();
-            WriteUserDataAsync(idAldakinUser);
-            DateTime day, dtIniWeek = DateTime.Now, dtEndWeek = DateTime.Now;
-            oReturn.bMessage = await PendingMessage();
-            if (string.IsNullOrEmpty(strDate) && string.IsNullOrEmpty(strAction))
+            try
             {
-                //oReturn.Mensaje = "";
+                WriteUserDataAsync(idAldakinUser);
+                DateTime day, dtIniWeek = DateTime.Now, dtEndWeek = DateTime.Now;
+                oReturn.bMessage = await PendingMessage();
+                if (string.IsNullOrEmpty(strDate) && string.IsNullOrEmpty(strAction))
+                {
+                    //oReturn.Mensaje = "";
+                }
+                else
+                {
+                    if ((string.IsNullOrEmpty(strId)))
+                    {
+                        strId = "0";
+                    }
+                    var lSelect = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(strId));
+                    List<Estadodias> lEstadoDia;
+                    switch (strAction)
+                    {
+                        case "loadWeek":
+                            try
+                            {
+                                var dtSelected = Convert.ToDateTime(strDate);
+                                WorkPartInformation.IniEndWeek(dtSelected, out dtIniWeek, out dtEndWeek);
+                                oReturn.listSemana = await ResumeHourPerDayAsync(dtIniWeek, dtEndWeek);
+
+                                oReturn.listPartes = await GetWeekWorkerPartsAsync(dtIniWeek, dtEndWeek);
+                                var weekStatus = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Dia == dtSelected.Date && x.Idusuario == _iUserId);
+                                if (weekStatus is null)
+                                {
+                                    oReturn.SemanaCerrada = false;
+                                }
+                                else
+                                {
+                                    oReturn.SemanaCerrada = true;
+                                }
+                                oReturn.DateSelected = dtSelected.ToString("yyyy-MM-dd"); // dtSelected.Date;
+                            }
+                            catch (Exception)
+                            {
+                                oReturn.Mensaje = "ocurrio un error!!!";
+                            }
+                            break;
+
+                        case "editLine":
+                            if (lSelect is null)
+                            {
+                                oReturn.Mensaje = "Error en la seleccion de parte";
+                            }
+
+                            day = lSelect.Inicio;
+                            lEstadoDia = await aldakinDbContext.Estadodias.Where(x => x.Idusuario == _iUserId && DateTime.Compare(x.Dia, day.Date) == 0).ToListAsync();//
+                            if (lEstadoDia.Count > 0)
+                            {
+                                oReturn.Mensaje = "La semana esta cerrada, habla con tu responsable para reabirla;";
+                            }
+                            oReturn.listSelect = await GetDayWorkerPartAsync(lSelect);
+                            oReturn.listPernocta = await GetAldakinNightAsync(lSelect);
+                            oReturn.DateSelected = lSelect.Inicio.Date.ToString("yyyy-MM-dd"); // dtSelected.Date;
+                            break;
+                        default:
+                            //return View();
+                            break;
+                    }
+                }
+                oReturn.strError = string.Empty;
             }
-            else
+            catch(Exception ex)
             {
-                if ((string.IsNullOrEmpty(strId)))
-                {
-                    strId = "0";
-                }
-                var lSelect = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(strId));
-                List<Estadodias> lEstadoDia;
-                switch (strAction)
-                {
-                    case "loadWeek":
-                        try
-                        {
-                            var dtSelected = Convert.ToDateTime(strDate);
-                            WorkPartInformation.IniEndWeek(dtSelected, out dtIniWeek, out dtEndWeek);
-                            oReturn.listSemana = await ResumeHourPerDayAsync(dtIniWeek, dtEndWeek);
-
-                            oReturn.listPartes = await GetWeekWorkerPartsAsync(dtIniWeek, dtEndWeek);
-                            var weekStatus = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Dia == dtSelected.Date && x.Idusuario == _iUserId);
-                            if (weekStatus is null)
-                            {
-                                oReturn.SemanaCerrada = false;
-                            }
-                            else
-                            {
-                                oReturn.SemanaCerrada = true;
-                            }
-                            oReturn.DateSelected = dtSelected.ToString("yyyy-MM-dd"); // dtSelected.Date;
-                        }
-                        catch (Exception)
-                        {
-                            oReturn.Mensaje = "ocurrio un error!!!";
-                        }
-                        break;
-
-                    case "editLine":
-                        if (lSelect is null)
-                        {
-                            oReturn.Mensaje = "Error en la seleccion de parte";
-                        }
-
-                        day = lSelect.Inicio;
-                        lEstadoDia = await aldakinDbContext.Estadodias.Where(x => x.Idusuario == _iUserId && DateTime.Compare(x.Dia, day.Date) == 0).ToListAsync();//
-                        if (lEstadoDia.Count > 0)
-                        {
-                            oReturn.Mensaje = "La semana esta cerrada, habla con tu responsable para reabirla;";
-                        }
-                        oReturn.listSelect = await GetDayWorkerPartAsync(lSelect);
-                        oReturn.listPernocta = await GetAldakinNightAsync(lSelect);
-                        oReturn.DateSelected = lSelect.Inicio.Date.ToString("yyyy-MM-dd"); // dtSelected.Date;
-                        break;
-                    default:
-                        //return View();
-                        break;
-                }
+                oReturn.strError = "Error durnate la carga de la pagina";
             }
             return oReturn;
         }
         public async Task<LoginDataViewLogic> LoadLoginControllerAsync()
         {
-            var lReturn = new LoginDataViewLogic();
-            lReturn.listCompany = await GetAllAldakinCompaniesAsync();
-            return lReturn;
+            var oReturn = new LoginDataViewLogic();
+            try
+            {
+                oReturn.listCompany = await GetAllAldakinCompaniesAsync();
+                oReturn.strError = string.Empty;
+            }
+            catch(Exception ex)
+            {
+                oReturn.strError = "Error durnate la carga de la pagina";
+            }
+            return oReturn;
         }
         public async Task<MessageViewLogic> LoadMessageControllerAsync(int idAldakinUser, int idMessage)
         {
             var oReturn = new MessageViewLogic();
-            WriteUserDataAsync(idAldakinUser);
-            if (idMessage > 0)
+            try
             {
-                oReturn.oMessage = await GetMessageAsync(idMessage);
+                WriteUserDataAsync(idAldakinUser);
+                if (idMessage > 0)
+                {
+                    oReturn.oMessage = await GetMessageAsync(idMessage);
+                }
+                else
+                {
+                    oReturn.oMessage = null;
+                }
+                oReturn.listMessages = await GetAllMessagesAsync();
+                oReturn.strError = string.Empty;
             }
-            else
+            catch(Exception ex)
             {
-                oReturn.oMessage = null;
+                oReturn.strError = "Error durnate la carga de la pagina";
             }
-            oReturn.listMessages = await GetAllMessagesAsync();            
             return oReturn;
         }
-
         private async Task<bool> PendingMessage()
         {
             bool bReturn = true;
             var message = await aldakinDbContext.Mensajes.FirstOrDefaultAsync(x => x.A == _iUserId && x.Estado == true);
-            if (message is null)   bReturn = false ;
+            if (message is null) bReturn = false;
             return bReturn;
         }
         private async Task<List<LineMessage>> GetAllMessagesAsync()
@@ -142,11 +232,11 @@ namespace AppPartes.Logic
             var lReturn = new List<LineMessage>();
             try
             {
-                var lTemp = await aldakinDbContext.Mensajes.Where(x => x.A == _iUserId && x.Estado == true).OrderByDescending(x=>x.Fecha).ToListAsync();
+                var lTemp = await aldakinDbContext.Mensajes.Where(x => x.A == _iUserId && x.Estado == true).OrderByDescending(x => x.Fecha).ToListAsync();
                 foreach (Mensajes m in lTemp)
                 {
                     var de = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == m.De);
-                    if ((m.Idlinea < 1)||(m.Idlinea is null))
+                    if ((m.Idlinea < 1) || (m.Idlinea is null))
                     {
                         m.Idlinea = 0;
                     }
@@ -200,7 +290,7 @@ namespace AppPartes.Logic
 
                 return oReturn;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return null;
             }

@@ -88,8 +88,15 @@ namespace AppPartes.Logic
         public string stUserrDni { set; get; }
         public int iUserId { set; get; }
         public int iUserCondEntO { set; get; }
+        public int iLevel { set; get; }
     }
-
+    public class HomeDataViewLogic
+    {
+        public UserData user { set; get; }
+        public List<Entidad> listCompanyUpdate { set; get; }
+        public List<Entidad> listCompanyCsv { set; get; }
+        public string strError { set; get; }
+    }
     public class MainDataViewLogic
     {
         public List<Ots> listOts { set; get; }
@@ -97,6 +104,7 @@ namespace AppPartes.Logic
         public List<Clientes> listClient { set; get; }
         public List<Pernoctaciones> listNight { set; get; }
         public bool bMessage { set; get; }
+        public string strError { set; get; }
     }
     public class WeekDataViewLogic
     {
@@ -108,16 +116,19 @@ namespace AppPartes.Logic
         public string DateSelected { get; set; }
         public string Mensaje { get; set; }
         public bool bMessage { set; get; }
+        public string strError { set; get; }
     }
     public class LoginDataViewLogic
     {
         public List<Entidad> listCompany { set; get; }
         public bool bMessage { set; get; }
+        public string strError { set; get; }
     }
     public class MessageViewLogic
     {
         public List<LineMessage> listMessages { get; set; }
         public LineMessage oMessage { get; set; }
         public bool bMessage { set; get; }
+        public string strError { set; get; }
     }
 }

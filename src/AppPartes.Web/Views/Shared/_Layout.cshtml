@@ -30,8 +30,6 @@
                 <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
             </li>
             @{
-                //el if true cambiar por si se esta autenticado
-                //aqui tambien se incluiran las diferentes opciones segun nivel de usuario
                 if (@User.Identity.IsAuthenticated)
                 {
                     <li class="nav-item">

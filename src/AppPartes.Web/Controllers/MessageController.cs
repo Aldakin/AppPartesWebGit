@@ -26,7 +26,10 @@ namespace AppPartes.Web.Controllers
             ViewBag.Message = strMessage;
             _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
             var oView = await _ILoadIndexController.LoadMessageControllerAsync(_idAldakinUser, idMessage);
-            //obtener mensajes no leidos
+            if (!(string.IsNullOrEmpty(oView.strError)))
+            {
+                ViewBag.Message = oView.strError;
+            }
             return View(oView);
         }
         [HttpPost, ValidateAntiForgeryToken]
@@ -36,7 +39,7 @@ namespace AppPartes.Web.Controllers
             int iIdLineaNew = 0;
             try
             {
-                if(iIdLinea < 1)
+                if (iIdLinea < 1)
                 {
                     iIdLineaNew = -2;
                 }
@@ -44,7 +47,6 @@ namespace AppPartes.Web.Controllers
                 {
                     iIdLineaNew = iIdLinea;
                 }
-
                 var answer = new LineMessage
                 {
                     Inicial = idOriginal,

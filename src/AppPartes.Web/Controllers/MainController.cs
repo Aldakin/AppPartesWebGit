@@ -24,9 +24,13 @@ namespace AppPartes.Web.Controllers
         }
         public async Task<IActionResult> Index(string strMessage = "")
         {
-            _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
             ViewBag.Message = strMessage;
+            _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
             var oView = await _ILoadIndexController.LoadMainControllerAsync(_idAldakinUser);
+            if(!(string.IsNullOrEmpty(oView.strError)))
+            {
+                ViewBag.Message = oView.strError;
+            }
             return View(oView);
         }
         [HttpPost, ValidateAntiForgeryToken]
