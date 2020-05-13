@@ -14,6 +14,6 @@ namespace AppPartes.Logic
         Task<List<SelectData>> ReadLevel1(int iData, int idAldakinUser);
         Task<List<SelectData>> ReadLevel2(int iData, int iData2, int idAldakinUser);
         Task<List<SelectData>> ReadLevelGeneral(int iData, int idAldakinUser);
-        Task<List<SelectData>> SelectedPayer(int iPayer, int iOt, int idAldakinUser);
+        Task<List<SelectData>> SelectedPayerAsync(int iPayer, int iOt, int idAldakinUser);
     }
 }

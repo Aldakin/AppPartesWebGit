@@ -13,8 +13,8 @@ namespace AppPartes.Web.Controllers.Api
         private readonly IWorkPartInformation _IWorkPartInformation;
         private readonly IWriteDataBase _IWriteDataBase;
         private readonly ILoadIndexController _ILoadIndexController;
-        private readonly UserManager<ApplicationUser> _manager;
-        public WeekDataApi(IWorkPartInformation iWorkPartInformation, IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController, UserManager<ApplicationUser> manager)
+        private readonly IApplicationUserAldakin _manager;
+        public WeekDataApi(IWorkPartInformation iWorkPartInformation, IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController, IApplicationUserAldakin manager)//UserManager<ApplicationUser>
         {
             _IWorkPartInformation = iWorkPartInformation;
             _IWriteDataBase = iWriteDataBase;
@@ -24,8 +24,7 @@ namespace AppPartes.Web.Controllers.Api
         private async Task<int> GetIdUserAldakinAsync()
         {
             //TODO Asi recuperamos los datos de aldakin
-            var user = await _manager.GetUserAsync(HttpContext.User);
-            var idAldakin = user.IdAldakin;
+            var idAldakin = await _manager.GetIdUserAldakin(HttpContext.User);
             if (idAldakin < 1) idAldakin = 0;
             return idAldakin;
         }
@@ -35,7 +34,7 @@ namespace AppPartes.Web.Controllers.Api
             try
             {
                 int idAldakin = await GetIdUserAldakinAsync();
-                listaSelect = await _IWorkPartInformation.SelectedPayer(cantidad, cantidad2, idAldakin);
+                listaSelect = await _IWorkPartInformation.SelectedPayerAsync(cantidad, cantidad2, idAldakin);
             }
             catch (Exception)
             {
@@ -57,8 +56,8 @@ namespace AppPartes.Web.Controllers.Api
             lReturn = await _IWriteDataBase.CloseWorkerWeekAsync(strDataSelected, idAldakin);
             return lReturn;
         }
-        public int iValue { set; get; }
-        public string strText { set; get; }
-        public string strValue { set; get; }
+        //public int iValue { set; get; }
+        //public string strText { set; get; }
+        //public string strValue { set; get; }
     }
 }

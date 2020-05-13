@@ -338,7 +338,7 @@ namespace AppPartes.Logic
             }
             return lReturn;
         }
-        public async Task<List<SelectData>> SelectedPayer(int iPayer, int iOt, int idAldakinUser)
+        public async Task<List<SelectData>> SelectedPayerAsync(int iPayer, int iOt, int idAldakinUser)
         {
             var lReturn = new List<SelectData>();
             try

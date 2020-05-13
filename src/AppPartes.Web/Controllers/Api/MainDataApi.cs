@@ -150,13 +150,13 @@ namespace AppPartes.Web.Controllers.Api
             }
             return listaSelect;
         }
-        public async Task<List<SelectData>> SelectPayer(int cantidad, int cantidad2)
+        public async Task<List<SelectData>> SelectPayer(int cantidad, int cantidad2)//payer,ot
         {
             var listaSelect = new List<SelectData>();
             try
             {
                 int idAldakinUser = await GetIdUserAldakinAsync();
-                listaSelect = await _IWorkPartInformation.SelectedPayer(cantidad, cantidad2, idAldakinUser);
+                listaSelect = await _IWorkPartInformation.SelectedPayerAsync(cantidad, cantidad2, idAldakinUser);
             }
             catch (Exception)
             {
