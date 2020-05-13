@@ -43,7 +43,7 @@ namespace AppPartes.Logic
             };
             return oReturn;
         }
-        private async Task<List<Entidad>> GetAldakinCompaniesAndRunningAsync(string strAction="AC")
+        private async Task<List<Entidad>> GetAldakinCompaniesAndRunningAsync(string strAction = "AC")
         {
             var lReturn = new List<Entidad>();
             var aux = await aldakinDbContext.Entidad.FirstOrDefaultAsync(x => x.CodEnt == _iUserCondEntO);
@@ -52,13 +52,14 @@ namespace AppPartes.Logic
             foreach (Entidad e in lTemp)
             {
                 string strTemp = strAction + e.CodEnt;
-                var temp = await aldakinDbContext.Servicios.FirstOrDefaultAsync(x => x.CodEnt == e.CodEnt && x.Condicion== strTemp);
-                if (temp.Ejecutar==1)
+                var temp = await aldakinDbContext.Servicios.FirstOrDefaultAsync(x => x.CodEnt == e.CodEnt && x.Condicion == strTemp);
+                if (temp.Ejecutar == 1)
                 {
-                    lReturn.Add( new Entidad {
-                        CodEnt=e.CodEnt,
-                        Nombre=e.Nombre+"(Running)"
-                        });
+                    lReturn.Add(new Entidad
+                    {
+                        CodEnt = e.CodEnt,
+                        Nombre = e.Nombre + "(Running)"
+                    });
                 }
                 else
                 {
@@ -82,7 +83,7 @@ namespace AppPartes.Logic
                 oReturn.listCompanyCsv = await GetAldakinCompaniesAndRunningAsync("CS");
                 oReturn.strError = string.Empty;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 oReturn.strError = "Error durnate la carga de la pagina";
             }
@@ -98,7 +99,7 @@ namespace AppPartes.Logic
                 oReturn.listCompany = await GetAldakinCompaniesAsync();
                 oReturn.listClient = await GetAldakinClientsAsync();
                 oReturn.listNight = await GetAldakinNightAsync();
-                oReturn.bMessage = await PendingMessage();
+                oReturn.bMessage = await PendingMessageAsync();
                 oReturn.strError = string.Empty;
             }
             catch (Exception ex)
@@ -114,7 +115,7 @@ namespace AppPartes.Logic
             {
                 WriteUserDataAsync(idAldakinUser);
                 DateTime day, dtIniWeek = DateTime.Now, dtEndWeek = DateTime.Now;
-                oReturn.bMessage = await PendingMessage();
+                oReturn.bMessage = await PendingMessageAsync();
                 if (string.IsNullOrEmpty(strDate) && string.IsNullOrEmpty(strAction))
                 {
                     //oReturn.Mensaje = "";
@@ -135,7 +136,6 @@ namespace AppPartes.Logic
                                 var dtSelected = Convert.ToDateTime(strDate);
                                 WorkPartInformation.IniEndWeek(dtSelected, out dtIniWeek, out dtEndWeek);
                                 oReturn.listSemana = await ResumeHourPerDayAsync(dtIniWeek, dtEndWeek);
-
                                 oReturn.listPartes = await GetWeekWorkerPartsAsync(dtIniWeek, dtEndWeek);
                                 var weekStatus = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Dia == dtSelected.Date && x.Idusuario == _iUserId);
                                 if (weekStatus is null)
@@ -159,7 +159,6 @@ namespace AppPartes.Logic
                             {
                                 oReturn.Mensaje = "Error en la seleccion de parte";
                             }
-
                             day = lSelect.Inicio;
                             lEstadoDia = await aldakinDbContext.Estadodias.Where(x => x.Idusuario == _iUserId && DateTime.Compare(x.Dia, day.Date) == 0).ToListAsync();//
                             if (lEstadoDia.Count > 0)
@@ -177,7 +176,7 @@ namespace AppPartes.Logic
                 }
                 oReturn.strError = string.Empty;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 oReturn.strError = "Error durnate la carga de la pagina";
             }
@@ -191,7 +190,7 @@ namespace AppPartes.Logic
                 oReturn.listCompany = await GetAllAldakinCompaniesAsync();
                 oReturn.strError = string.Empty;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 oReturn.strError = "Error durnate la carga de la pagina";
             }
@@ -214,13 +213,13 @@ namespace AppPartes.Logic
                 oReturn.listMessages = await GetAllMessagesAsync();
                 oReturn.strError = string.Empty;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 oReturn.strError = "Error durnate la carga de la pagina";
             }
             return oReturn;
         }
-        private async Task<bool> PendingMessage()
+        private async Task<bool> PendingMessageAsync()
         {
             bool bReturn = true;
             var message = await aldakinDbContext.Mensajes.FirstOrDefaultAsync(x => x.A == _iUserId && x.Estado == true);
@@ -361,16 +360,20 @@ namespace AppPartes.Logic
         }
         private async Task<List<LineaVisual>> GetWeekWorkerPartsAsync(DateTime dtIniWeek, DateTime dtEndWeek)
         {
-            string strObservaciones;
             var lReturn = new List<LineaVisual>();
+            var NombreOt = string.Empty;
+            var lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.Idusuario == _iUserId && x.CodEnt == _iUserCondEntO).OrderBy(x => x.Inicio).ToListAsync();
+            lReturn =await CreateVisualWorkerPart(lTemp); // ver si es linea original y obteniendo nombres de ots y empresas            
+            return lReturn;
+        }
+        private async Task<List<LineaVisual>> CreateVisualWorkerPart(List<Lineas> lTemp)
+        {
+            var lReturn = new List<LineaVisual>();
+            string strObservaciones;
             var NombreOt = string.Empty;
             var NombreCliente = string.Empty;
             var strPernocta = string.Empty;
             var strPreslin = string.Empty;
-            var lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.Idusuario == _iUserId && x.CodEnt == _iUserCondEntO).OrderBy(x => x.Inicio).ToListAsync();
-
-            //aqui tengo que recorrer lisPartes e ir volvandolo a otra clase nueva para nomstrar losnombres de las ots y empresas...
-            //ademas tengo que ver si es la linea original o la secundaria para que si es la secundaria la cambie por la principal
             foreach (var l in lTemp)
             {
                 var nombre = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == l.Idot);
@@ -467,7 +470,6 @@ namespace AppPartes.Logic
                 var strPagador = "";
                 var tipo = await aldakinDbContext.Tipogastos.FirstOrDefaultAsync(x => x.Idtipogastos == g.Tipo);
                 var strTipo = tipo.Tipo;
-
                 iCont++;
                 if (g.Pagador == 0)
                 {
