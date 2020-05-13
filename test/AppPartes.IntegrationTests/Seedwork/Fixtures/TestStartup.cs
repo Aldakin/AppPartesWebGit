@@ -8,6 +8,7 @@ using AppPartes.Web.Models;
 using Castle.Components.DictionaryAdapter;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
+using AppPartes.Web.Controllers.Api;
 
 namespace AppPartes.Web
 {
@@ -28,6 +29,8 @@ namespace AppPartes.Web
             services.AddScoped<IWriteDataBase>(provider => writeMock);
             var loadIndexMock = Mock.Of<ILoadIndexController>();
             services.AddScoped<ILoadIndexController>(provider => loadIndexMock);
+            var applicationUserAldakinMock = Mock.Of<IApplicationUserAldakin>();
+            services.AddScoped<IApplicationUserAldakin>(provider => applicationUserAldakinMock);
         }
     }
 }
