@@ -79,9 +79,6 @@ namespace AppPartes.Web.Controllers
                 return RedirectToAction("Index", new { strMessage = oReturn.strText, strDate = oReturn.strValue, strAction = "loadWeek" });
             }
         }
-
-
-
     }
 
 }

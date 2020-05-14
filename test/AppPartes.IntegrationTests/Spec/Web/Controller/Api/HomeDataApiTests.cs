@@ -18,43 +18,42 @@ namespace AppPartes.IntegrationTests.Spec.Web.Controller.Api
             _serverFixture = serverFixture;
         }
         [Fact]
-        public async Task UpdateEntityData_Send_0_ShouldReturnHttp200()
+        public async Task UpdateEntityData_Set_0_ShouldReturnHttp200()
         {
             //Arrange
             var client = _serverFixture.GetTestClient();
             //Act
-            var response = await client.GetAsync("/homedataapi/UpdateEntityData/0");
+            var response = await client.GetAsync("/homedataapi/UpdateEntityData?iEntity=0");
             //Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
         }
         [Fact]
-        public async Task UpdateEntityData_Send_1_ShouldReturnHttp200()
+        public async Task UpdateEntityData_Set_1_ShouldReturnHttp200()
         {
             //Arrange
             var client = _serverFixture.GetTestClient();
             //Act
-            var response = await client.GetAsync("/homedataapi/UpdateEntityData/1");
-            //Assert
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-        }
-
-        [Fact]
-        public async Task GenerateCsvData_Send_0_ShouldReturnHttp200()
-        {
-            //Arrange
-            var client = _serverFixture.GetTestClient();
-            //Act
-            var response = await client.GetAsync("/homedataapi/GenerateCsvData/0");
+            var response = await client.GetAsync("/homedataapi/UpdateEntityData?iEntity=1");
             //Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
         }
         [Fact]
-        public async Task GenerateCsvData_Send_1_ShouldReturnHttp200()
+        public async Task GenerateCsvData_Set_0_ShouldReturnHttp200()
         {
             //Arrange
             var client = _serverFixture.GetTestClient();
             //Act
-            var response = await client.GetAsync("/homedataapi/GenerateCsvData/1");
+            var response = await client.GetAsync("/homedataapi/GenerateCsvData?iEntity=0");
+            //Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+        [Fact]
+        public async Task GenerateCsvData_Set_1_ShouldReturnHttp200()
+        {
+            //Arrange
+            var client = _serverFixture.GetTestClient();
+            //Act
+            var response = await client.GetAsync("/homedataapi/GenerateCsvData?iEntity=1");
             //Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
         }

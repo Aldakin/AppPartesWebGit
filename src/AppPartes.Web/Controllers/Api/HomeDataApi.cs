@@ -30,5 +30,6 @@ namespace AppPartes.Web.Controllers.Api
             if (iEntity > 0) strReturn = await _IWriteDataBase.UpdateEntityDataOrCsvAsync(iEntity, idAldakin, "CS");
             return strReturn;
         }
+        
     }
 }

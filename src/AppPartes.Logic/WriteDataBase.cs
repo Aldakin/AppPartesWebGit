@@ -21,6 +21,8 @@ namespace AppPartes.Logic
         {
             this.aldakinDbContext = aldakinDbContext;
         }
+        
+
         private async void WriteUserDataAsync(int idAldakinUser)
         {
             var user = await GetUserDataAsync(idAldakinUser);
