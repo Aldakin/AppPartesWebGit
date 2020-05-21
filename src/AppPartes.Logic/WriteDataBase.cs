@@ -21,7 +21,7 @@ namespace AppPartes.Logic
         {
             this.aldakinDbContext = aldakinDbContext;
         }
-        
+
 
         private async void WriteUserDataAsync(int idAldakinUser)
         {
@@ -32,6 +32,7 @@ namespace AppPartes.Logic
             _stUserDni = user.stUserrDni;
             _iUserLevel = user.iLevel;
         }
+
         public async Task<UserData> GetUserDataAsync(int idAldakinUser)
         {
             UserData oReturn = new UserData();
@@ -57,6 +58,23 @@ namespace AppPartes.Logic
             }
             return oReturn;
         }
+
+
+        public async Task<List<Usuarios>> GetAllUsersAsync(int iEntity=0)
+        {
+            var lReturn = new List<Usuarios>();
+            if (iEntity == 0)
+            {
+                lReturn = await aldakinDbContext.Usuarios.Where(x => x.CodEnt == x.CodEntO && x.Baja == 0).ToListAsync();
+            }
+            else
+            {
+                lReturn = await aldakinDbContext.Usuarios.Where(x => x.CodEnt == x.CodEntO && x.Baja == 0 && x.CodEnt==iEntity).ToListAsync();
+            }
+            return lReturn;
+        }
+            
+
         public async Task<string> InsertWorkerLineAsync(WorkerLineData dataToInsertLine, int idAldakinUser)
         {
             WriteUserDataAsync(idAldakinUser);
@@ -1121,7 +1139,7 @@ namespace AppPartes.Logic
                             await transaction.RollbackAsync();
                             strReturn = "Ha ocurrido un error al mandar actualizar los datos de la delegación";
                         }
-                        strReturn = "La actualización durara aproximadamente 15 minutos.";
+                        strReturn = "La actualización/generación durara aproximadamente 15 minutos.";
                     }
                     else
                     {

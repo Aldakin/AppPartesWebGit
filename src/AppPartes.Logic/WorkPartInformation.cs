@@ -1,8 +1,10 @@
 ﻿using AppPartes.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Threading.Tasks;
 namespace AppPartes.Logic
 {
@@ -366,6 +368,166 @@ namespace AppPartes.Logic
             }
             return lReturn;
         }
+        public async Task<List<string>> PendingWorkPartApiAsync(string strCalendario, string strUser, string strEntity)
+        {
+            var lReturn = new List<string>();
+            DateTime dtCalendario = Convert.ToDateTime(strCalendario);
+            int iUser = Convert.ToInt32(strUser);
+            int iEntity = Convert.ToInt32(strEntity);
+            if (iUser == 0)
+            {
+                var user = await _iWriteDataBase.GetAllUsersAsync(iEntity);
+                foreach (Usuarios u in user)
+                {
+                    var temp = await PendingMonthWorkPartAsync(u.Idusuario, dtCalendario);
+                    foreach (string s in temp)
+                    {
+                        lReturn.Add(s);
+                    }
+                }
+            }
+            else
+            {
+                var temp1 = await PendingMonthWorkPartAsync(iUser, dtCalendario);
+                foreach (string s in temp1)
+                {
+                    lReturn.Add(s);
+                }
+            }
+            return lReturn;
+        }
+        private async Task<List<string>> PendingMonthWorkPartAsync(int iIdUser, DateTime dtSelected)
+        {
+            var lReturn = new List<string>();
+            DateTime dtIniMonth = Convert.ToDateTime("01/" + dtSelected.Month + "/" + dtSelected.Year);
+            DateTime dtIniWeek, dtEndWeek;
+            var userTemp = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == iIdUser);
+            if (!(userTemp is null))
+            {
+                for (var date = dtIniMonth; date <= dtSelected; date = date.AddDays(1.0))
+                {
+                    IniEndWeek(date, out dtIniWeek, out dtEndWeek);
+                    if (date.Day == 1)
+                    {
+                        dtIniWeek = date;
+                    }
+                    double dHourWork = 0;
+                    double dHourTravel = 0;
+                    bool bClose = false;
+                    var lineTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio >= dtIniWeek && x.Fin <= dtEndWeek && x.Idusuario == iIdUser).ToListAsync();
+                    foreach (Lineas l in lineTemp)
+                    {
+                        dHourWork = dHourWork + l.Horas;
+                        dHourTravel = dHourTravel + l.Horasviaje ?? 0;
+                    }
+                    var close = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Dia == dtIniWeek && x.Idusuario==iIdUser);
+                    if (!(close is null))
+                    {
+                        bClose = true;
+                    }
+                    else
+                    {
+                        bClose = false;
+                    }
+                    lReturn.Add(userTemp.Nombrecompleto + "(" + dtIniWeek.Day + "/" + dtIniWeek.Month + "/" + dtIniWeek.Year + ") Cerrada: " + bClose + " Horas: " + dHourWork + " Horas viaje: " + dHourTravel);
+                    date = dtEndWeek.AddDays(1);
+                }
+            }
+            else
+            {
+                lReturn.Add("Usuario: " + iIdUser + " no encontrado");
+            }
+            return lReturn;
+        }
+
+        private async Task<List<Usuarios>>  UserPendingWorkPartAsync(DateTime dtSelected, int iEntity)
+        {
+            var lReturn = new List<Usuarios>();
+            var userTemp =await aldakinDbContext.Usuarios.Where(x => x.CodEnt == iEntity && x.Baja == 0).ToListAsync();            
+            if (!(userTemp is null))
+            {
+                foreach (Usuarios u in userTemp)
+                {
+                    DateTime dtIniMonth = Convert.ToDateTime("01/" + dtSelected.Month + "/" + dtSelected.Year);
+                    DateTime dtIniWeek, dtEndWeek;
+                    for (var date = dtIniMonth; date <= dtSelected; date = date.AddDays(1.0))
+                    {
+                        IniEndWeek(date, out dtIniWeek, out dtEndWeek);
+                        if (date.Day == 1)
+                        {
+                            dtIniWeek = date;
+                        }
+                        var close = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Dia == dtIniWeek && x.Idusuario == u.Idusuario);
+                        if (!(close is null))
+                        {
+                            lReturn.Add(u);
+                        }
+                        else
+                        {
+                            //no actions
+                        }
+                        date = dtEndWeek.AddDays(1);
+                        break;
+                    }
+                }
+            }
+            return lReturn;
+        }
+        public async Task<bool> SendAdvicePendingWorkPart(string strCalendario, string strUser, string strEntity)
+        {
+            bool bReturn=false;
+            string strSubject = "Partes Pendientes";
+            string strTo = "";
+            string strSender = ""; 
+            string strText = "Buenos dias, /r/n Este email se envia desde la aplicacion de partes de la empresa /r/n Revise y pongase al día en sus partes de trabajo. /r/n Un saludo;";
+            DateTime dtSelected = Convert.ToDateTime(strCalendario);
+            int iEntity = Convert.ToInt32(strEntity);
+            var users =await UserPendingWorkPartAsync(dtSelected,iEntity);
+            foreach(Usuarios u in users)
+            {
+                strTo = u.Email;
+                strSender = "aplicacion@aldakin.com";
+                SendEmail(strSubject, strTo, strSender, strText);
+            }
+            return bReturn;
+        }
+        private bool SendEmail(string strSubject,string strTo,string strSender,string strText)
+        {
+            //meter estos daatos en secrets
+            string Email = "aplicacion@aldakin.com";
+            string Pass= "ALD2015apli";
+            string Host = "smtp.aldakin.com";
+            //estos datos a secrets
+            bool bReturn = false;
+            string sTempMensaje = "";
+            MailMessage msg = new MailMessage();
+            msg.To.Add(strTo);
+            msg.Subject = strSubject;
+            msg.SubjectEncoding = System.Text.Encoding.UTF8;
+            msg.Bcc.Add(strSender);
+
+            sTempMensaje = strText.Replace("\r\n", " <br>");
+            msg.Body = sTempMensaje;
+            msg.BodyEncoding = System.Text.Encoding.UTF8;
+            msg.IsBodyHtml = true;
+            msg.From = new MailAddress(Email);
+
+            SmtpClient cliente = new SmtpClient();
+            cliente.Credentials = new System.Net.NetworkCredential(Email, Pass);
+            cliente.Port = 587;
+            //cliente.EnableSsl = true;
+            cliente.Host = Host; //mail.domiio.com
+            try
+            {
+                cliente.Send(msg);
+                bReturn = true;
+            }
+            catch (Exception ex)
+            {
+                bReturn = false;
+            }
+            return bReturn;
+        }
         public static void IniEndWeek(DateTime dtSelected, out DateTime dtIniWeek, out DateTime dtEndWeek)
         {
             var dayWeek = dtSelected.DayOfWeek;
@@ -373,31 +535,31 @@ namespace AppPartes.Logic
             {
                 case System.DayOfWeek.Sunday:
                     dtIniWeek = dtSelected.AddDays(-6);
-                    dtEndWeek = dtSelected.AddDays(+1);
+                    dtEndWeek = dtSelected.AddDays(0);// (+1);
                     break;
                 case System.DayOfWeek.Saturday:
                     dtIniWeek = dtSelected.AddDays(-5);
-                    dtEndWeek = dtSelected.AddDays(+2);
+                    dtEndWeek = dtSelected.AddDays(+1);// (+2);
                     break;
                 case System.DayOfWeek.Friday:
                     dtIniWeek = dtSelected.AddDays(-4);
-                    dtEndWeek = dtSelected.AddDays(+3);
+                    dtEndWeek = dtSelected.AddDays(+2); //(+3);
                     break;
                 case System.DayOfWeek.Thursday:
                     dtIniWeek = dtSelected.AddDays(-3);
-                    dtEndWeek = dtSelected.AddDays(+4);
+                    dtEndWeek = dtSelected.AddDays(+3); //(+4);
                     break;
                 case System.DayOfWeek.Wednesday:
                     dtIniWeek = dtSelected.AddDays(-2);
-                    dtEndWeek = dtSelected.AddDays(+5);
+                    dtEndWeek = dtSelected.AddDays(+4); //(+5);
                     break;
                 case System.DayOfWeek.Tuesday:
                     dtIniWeek = dtSelected.AddDays(-1);
-                    dtEndWeek = dtSelected.AddDays(+6);
+                    dtEndWeek = dtSelected.AddDays(+5); //(+6);
                     break;
                 case System.DayOfWeek.Monday:
                     dtIniWeek = dtSelected.AddDays(0);
-                    dtEndWeek = dtSelected.AddDays(+7);
+                    dtEndWeek = dtSelected.AddDays(+6); //(+7);
                     break;
                 default:
                     throw new Exception();

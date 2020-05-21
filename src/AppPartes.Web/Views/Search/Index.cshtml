@@ -1,0 +1,131 @@
+﻿@model AppPartes.Logic.SearchViewLogic
+@{
+    ViewData["Title"] = "Index";
+}
+@{
+    Layout = null;
+}
+<body class="is-preload">
+
+    <!-- Wrapper -->
+    <div id="wrapper">
+
+        <!-- Main -->
+        <div id="main">
+            <!--<div class="inner">-->
+            <!-- Header -->
+            <header id="header">
+                <a href="#" class="logo"><strong>Grupo Aldakin</strong></a>
+            </header>
+            <!-- Content -->
+            <section>
+                @{
+                    if (!string.IsNullOrEmpty(ViewBag.Message))
+                    {
+                        <div class="alert alert-warning">@ViewBag.Message</div>
+                    }
+                }
+                <header class="main">
+                    <h1>Administracion - Control de partes EN CONSTRUCCION</h1>
+                </header>
+                <!-- Content -->
+                <!--<h2 id="content">Sample Content</h2>-->
+                <form asp-action="SearchEntityData" asp-controller="Search" method="POST">
+                    <div class="col-12">
+                        <label for="start">Seleccione delegación:</label>
+                        <select id="entidad" name="strEntidad" required>
+                            <option value="">
+                            </option>
+                            @foreach (var dept in Model.listCompany)
+                            {
+                                <option value="@dept.CodEnt">
+                                    @dept.Nombre
+                                </option>
+                            }
+                        </select>
+                        <label>Seleccione en el calendario:</label>
+                        <input type="date" id="Calendario" name="strDate"
+                               value=" "
+                               min="@(DateTime.Now.Year - 2)-01-01"
+                               max="@(DateTime.Now.Year + 2)-12-31" required>
+                        <input type="submit" name="strMes" value="Estado Mes" class="primary" />
+                        <input type="submit" name="strSemana" value="Estado Semana " class="primary" />
+                    </div>
+                </form>
+            </section>
+
+
+            <!-- Content -->
+            <section>
+                <header class="main">
+                    <h1>Elements</h1>
+                </header>
+
+                <hr class="major" />
+
+                <!-- Elements -->
+                <h2 id="elements">Elements</h2>
+                <div class="row gtr-200">
+                    <div class="col-12-large">
+                        <!-- Blockquote -->
+                        <h3>Blockquote</h3>
+                        <blockquote>Lorem ipsum dolor vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent. Lorem ipsum dolor. Lorem ipsum dolor vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus.</blockquote>
+
+                        <!-- Table -->
+                        <h3>Table</h3>
+
+                        @* @grid.GetHtml()*@
+
+                        @*<h4>Alternate</h4>
+                            <div class="table-wrapper">
+                                <table class="alt">
+                                    <thead>
+                                        <tr>
+                                            <th>Trabajador</th>
+                                            <th>Description</th>
+                                            <th>Price</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Item1</td>
+                                            <td>Ante turpis integer aliquet porttitor.</td>
+                                            <td>29.99</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Item2</td>
+                                            <td>Vis ac commodo adipiscing arcu aliquet.</td>
+                                            <td>19.99</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Item3</td>
+                                            <td> Morbi faucibus arcu accumsan lorem.</td>
+                                            <td>29.99</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Item4</td>
+                                            <td>Vitae integer tempus condimentum.</td>
+                                            <td>19.99</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Item5</td>
+                                            <td>Ante turpis integer aliquet porttitor.</td>
+                                            <td>29.99</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="2"></td>
+                                            <td>100.00</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>*@
+
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</body>
+

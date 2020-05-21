@@ -10,14 +10,10 @@ namespace AppPartes.Web.Controllers.Api
     public class MainDataApi : ControllerBase
     {
         private readonly IWorkPartInformation _IWorkPartInformation;
-        private readonly IWriteDataBase _IWriteDataBase;
-        private readonly ILoadIndexController _ILoadIndexController;
         private readonly IApplicationUserAldakin _manager;
-        public MainDataApi(IWorkPartInformation iWorkPartInformation, IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController, IApplicationUserAldakin manager)
+        public MainDataApi(IWorkPartInformation iWorkPartInformation, IApplicationUserAldakin manager)
         {
             _IWorkPartInformation = iWorkPartInformation;
-            _IWriteDataBase = iWriteDataBase;
-            _ILoadIndexController = iLoadIndexController;
             _manager = manager;
         }
         private async Task<int> GetIdUserAldakinAsync()
@@ -27,12 +23,13 @@ namespace AppPartes.Web.Controllers.Api
             if (idAldakin < 1) idAldakin = 0;
             return idAldakin;
         }
-        public async Task<MainDataViewLogic> LoadMainView()
-        {
-            int idAldakinUser = await GetIdUserAldakinAsync();
-            var oView = await _ILoadIndexController.LoadMainControllerAsync(idAldakinUser);
-            return oView;
-        }
+        //public async Task<MainDataViewLogic> LoadMainView()
+        //{
+        //    int idAldakinUser = await GetIdUserAldakinAsync();
+        //    var oView = await _ILoadIndexController.LoadMainControllerAsync(idAldakinUser);
+        //    return oView;
+        //}
+
         //[HttpPost]
         //[Route("week-summary")]
         public async Task<List<SelectData>> WeekSummary(string cantidad)

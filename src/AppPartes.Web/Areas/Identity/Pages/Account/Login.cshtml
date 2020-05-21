@@ -2,7 +2,7 @@
 @model LoginModel
 
 @{
-    ViewData["Title"] = "Log in";
+    ViewData["Title"] = "Inicio de sesión";
 }
 
 <h1>@ViewData["Title"]</h1>
@@ -10,72 +10,75 @@
     <div class="col-md-4">
         <section>
             <form id="account" method="post">
-                    <h4>Use a local account to log in.</h4>
-                    <hr />
-                    <div asp-validation-summary="All" class="text-danger"></div>
-                    <div class="form-group">
+                <h4>Use sus datos de usuario local para conectarse.</h4>
+                <hr />
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="form-group">
 
-                        <label asp-for="Input.Company">Select your Company</label>
-                        @*<select asp-for="lEntity"
-                                    asp-items="@(new SelectList(Model.lEntity,"CodEnt","Nombre"))">
-                                <option>Please select one</option>
-                            </select>*@
-                        <select asp-for="Input.Company" required>
-                            <option value=""></option>
+                    <label asp-for="Input.Company">* Selecciona tu delegación</label>
+                    @*<select asp-for="lEntity"
+                                asp-items="@(new SelectList(Model.lEntity,"CodEnt","Nombre"))">
+                            <option>Please select one</option>
+                        </select>*@
+                    <select asp-for="Input.Company" required>
+                        <option value=""></option>
 
-                            @if (Model.lEntity.listCompany != null)
+                        @if (Model.lEntity.listCompany != null)
+                        {
+                            foreach (var dept in Model.lEntity.listCompany)
                             {
-                                foreach (var dept in Model.lEntity.listCompany)
-                                {
-                                    <option value="@dept.CodEnt">
-                                        @dept.Nombre
-                                    </option>
-                                }
+                                <option value="@dept.CodEnt">
+                                    @dept.Nombre
+                                </option>
                             }
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        @*<label asp-for="Input.Email"></label>*@
-                        <label asp-for="Input.Email">User Name</label>
-                        <input asp-for="Input.Email" class="form-control" />
-                        <span asp-validation-for="Input.Email" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="Input.Password"></label>
-                        <input asp-for="Input.Password" class="form-control" />
-                        <span asp-validation-for="Input.Password" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                            <label asp-for="Input.RememberMe">
-                                <input type="checkbox" asp-for="Input.RememberMe" />
-                                @Html.DisplayNameFor(m => m.Input.RememberMe)
-                            </label>
-                    </div>
-                    <div class="form-group">
-                        <button type="submit" class="button">Log in</button><!--btn btn-primary-->
-                    </div>
-                    @*<div class="form-group">
-                            <p>
-                                <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
-                            </p>
-                            <p>
-                                <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
-                            </p>
-                        </div>*@
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    @*<label asp-for="Input.Email"></label>*@
+                    <label asp-for="Input.Email">* Número de empleado</label>
+                    <input asp-for="Input.Email" class="form-control" />
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Input.Password">* Contraseña</label>
+                    <input asp-for="Input.Password" class="form-control" />
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Input.RememberMe">
+                        * => Campos obligatorios
+                        @*<input type="checkbox" asp-for="Input.RememberMe" />
+                            @Html.DisplayNameFor(m => m.Input.RememberMe)*@
+                    </label>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="button">Inicio sesión</button><!--btn btn-primary-->
+                </div>
+                @*<div class="form-group">
+                        <p>
+                            <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
+                        </p>
+                        <p>
+                            <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
+                        </p>
+                    </div>*@
             </form>
         </section>
     </div>
     <div class="col-md-6 col-md-offset-2">
         <section>
-            <h4>Use another service to log in.</h4>
+            <h4>Acceso permitido solo para usuarios registrados de manera local.</h4>
             <hr />
             @{
                 if ((Model.ExternalLogins?.Count ?? 0) == 0)
                 {
                     <div>
                         <p>
-                            There are no external authentication services configured. See <a href="https://go.microsoft.com/fwlink/?LinkID=532715">this article</a>
-                            for details on setting up this ASP.NET application to support logging in via external services.
+                            No es posible acceder si no ha sido dado de alta de manera local.
+                        </p>
+                        <p>
+                            Para poder acceder y usar la aplicación debe ponerse en contacto para ser dado de alta.
                         </p>
                     </div>
                 }

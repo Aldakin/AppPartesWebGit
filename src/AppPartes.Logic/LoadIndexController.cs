@@ -108,6 +108,21 @@ namespace AppPartes.Logic
             }
             return oReturn;
         }
+        public async Task<SearchPendingViewLogic> SearchPendingControllerAsync(int idAldakinUser)
+        {
+            var oReturn = new SearchPendingViewLogic();
+            try
+            {
+                WriteUserDataAsync(idAldakinUser);
+                oReturn.listCompany = await GetAldakinCompaniesAsync();
+                oReturn.strError = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                oReturn.strError = "Error durnate la carga de la pagina";
+            }
+            return oReturn;
+        }
         public async Task<WeekDataViewLogic> LoadWeekControllerAsync(int idAldakinUser, string strDate = "", string strAction = "", string strId = "")
         {
             var oReturn = new WeekDataViewLogic();
@@ -211,6 +226,21 @@ namespace AppPartes.Logic
                     oReturn.oMessage = null;
                 }
                 oReturn.listMessages = await GetAllMessagesAsync();
+                oReturn.strError = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                oReturn.strError = "Error durnate la carga de la pagina";
+            }
+            return oReturn;
+        }
+        public async Task<SearchViewLogic> LoadSearchControllerAsync(int idAldakinUser)
+        {
+            var oReturn = new SearchViewLogic();
+            try
+            {
+                WriteUserDataAsync(idAldakinUser);
+                oReturn.listCompany = await GetAldakinCompaniesAsync();
                 oReturn.strError = string.Empty;
             }
             catch (Exception ex)
@@ -346,7 +376,7 @@ namespace AppPartes.Logic
         private async Task<List<double>> ResumeHourPerDayAsync(DateTime dtIniWeek, DateTime dtEndWeek)
         {
             var lReturn = new List<double>();
-            for (var date = dtIniWeek; date < dtEndWeek; date = date.AddDays(1.0))
+            for (var date = dtIniWeek; date <= dtEndWeek; date = date.AddDays(1.0))
             {
                 double dHorasDia = 0;
                 var Temp = await aldakinDbContext.Lineas.Where(x => x.Inicio.Date == date.Date && x.CodEnt == _iUserCondEntO && x.Idusuario == _iUserId).OrderBy(x => x.Inicio).ToListAsync();

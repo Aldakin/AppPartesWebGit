@@ -4,10 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using AppPartes.Logic;
 using AppPartes.Web.Controllers.Api;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppPartes.Web.Controllers
 {
+    [Authorize]
     public class MessageController : Controller
     {
         private readonly ILoadIndexController _ILoadIndexController;

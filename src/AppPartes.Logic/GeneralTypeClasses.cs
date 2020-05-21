@@ -131,4 +131,15 @@ namespace AppPartes.Logic
         public bool bMessage { set; get; }
         public string strError { set; get; }
     }
+    public class SearchViewLogic
+    {
+        public List<Entidad> listCompany { set; get; }
+        public string strError { set; get; }
+    }
+    public class SearchPendingViewLogic
+    {
+        public List<Entidad> listCompany { set; get; }
+        public List<string> lSummary { set; get; }
+        public string strError { set; get; }
+    }
 }

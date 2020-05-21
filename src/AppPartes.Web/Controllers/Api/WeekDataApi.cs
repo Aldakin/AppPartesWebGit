@@ -12,13 +12,11 @@ namespace AppPartes.Web.Controllers.Api
     {
         private readonly IWorkPartInformation _IWorkPartInformation;
         private readonly IWriteDataBase _IWriteDataBase;
-        private readonly ILoadIndexController _ILoadIndexController;
         private readonly IApplicationUserAldakin _manager;
-        public WeekDataApi(IWorkPartInformation iWorkPartInformation, IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController, IApplicationUserAldakin manager)//UserManager<ApplicationUser>
+        public WeekDataApi(IWorkPartInformation iWorkPartInformation, IWriteDataBase iWriteDataBase, IApplicationUserAldakin manager)//UserManager<ApplicationUser>
         {
             _IWorkPartInformation = iWorkPartInformation;
             _IWriteDataBase = iWriteDataBase;
-            _ILoadIndexController = iLoadIndexController;
             _manager = manager;
         }
         private async Task<int> GetIdUserAldakinAsync()

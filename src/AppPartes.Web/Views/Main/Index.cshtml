@@ -55,7 +55,7 @@
                                 </option>
                             }
                         </select>
-                        <label for="start">Ots:</label>
+                        <label for="start">* Ots:</label>
                         <select id="ot" name="strOt">
                             <option value="0"></option>
                             @foreach (var dept in Model.listOts)
@@ -65,43 +65,43 @@
                                 </option>
                             }
                         </select>
-                        <label id="lbPresupuesto" for="start" style="display:none">Presupuesto:</label>
+                        <label id="lbPresupuesto" for="start" style="display:none">* Presupuesto:</label>
                         <select id="presupuesto" name="strPresupuesto" style="display:none">
                             <option value="0"></option>
                             <option value=" ">presupuesto</option>
 
                         </select>
-                        <label id="lbNivel1" for="start" style="display:none">Nivel1:</label>
+                        <label id="lbNivel1" for="start" style="display:none">* Nivel1:</label>
                         <select id="nivel1" name="strNivel1" style="display:none">
                             <option value="0"></option>
 
                         </select>
-                        <label id="lbNivel2" for="start" style="display:none">Nivel2:</label>
+                        <label id="lbNivel2" for="start" style="display:none">* Nivel2:</label>
                         <select id="nivel2" name="strNivel2" style="display:none">
                             <option value="0"></option>
 
                         </select>
-                        <label id="lbNivel3" for="start" style="display:none">Nivel3:</label>
+                        <label id="lbNivel3" for="start" style="display:none">* Nivel3:</label>
                         <select id="nivel3" name="strNivel3" style="display:none">
                             <option value="0"></option>
 
                         </select>
-                        <label id="lbNivel4" for="start" style="display:none">Nivel4:</label>
+                        <label id="lbNivel4" for="start" style="display:none">* Nivel4:</label>
                         <select id="nivel4" name="strNivel4" style="display:none">
                             <option value="0"></option>
 
                         </select>
-                        <label id="lbNivel5" for="start" style="display:none">Nivel5:</label>
+                        <label id="lbNivel5" for="start" style="display:none">* Nivel5:</label>
                         <select id="nivel5" name="strNivel5" style="display:none">
                             <option value="0"></option>
 
                         </select>
-                        <label id="lbNivel6" for="start" style="display:none">Nivel6:</label>
+                        <label id="lbNivel6" for="start" style="display:none">* Nivel6:</label>
                         <select id="nivel6" name="strNivel6" style="display:none">
                             <option value="0"></option>
 
                         </select>
-                        <label id="lbNivel7" for="start" style="display:none">Nivel7:</label>
+                        <label id="lbNivel7" for="start" style="display:none">* Nivel7:</label>
                         <select id="nivel7" name="strNivel7" style="display:none">
                             <option value="0"></option>
 
@@ -116,7 +116,7 @@
                         <div class="col-12">
                             <div class="col-12">
                                 <!--<h3>Seleccione un dia:</h3>-->
-                                <label for="start">Seleccione un dia:</label>
+                                <label for="start">* Seleccione un dia:</label>
 
                                 <input type="date" id="Calendario" name="strCalendario"
                                        value=""
@@ -163,7 +163,7 @@
                             </div>
                             <hr class="major" />
                             <div class="col-12">
-                                <label for="start">Hora Inicio:</label>
+                                <label for="start">* Hora Inicio:</label>
                                 <table class="egt">
                                     <tr>
                                         <td>
@@ -208,7 +208,7 @@
                                 </table>
                             </div>
                             <div class="col-12">
-                                <label for="start">Hora Fin:</label>
+                                <label for="start">* Hora Fin:</label>
                                 <table class="egt">
                                     <tr>
                                         <td>
@@ -261,7 +261,7 @@
                             <input type="checkbox" id="cbox2" value="true" name="bHorasViaje"> <label for="cbox2">Viaje</label>
                         </div>
                         <div class="col-6 col-12-small">
-                            <input type="checkbox" id="gastos" value="true" name="bGastos"> <label for="gastos">Solo gastos:</label>
+                            <input type="checkbox" id="gastos" value="true" name="bGastos"> <label for="gastos">Solo gastos</label>
                         </div>
                         <div class="col-12">
                             <!--<h3>Magna odio tempus commodo</h3>-->
@@ -294,7 +294,7 @@
                     </div>
                     <!-- Break -->
                     <div id="information2" class="col-12" style="display:none">
-                        <label for="start">Observaciones:</label>
+                        <label for="start">* Observaciones:</label>
                         <textarea name="strObservaciones" id="txtObservaciones" placeholder="Enter your message" rows="6" required></textarea>
                         <hr class="major" />
                     </div>
@@ -327,12 +327,13 @@
                         </div>
                     </div>
                     <div class="col-12">
-                        <div class="col-12" style="display:none">
+                        <div class="col-12">
+                            <label for="start">* => Campos obligatorios</label>
+                            <label for="start">Antes de guardar su parte de trabajo revise que todos los datos son correctos</label>
                         </div>
                         <input id="strPreslin" name="strPreslin" type="hidden" value="" style="display:none" />
                         <div id="information3" class="col-12" style="display:none">
                             <ul class="actions">
-
                                 <li><input type="submit" value="Guardar" class="primary" /></li>
                             </ul>
                         </div>

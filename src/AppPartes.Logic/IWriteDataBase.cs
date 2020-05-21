@@ -1,4 +1,5 @@
 ﻿
+using AppPartes.Data.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -14,5 +15,6 @@ namespace AppPartes.Logic
         Task<bool> ReadUserMessageAsync(int iIdMessage);
         Task<string> AnswerMessageAsync(LineMessage line);
         Task<string> UpdateEntityDataOrCsvAsync(int iIdEntity, int idAldakinUser, string strAction = "AC");
+        Task<List<Usuarios>> GetAllUsersAsync(int iEntity);
     }
 }

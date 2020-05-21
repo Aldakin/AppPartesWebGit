@@ -11,16 +11,17 @@ namespace AppPartes.Web.Controllers
     public class MainController : Controller
     {
         private readonly IWriteDataBase _IWriteDataBase;
-        private readonly IWorkPartInformation _IWorkPartInformation;
+        //private readonly IWorkPartInformation _IWorkPartInformation;
         private readonly ILoadIndexController _ILoadIndexController;
         private readonly IApplicationUserAldakin _IApplicationUserAldakin;
         private int _idAldakinUser;
-        public MainController(IWorkPartInformation iWorkPartInformation, IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController, IApplicationUserAldakin iApplicationUserAldakin)
+        public MainController(/*IWorkPartInformation iWorkPartInformation,*/ IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController, IApplicationUserAldakin iApplicationUserAldakin)
         {
             _IWriteDataBase = iWriteDataBase;
-            _IWorkPartInformation = iWorkPartInformation;
-            _ILoadIndexController = iLoadIndexController;
             _IApplicationUserAldakin = iApplicationUserAldakin;
+            _ILoadIndexController = iLoadIndexController;
+
+            //_IWorkPartInformation = iWorkPartInformation;
         }
         public async Task<IActionResult> Index(string strMessage = "")
         {
@@ -66,6 +67,11 @@ namespace AppPartes.Web.Controllers
             //strReturn = await MainDataApi.InsertLine(dataToInsertLine);
             strReturn = await _IWriteDataBase.InsertWorkerLineAsync(dataToInsertLine, _idAldakinUser);
             return RedirectToAction("Index", new { strMessage = strReturn });
+        }
+        public void Test()
+        {
+            int i = 0;
+            i = i + 1;
         }
     }
     //.Replace(',', '.')
