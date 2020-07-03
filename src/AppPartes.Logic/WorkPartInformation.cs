@@ -26,11 +26,18 @@ namespace AppPartes.Logic
         private async void WriteUserDataAsync(int idAldakinUser)
         {
             var user = await _iWriteDataBase.GetUserDataAsync(idAldakinUser);
-            _strUserName = user.strUserName;
-            _iUserId = user.iUserId;
-            _iUserCondEntO = user.iUserCondEntO;
-            _stUserDni = user.stUserrDni;
-            _iUserLevel = user.iLevel;
+            if (!(user is null))
+            {
+                _strUserName = user.strUserName;
+                _iUserId = user.iUserId;
+                _iUserCondEntO = user.iUserCondEntO;
+                _stUserDni = user.stUserrDni;
+                _iUserLevel = user.iLevel;
+            }
+            else
+            {
+
+            }
         }
         public async Task<List<SelectData>> WeekHourResume(DateTime dtSelected, int idAldakinUser)
         {
@@ -41,7 +48,7 @@ namespace AppPartes.Logic
                 var iCont = 0;
                 IniEndWeek(dtSelected, out var dtIniWeek, out var dtEndWeek);
                 #region list hours per day in a week
-                for (var date = dtIniWeek; date < dtEndWeek; date = date.AddDays(1.0))
+                for (var date = dtIniWeek; date <= dtEndWeek; date = date.AddDays(1.0))
                 {
                     var strRangosHora = "";
                     var listPartes = await aldakinDbContext.Lineas.Where(x => x.Inicio.Date == date.Date && x.CodEnt == _iUserCondEntO && x.Idusuario == _iUserId).OrderBy(x => x.Inicio).ToListAsync();
@@ -439,7 +446,6 @@ namespace AppPartes.Logic
             }
             return lReturn;
         }
-
         private async Task<List<Usuarios>>  UserPendingWorkPartAsync(DateTime dtSelected, int iEntity)
         {
             var lReturn = new List<Usuarios>();
@@ -564,6 +570,6 @@ namespace AppPartes.Logic
                 default:
                     throw new Exception();
             }
-        }
+        }    
     }
 }

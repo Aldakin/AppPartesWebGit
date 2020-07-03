@@ -135,7 +135,7 @@ namespace AppPartes.Web.Areas.Identity.Pages.Account
                 else
                 {
                     lEntity = await _ILoadIndexController.LoadLoginControllerAsync();
-                    ModelState.AddModelError(string.Empty, "User not found.");
+                    ModelState.AddModelError(string.Empty, "Hable con su responsable.");
                     return Page();
                     ////Error Situation
                     //ModelState.AddModelError(string.Empty, "Invalid login attempt.");

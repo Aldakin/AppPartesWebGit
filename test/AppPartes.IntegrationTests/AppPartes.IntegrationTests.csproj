@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\AppPartes.Logic\AppPartes.Logic.csproj" />
     <ProjectReference Include="..\..\src\AppPartes.Web\AppPartes.Web.csproj" />
   </ItemGroup>
 

@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
-
 namespace AppPartes.Web.Controllers
 {
     [Authorize]
@@ -20,7 +19,6 @@ namespace AppPartes.Web.Controllers
             _IWriteDataBase = iWriteDataBase;
             _IApplicationUserAldakin = iApplicationUserAldakin;
             _ILoadIndexController = iLoadIndexController;
-
             //_IWorkPartInformation = iWorkPartInformation;
         }
         public async Task<IActionResult> Index(string strMessage = "")

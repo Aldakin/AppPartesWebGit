@@ -17,6 +17,7 @@ namespace AppPartes.Logic
         private int _iUserId;
         private int _iUserCondEntO;
         private int _iUserLevel;
+        private bool _bError;
         public LoadIndexController(AldakinDbContext aldakinDbContext, IWriteDataBase iWriteDataBase)
         {
             this.aldakinDbContext = aldakinDbContext;
@@ -25,11 +26,19 @@ namespace AppPartes.Logic
         private async void WriteUserDataAsync(int idAldakinUser)
         {
             var user = await _iWriteDataBase.GetUserDataAsync(idAldakinUser);
-            _strUserName = user.strUserName;
-            _iUserId = user.iUserId;
-            _iUserCondEntO = user.iUserCondEntO;
-            _stUserDni = user.stUserrDni;
-            _iUserLevel = user.iLevel;
+            if (!(user is null))
+            {
+                _strUserName = user.strUserName;
+                _iUserId = user.iUserId;
+                _iUserCondEntO = user.iUserCondEntO;
+                _stUserDni = user.stUserrDni;
+                _iUserLevel = user.iLevel;
+                _bError = false;
+            }
+            else
+            {
+                _bError = true;
+            }
         }
         private UserData WriteUserData()
         {
@@ -46,6 +55,7 @@ namespace AppPartes.Logic
         private async Task<List<Entidad>> GetAldakinCompaniesAndRunningAsync(string strAction = "AC")
         {
             var lReturn = new List<Entidad>();
+            //if (_bError) return null;
             var aux = await aldakinDbContext.Entidad.FirstOrDefaultAsync(x => x.CodEnt == _iUserCondEntO);
             var lTemp = await aldakinDbContext.Entidad.Where(x => x.CodEnt != _iUserCondEntO).OrderByDescending(x => x.Nombre).ToListAsync();
             lTemp.Insert(0, aux);

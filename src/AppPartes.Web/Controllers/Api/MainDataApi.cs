@@ -48,6 +48,8 @@ namespace AppPartes.Web.Controllers.Api
             }
             return listaSelect;
         }
+
+        
         //[HttpGet("selectentityot")]
         public async Task<List<SelectData>> SelectedEntityOt(int cantidad)
         {

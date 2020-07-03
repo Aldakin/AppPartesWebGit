@@ -21,8 +21,6 @@ namespace AppPartes.Logic
         {
             this.aldakinDbContext = aldakinDbContext;
         }
-
-
         private async void WriteUserDataAsync(int idAldakinUser)
         {
             var user = await GetUserDataAsync(idAldakinUser);
@@ -32,13 +30,13 @@ namespace AppPartes.Logic
             _stUserDni = user.stUserrDni;
             _iUserLevel = user.iLevel;
         }
-
         public async Task<UserData> GetUserDataAsync(int idAldakinUser)
         {
             UserData oReturn = new UserData();
             try
             {
-                var user = aldakinDbContext.Usuarios.FirstOrDefault(x => x.Idusuario == idAldakinUser && x.CodEnt == x.CodEntO);
+                //var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == idAldakinUser && x.CodEnt == x.CodEntO);
+                var user =  aldakinDbContext.Usuarios.FirstOrDefault(x => x.Idusuario == idAldakinUser && x.CodEnt == x.CodEntO);
                 if (!(user is null))
                 {
                     var writeUser = new UserData
@@ -51,6 +49,10 @@ namespace AppPartes.Logic
                     };
                     oReturn = writeUser;
                 }
+                else
+                {
+                    int i = 0;
+                }
             }
             catch (Exception ex)
             {
@@ -58,8 +60,6 @@ namespace AppPartes.Logic
             }
             return oReturn;
         }
-
-
         public async Task<List<Usuarios>> GetAllUsersAsync(int iEntity=0)
         {
             var lReturn = new List<Usuarios>();
@@ -72,9 +72,7 @@ namespace AppPartes.Logic
                 lReturn = await aldakinDbContext.Usuarios.Where(x => x.CodEnt == x.CodEntO && x.Baja == 0 && x.CodEnt==iEntity).ToListAsync();
             }
             return lReturn;
-        }
-            
-
+        }    
         public async Task<string> InsertWorkerLineAsync(WorkerLineData dataToInsertLine, int idAldakinUser)
         {
             WriteUserDataAsync(idAldakinUser);
@@ -1216,5 +1214,4 @@ namespace AppPartes.Logic
             return oReturn;
         }
     }
-
 }

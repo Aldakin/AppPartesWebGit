@@ -16,5 +16,6 @@ namespace AppPartes.Logic
         Task<List<SelectData>> ReadLevelGeneral(int iData, int idAldakinUser);
         Task<List<SelectData>> SelectedPayerAsync(int iPayer, int iOt, int idAldakinUser);
         Task<List<string>> PendingWorkPartApiAsync(string strCalendario, string strUser,string strEntity);
+       
     }
 }
