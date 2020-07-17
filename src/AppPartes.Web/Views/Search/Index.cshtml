@@ -58,6 +58,19 @@
         <hr class="major" />
         @if (Model.listResume != null)
         {
+            <table class="alt">
+                <tbody>
+                    <tr>
+                        <td style="background-color:#D2691E">Todo generado</td>
+                        <td style="background-color:#B0C4DE">Todo validado</td>
+                        <td style="background-color:#FFFFFF">Todo vacio</td>
+                        <td style="background-color:#D3D3D3">Fin de semana</td>
+                        <td style="background-color:#FF8C00">Validado incomplero</td>
+                    </tr>
+                </tbody>
+            </table>
+
+
             @foreach (var dept in Model.listResume)
             {
                 <div class="table-wrapper">
@@ -79,9 +92,9 @@
                                 }
                             </tr>
                             <tr>
-                                @foreach (var t in dept.lHour)
+                                @foreach (var t in dept.dayStatus)
                                 {
-                                    <td>@t</td>
+                                    <td style="background-color: @t.colour;">@t.hour</td>
                                 }
                             </tr>
 
@@ -105,50 +118,50 @@
                 @* @grid.GetHtml()*@
 
                 @*<h4>Alternate</h4>
-                    <div class="table-wrapper">
-                        <table class="alt">
-                            <thead>
-                                <tr>
-                                    <th>Trabajador</th>
-                                    <th>Description</th>
-                                    <th>Price</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Item1</td>
-                                    <td>Ante turpis integer aliquet porttitor.</td>
-                                    <td>29.99</td>
-                                </tr>
-                                <tr>
-                                    <td>Item2</td>
-                                    <td>Vis ac commodo adipiscing arcu aliquet.</td>
-                                    <td>19.99</td>
-                                </tr>
-                                <tr>
-                                    <td>Item3</td>
-                                    <td> Morbi faucibus arcu accumsan lorem.</td>
-                                    <td>29.99</td>
-                                </tr>
-                                <tr>
-                                    <td>Item4</td>
-                                    <td>Vitae integer tempus condimentum.</td>
-                                    <td>19.99</td>
-                                </tr>
-                                <tr>
-                                    <td>Item5</td>
-                                    <td>Ante turpis integer aliquet porttitor.</td>
-                                    <td>29.99</td>
-                                </tr>
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colspan="2"></td>
-                                    <td>100.00</td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>*@
+                <div class="table-wrapper">
+                    <table class="alt">
+                        <thead>
+                            <tr>
+                                <th>Trabajador</th>
+                                <th>Description</th>
+                                <th>Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Item1</td>
+                                <td>Ante turpis integer aliquet porttitor.</td>
+                                <td>29.99</td>
+                            </tr>
+                            <tr>
+                                <td>Item2</td>
+                                <td>Vis ac commodo adipiscing arcu aliquet.</td>
+                                <td>19.99</td>
+                            </tr>
+                            <tr>
+                                <td>Item3</td>
+                                <td> Morbi faucibus arcu accumsan lorem.</td>
+                                <td>29.99</td>
+                            </tr>
+                            <tr>
+                                <td>Item4</td>
+                                <td>Vitae integer tempus condimentum.</td>
+                                <td>19.99</td>
+                            </tr>
+                            <tr>
+                                <td>Item5</td>
+                                <td>Ante turpis integer aliquet porttitor.</td>
+                                <td>29.99</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2"></td>
+                                <td>100.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>*@
 
             </div>
         </div>

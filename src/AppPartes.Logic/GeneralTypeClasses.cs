@@ -148,8 +148,14 @@ namespace AppPartes.Logic
     public class ViewMounthResume
     {
         public string User { get; set; }
-
         public List<int> lDay { get; set; }
-        public List<double> lHour { get; set; }
+        public List<SearchDay> dayStatus { set; get; }
+        //public List<double> lHour { get; set; }
+        //public List<string> lStatusColour { get; set; }
+    }
+    public class SearchDay
+    {
+        public double hour { set; get; }
+        public string colour { set; get; }
     }
 }

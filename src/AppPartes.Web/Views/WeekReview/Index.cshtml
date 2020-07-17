@@ -115,9 +115,9 @@
                                     <input type="hidden" id="ot" name="ot" value="@dept.Idot" readonly />
                                     <div class="row gtr-uniform">
                                         <!--<div class="col-6 col-12-xsmall">
-                            <label for="start">Fecha actual parte:</label>
-                            <input type="text" name="strCalendarioAnterior" id="demo-name" value="@dept.Inicio.Year-@dept.Inicio.Month-@dept.Inicio.Day" readonly />
-                        </div>-->
+                                            <label for="start">Fecha actual parte:</label>
+                                            <input type="text" name="strCalendarioAnterior" id="demo-name" value="@dept.Inicio.Year-@dept.Inicio.Month-@dept.Inicio.Day" readonly />
+                                        </div>-->
                                         <div class="col-12">
                                             <label for="start">Fecha nueva parte(si procede cambiar):</label>
                                             <input type="date" id="Calendario" name="strCalendario"
@@ -266,7 +266,7 @@
                                                     }
                                                 }
                                                 <!--<option value="NACIONAL">NACIONAL</option>
-                                <option value="INTERNACIONAL">INTERNACIONAL</option>-->
+                                                <option value="INTERNACIONAL">INTERNACIONAL</option>-->
                                             </select>
                                         </div>
                                         <div class="col-12">
@@ -341,93 +341,96 @@
                             <p>Puede revisar, editar, borrar sus partes de trabajo antes de cerrar la semana.</p>
                             @foreach (var dept in Model.listPartes)
                             {
-                                <div class="table-wrapper">
-                                    <table>
-                                        <thead>
-                                            <tr>
-                                                @if (!Model.SemanaCerrada)
-                                                {
-                                                    <th></th>
-                                                }
-                                                <th>Inicio</th>
-                                                <th>Fin</th>
-                                                <th>Empresa</th>
-                                                <th>OT</th>
-                                                <!--<th>Nombre OT</th>-->
-                                                <th>Presupuesto</th>
-                                                <!--<th>Nombre Presupuesto</th>-->
-                                                <!--<th>Nivel1</th>
-            <th>Nivel2</th>
-            <th>Nivel3</th>
-            <th>Nivel4</th>
-            <th>Nivel5</th>
-            <th>Nivel6</th>
-            <th>Nivel7</th>-->
-                                                <th>Horas de Viaje</th>
-                                                <th>Horas</th>
-                                                <th>Gastos</th>
-                                                <th>Kilometros</th>
-                                                <th>Pernoctación</th>
-                                                <th>Observaciones</th>
-                                                <th>Identificador</th>
-                                                <th>Nº Parte</th>
-                                                <th>Bloqueado</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach (var part in dept)
-                                            {
-                                                <tr>
-
-                                                    @if (!Model.SemanaCerrada)
+                                if (dept.Count > 0)
+                                {
+                                    <div class="col-12">
+                                        <div class="table-wrapper">
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        @if (!Model.SemanaCerrada)
+                                                        {
+                                                            <th></th>
+                                                        }
+                                                        <th>Inicio</th>
+                                                        <th>Fin</th>
+                                                        <th>Empresa</th>
+                                                        <th>OT</th>
+                                                        <!--<th>Nombre OT</th>-->
+                                                        <th>Presupuesto</th>
+                                                        <!--<th>Nombre Presupuesto</th>-->
+                                                        <!--<th>Nivel1</th>
+                                                        <th>Nivel2</th>
+                                                        <th>Nivel3</th>
+                                                        <th>Nivel4</th>
+                                                        <th>Nivel5</th>
+                                                        <th>Nivel6</th>
+                                                        <th>Nivel7</th>-->
+                                                        <th>Horas de Viaje</th>
+                                                        <th>Horas</th>
+                                                        <th>Gastos</th>
+                                                        <th>Kilometros</th>
+                                                        <th>Pernoctación</th>
+                                                        <th>Observaciones</th>
+                                                        <th>Identificador</th>
+                                                        <th>Nº Parte</th>
+                                                        <th>Bloqueado</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var part in dept)
                                                     {
-                                                        <td>
-                                                            <form asp-controller="WeekReview" asp-action="Index" method="POST">
-                                                                <input type="hidden" name="strId" value="@part.Idlinea" />
-                                                                <input type="hidden" name="strAction" value="editLine" />
-                                                                <input type="submit" value="Editar" />
-                                                            </form>
-                                                            <input type="hidden" id="idLinea" name="idLinea" value="@part.Idlinea" />
-                                                            <input type="hidden" id="dtIni" name="dtIni" value="@part.Inicio.Date" />
-                                                            <!--<input type="submit" name="strAction" onclick="deleteConfirmation('idLinea','dtIni');" value="Borrar" />-->
-                                                            <input type="submit" name="strAction" onclick="deleteConfirmation(@part.Idlinea);" value="Borrar" />
-                                                        </td>
-                                                    }
-                                                    <td>@part.Inicio</td>
-                                                    <td>@part.Fin</td>
-                                                    <td>@part.NombreCliente</td>
-                                                    <td>@part.NombreOt</td>
-                                                    <!--<td>Nombre OT</td>-->
-                                                    <td>@part.NombrePreslin</td>
-                                                    <!--<td>Nombre Presupuesto</td>-->
-                                                    <!--<td>Nivel1</td>
-            <td>Nivel2</td>
-            <td>Nivel3</td>
-            <td>Nivel4</td>
-            <td>Nivel5</td>
-            <td>Nivel6</td>
-            <td>Nivel7</td>-->
-                                                    <td>@part.Horasviaje</td>
-                                                    <td>@part.Horas</td>
-                                                    <td>@part.Dietas</td>
-                                                    <td>@part.Km</td>
-                                                    <td>@part.strPernocta</td>
-                                                    <td>@part.Observaciones</td>
-                                                    <td>@part.Idlinea</td>
-                                                    <td>@part.Npartefirmado</td>
-                                                    <td>@part.Validado</td>
-                                                </tr>
-                                            }
-                                        </tbody>
+                                                        <tr>
 
-                                        @*<tfoot>
-            <tr>
-                <td colspan="2"></td>
-                <td>100.00</td>
-            </tr>
-        </tfoot>*@
-                                    </table>
-                                </div>
+                                                            @if (!Model.SemanaCerrada)
+                                                            {
+                                                                <td>
+                                                                    <form asp-controller="WeekReview" asp-action="Index" method="POST">
+                                                                        <input type="hidden" name="strId" value="@part.Idlinea" />
+                                                                        <input type="hidden" name="strAction" value="editLine" />
+                                                                        <input type="submit" value="Editar" />
+                                                                    </form>
+                                                                    <input type="hidden" id="idLinea" name="idLinea" value="@part.Idlinea" />
+                                                                    <input type="hidden" id="dtIni" name="dtIni" value="@part.Inicio.Date" />
+                                                                    <!--<input type="submit" name="strAction" onclick="deleteConfirmation('idLinea','dtIni');" value="Borrar" />-->
+                                                                    <input type="submit" name="strAction" onclick="deleteConfirmation(@part.Idlinea);" value="Borrar" />
+                                                                </td>
+                                                            }
+                                                            <td>@part.Inicio</td>
+                                                            <td>@part.Fin</td>
+                                                            <td>@part.NombreCliente</td>
+                                                            <td>@part.NombreOt</td>
+                                                            <!--<td>Nombre OT</td>-->
+                                                            <td>@part.NombrePreslin</td>
+                                                            <!--<td>Nombre Presupuesto</td>-->
+                                                            <!--<td>Nivel1</td>
+                                                            <td>Nivel2</td>
+                                                            <td>Nivel3</td>
+                                                            <td>Nivel4</td>
+                                                            <td>Nivel5</td>
+                                                            <td>Nivel6</td>
+                                                            <td>Nivel7</td>-->
+                                                            <td>@part.Horasviaje</td>
+                                                            <td>@part.Horas</td>
+                                                            <td>@part.Dietas</td>
+                                                            <td>@part.Km</td>
+                                                            <td>@part.strPernocta</td>
+                                                            <td>@part.Observaciones</td>
+                                                            <td>@part.Idlinea</td>
+                                                            <td>@part.Npartefirmado</td>
+                                                            <td>@part.Validado</td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                                @*<tfoot>
+                                                        <tr>
+                                                            <td></td>
+                                                        </tr>
+                                                    </tfoot>*@
+                                            </table>
+                                        </div>
+                                    </div>
+                                }
                             }
                         </div>
                     }

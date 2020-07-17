@@ -427,7 +427,7 @@ namespace AppPartes.Logic
                         dHourWork = dHourWork + l.Horas;
                         dHourTravel = dHourTravel + l.Horasviaje ?? 0;
                     }
-                    var close = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Dia == dtIniWeek && x.Idusuario==iIdUser);
+                    var close = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Dia == dtIniWeek && x.Idusuario == iIdUser);
                     if (!(close is null))
                     {
                         bClose = true;
@@ -475,28 +475,109 @@ namespace AppPartes.Logic
             foreach (Usuarios u in lValidationUser)
             {
                 ViewMounthResume oTemp = new ViewMounthResume();
-                oTemp.lHour = new List<double>();
+                //oTemp.lHour = new List<double>();
                 oTemp.lDay = new List<int>();
                 oTemp.User = "[" + u.Nombrecompleto + "]";
+                oTemp.dayStatus = new List<SearchDay>();
                 for (var date = dtIni; date < dtEnd; date = date.AddDays(1.0))
                 {
+                    SearchDay oSeach = new SearchDay();
                     double dHour = 0.0;
+                    int iValidated = 0, iGenerated = 0;
                     var partDay = await aldakinDbContext.Lineas.Where(x => x.Inicio.Day == date.Day && x.Inicio.Month == date.Month && x.Inicio.Year == date.Year && x.Idusuario == u.Idusuario).ToListAsync();
                     foreach (Lineas l in partDay)
                     {
                         dHour = dHour + l.Horas;
+                        if (l.Validado == 1) iValidated++;
+                        if (l.Registrado == 1) iGenerated++;
                     }
-                    oTemp.lDay.Add( date.Day);
-                    oTemp.lHour.Add( dHour );
+                    oSeach.hour = dHour;
+                    oSeach.colour = DayStatusColour(partDay.Count, iGenerated, iValidated, date);
+                    oTemp.lDay.Add(date.Day);
+                    oTemp.dayStatus.Add(oSeach);
                 }
                 lReturn.Add(oTemp);
             }
             return lReturn;
         }
-        private async Task<List<Usuarios>>  UserPendingWorkPartAsync(DateTime dtSelected, int iEntity)
+        private string DayStatusColour(int iNumPart, int iGenerated, int iValidated, DateTime dtDay)
+        {
+            string strReturn = "#FFFFFF";
+            string strAllGenerated = "#D2691E";
+            string strAllValidated = "#B0C4DE";
+            string strEmpty = "#FFFFFF";
+            string strWeekend = "#D3D3D3";
+            string strHalfValidated = "#FF8C00";
+            if (iNumPart == 0)
+            {
+                if (((Convert.ToInt32(dtDay.DayOfWeek) == 0)) || ((Convert.ToInt32(dtDay.DayOfWeek) == 6)))
+                {
+                    strReturn = strWeekend;
+                }
+                else
+                {
+                    strReturn = strEmpty;
+                }
+            }
+            else
+            {
+                if (iNumPart == iGenerated)
+                {
+                    //todo el dia volcado #D2691E
+                    strReturn = strAllGenerated;
+                }
+                else
+                {
+                    if ((iNumPart == iValidated))
+                    {
+                        //no todo el dia generado todo el dia validado #B0C4DE
+                        strReturn = strAllValidated;
+                    }
+                    else
+                    {
+                        if ((iValidated == 0))
+                        {
+                            //ni generado no validado
+                            //blanco #FFFFFF o gris #D3D3D3
+                            if (((Convert.ToInt32(dtDay.DayOfWeek) == 0)) || ((Convert.ToInt32(dtDay.DayOfWeek) == 6)))
+                            {
+                                strReturn = strWeekend;
+                            }
+                            else
+                            {
+                                strReturn = strEmpty;
+                            }
+                        }
+                        else
+                        {
+                            if ((iValidated > 0))
+                            {
+                                //no generado algunos partes validados
+                                //naranja   #FF8C00
+                                strReturn = strHalfValidated;
+                            }
+                            else
+                            {
+                                if (((Convert.ToInt32(dtDay.DayOfWeek) == 0)) || ((Convert.ToInt32(dtDay.DayOfWeek) == 6)))
+                                {
+                                    strReturn = strWeekend;
+                                }
+                                else
+                                {
+                                    strReturn = strEmpty;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return strReturn;
+
+        }
+        private async Task<List<Usuarios>> UserPendingWorkPartAsync(DateTime dtSelected, int iEntity)
         {
             var lReturn = new List<Usuarios>();
-            var userTemp =await aldakinDbContext.Usuarios.Where(x => x.CodEnt == iEntity && x.Baja == 0).ToListAsync();            
+            var userTemp = await aldakinDbContext.Usuarios.Where(x => x.CodEnt == iEntity && x.Baja == 0).ToListAsync();
             if (!(userTemp is null))
             {
                 foreach (Usuarios u in userTemp)
@@ -528,15 +609,15 @@ namespace AppPartes.Logic
         }
         public async Task<bool> SendAdvicePendingWorkPart(string strCalendario, string strUser, string strEntity)
         {
-            bool bReturn=false;
+            bool bReturn = false;
             string strSubject = "Partes Pendientes";
             string strTo = "";
-            string strSender = ""; 
+            string strSender = "";
             string strText = "Buenos dias, /r/n Este email se envia desde la aplicacion de partes de la empresa /r/n Revise y pongase al día en sus partes de trabajo. /r/n Un saludo;";
             DateTime dtSelected = Convert.ToDateTime(strCalendario);
             int iEntity = Convert.ToInt32(strEntity);
-            var users =await UserPendingWorkPartAsync(dtSelected,iEntity);
-            foreach(Usuarios u in users)
+            var users = await UserPendingWorkPartAsync(dtSelected, iEntity);
+            foreach (Usuarios u in users)
             {
                 strTo = u.Email;
                 strSender = "aplicacion@aldakin.com";
@@ -544,11 +625,11 @@ namespace AppPartes.Logic
             }
             return bReturn;
         }
-        private bool SendEmail(string strSubject,string strTo,string strSender,string strText)
+        private bool SendEmail(string strSubject, string strTo, string strSender, string strText)
         {
             //meter estos daatos en secrets
             string Email = "aplicacion@aldakin.com";
-            string Pass= "ALD2015apli";
+            string Pass = "ALD2015apli";
             string Host = "smtp.aldakin.com";
             //estos datos a secrets
             bool bReturn = false;
@@ -617,6 +698,6 @@ namespace AppPartes.Logic
                 default:
                     throw new Exception();
             }
-        }    
+        }
     }
 }
