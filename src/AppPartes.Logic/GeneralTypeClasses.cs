@@ -89,6 +89,7 @@ namespace AppPartes.Logic
         public int iUserId { set; get; }
         public int iUserCondEntO { set; get; }
         public int iLevel { set; get; }
+        public bool bAdmin { set; get; }
     }
     public class HomeDataViewLogic
     {
@@ -108,7 +109,7 @@ namespace AppPartes.Logic
     }
     public class WeekDataViewLogic
     {
-        public List<LineaVisual> listPartes { get; set; }
+        public List<List<LineaVisual>> listPartes { get; set; }
         public List<LineaVisual> listSelect { get; set; }
         public List<Pernoctaciones> listPernocta { get; set; }
         public List<double> listSemana { get; set; }
@@ -135,11 +136,20 @@ namespace AppPartes.Logic
     {
         public List<Entidad> listCompany { set; get; }
         public string strError { set; get; }
+
+        public List<ViewMounthResume> listResume { get; set; }
     }
     public class SearchPendingViewLogic
     {
         public List<Entidad> listCompany { set; get; }
         public List<string> lSummary { set; get; }
         public string strError { set; get; }
+    }
+    public class ViewMounthResume
+    {
+        public string User { get; set; }
+
+        public List<int> lDay { get; set; }
+        public List<double> lHour { get; set; }
     }
 }

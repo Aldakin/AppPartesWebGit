@@ -33,10 +33,20 @@ namespace AppPartes.Logic
         public async Task<UserData> GetUserDataAsync(int idAldakinUser)
         {
             UserData oReturn = new UserData();
+            bool bAdmin = false;
             try
             {
                 //var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == idAldakinUser && x.CodEnt == x.CodEntO);
                 var user =  aldakinDbContext.Usuarios.FirstOrDefault(x => x.Idusuario == idAldakinUser && x.CodEnt == x.CodEntO);
+                var admin = aldakinDbContext.Administracion.FirstOrDefault(x => x.Idusuario == idAldakinUser);//select * from administracion where idusuario = {0}
+                if(!(admin is null))
+                {
+                    bAdmin = false;
+                }
+                else
+                {
+                    bAdmin = true;
+                }
                 if (!(user is null))
                 {
                     var writeUser = new UserData
@@ -45,7 +55,8 @@ namespace AppPartes.Logic
                         iUserId = Convert.ToInt16(user.Idusuario),
                         iUserCondEntO = Convert.ToInt16(user.CodEntO),
                         stUserrDni = user.Name,
-                        iLevel = user.Autorizacion
+                        iLevel = user.Autorizacion,
+                        bAdmin = bAdmin
                     };
                     oReturn = writeUser;
                 }
@@ -879,7 +890,7 @@ namespace AppPartes.Logic
                     return oReturn;
                 }
 
-                if (otSel.Nombre.Length > 10 && otSel.Nombre.Substring(0, 20) == "TRABAJOS REALIZADOS ")
+                if (otSel.Nombre.Length > 20 && otSel.Nombre.Substring(0, 20) == "TRABAJOS REALIZADOS ")
                 {
                     try
                     {

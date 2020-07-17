@@ -24,22 +24,22 @@ namespace AppPartes.Web.Controllers
             _IApplicationUserAldakin = iApplicationUserAldakin;
             _ILoadIndexController = iLoadIndexController;
         }
-        public async Task<IActionResult> Index(string strMessage = "")
+        public async Task<IActionResult> Index(string strMessage = "",string strDate = "", string strEntity = "")
         {
             ViewBag.Message = strMessage;
             _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
-            var oView = await _ILoadIndexController.LoadSearchControllerAsync(_idAldakinUser);
+            var oView = await _ILoadIndexController.LoadSearchControllerAsync(_idAldakinUser, strDate, strEntity);
             if (!(string.IsNullOrEmpty(oView.strError)))
             {
                 ViewBag.Message = oView.strError;
             }
             return View(oView);
         }
-        [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> SearchEntityData(string strEntidad, string strDate, string strMes, string strSemana)
-        {
+        //[HttpPost, ValidateAntiForgeryToken]
+        //public async Task<IActionResult> SearchEntityData(string strEntidad, string strDate, string strMes, string strSemana)
+        //{
 
-            return RedirectToAction("Index", new { strMessage = "ojo al manojo" });
-        }
+        //    return RedirectToAction("Index", new { strMessage = "ojo al manojo" });
+        //}
     }
 }

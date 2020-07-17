@@ -3,108 +3,109 @@
     ViewData["Title"] = "Index";
 }
 
-<body class="is-preload">
+    <body class="is-preload">
 
-    <!-- Wrapper -->
-    <div id="wrapper">
+        <!-- Wrapper -->
+        <div id="wrapper">
 
-        <!-- Main -->
-        <div id="main">
-            <div class="inner">
+            <!-- Main -->
+            <div id="main">
+                <div class="inner">
 
-                <!-- Header -->
-                <header id="header">
-                    <a href="" class="logo"><strong>Seleccione Semana</strong></a>
-                </header>
-                <section>
-                    @{
-                        if (!string.IsNullOrEmpty(ViewBag.Message))
-                        {
-                            <div class="alert alert-warning">@ViewBag.Message</div>
+                    <!-- Header -->
+                    <header id="header">
+                        <a href="" class="logo"><strong>Seleccione Semana</strong></a>
+                    </header>
+                    <section>
+                        @{
+                            if (!string.IsNullOrEmpty(ViewBag.Message))
+                            {
+                                <div class="alert alert-warning">@ViewBag.Message</div>
+                            }
+                            @*if (Model.bMessage)
+                            {
+                                <p>
+                                    Tiene mensajes pendientes de leer<b><a class="nav-link text-dark" asp-area="" asp-controller="Message" asp-action="Index">Leer Mensajes</a></b>
+                                </p>
+                            }*@
                         }
-                        @*if (Model.bMessage)
-            {
-                <p>
-                    Tiene mensajes pendientes de leer<b><a class="nav-link text-dark" asp-area="" asp-controller="Message" asp-action="Index">Leer Mensajes</a></b>
-                </p>
-            }*@
-                    }
-                    <div class="col-12">
                         <div class="col-12">
-                            <select id="strEntity" name="strEntity">
-                                @foreach (var dept in Model.listCompany)
-                                {
-                                    <option value="@dept.CodEnt">
-                                        @dept.Nombre
-                                    </option>
-                                }
-                            </select>
-                            <div id="datepicker">
-                                <input type="date" id="strDate" name="strDate"
-                                       value=""
-                                       min="@(DateTime.Now.Year - 2)-01-01"
-                                       max="@(DateTime.Now.Year + 2)-12-31">
-                                <input type="submit" name="strAction" onclick="reviewEntity('strDate','strSummary');" value="Enviar" />
+                            <div class="col-12">
+                                <select id="strEntity" name="strEntity">
+                                    @foreach (var dept in Model.listCompany)
+                                    {
+                                        <option value="@dept.CodEnt">
+                                            @dept.Nombre
+                                        </option>
+                                    }
+                                </select>
+                                <div id="datepicker">
+                                    <input type="date" id="strDate" name="strDate"
+                                           value=""
+                                           min="@(DateTime.Now.Year - 2)-01-01"
+                                           max="@(DateTime.Now.Year + 2)-12-31">
+                                    <input type="submit" name="strAction" onclick="reviewEntity('strDate','strSummary');" value="Enviar" />
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-12" id="lblSend" name="lblSend" style="display:none">
-                        <blockquote>Enviar un recordatorio a los trabajadores con partes pendientes.</blockquote>
+                        <div class="col-12" id="lblSend" name="lblSend" style="display:none">
+                            <blockquote>Enviar un recordatorio a los trabajadores con partes pendientes.</blockquote>
 
-                    </div>
-                    <div class="col-12" id="lblInfo" name="lblInfo" style="display:none">
-                        <blockquote>Cargando información, espere...</blockquote>
-                    </div>
-                    <div class="col-12">
-                        <textarea name="strSummary" id="strSummary" value="" rows="12"></textarea>
-                    </div>
-                </section>
+                        </div>
+                        <div class="col-12" id="lblInfo" name="lblInfo" style="display:none">
+                            <blockquote>Cargando información, espere...</blockquote>
+                        </div>
+                        <div class="col-12">
+                            <textarea name="strSummary" id="strSummary" value="" rows="12"></textarea>
+                        </div>
+                    </section>
+                </div>
             </div>
         </div>
-    </div>
-    <!-- Scripts -->
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/js/browser.min.js"></script>
-    <script src="assets/js/breakpoints.min.js"></script>
-    <script src="assets/js/util.js"></script>
-    <script src="assets/js/main.js"></script>
+        <!-- Scripts -->
+        <!-- 
+            <script src="assets/js/jquery.min.js"></script>
+        <script src="assets/js/browser.min.js"></script>
+        <script src="assets/js/breakpoints.min.js"></script>
+        <script src="assets/js/util.js"></script>
+        <script src="assets/js/main.js"></script>
+            -->
+        <script type="text/javascript">
 
-    <script type="text/javascript">
-
-        const $entity = document.querySelector("#strEntity");
-        function reviewEntity(strDate,strSummary) {
-            var elem = document.getElementById(strSummary);
-            var data = document.getElementById(strDate);
-            const indice = $entity.selectedIndex;
-            if (indice === -1) return; // Esto es cuando no hay elementos
-            const data2 = $entity.options[indice];
-            var url = "@Url.Action("ReviewPending","SearchPendingDataApi")";
-            var data1 = 0;
-            div = document.getElementById('lblInfo');
-                div.style.display = '';
-            var data = { strDate: data.value, strUser: data1, strEntity: data2.value };
-            $.post(url, data).done(function (data) {
-                if (data.length > 1) {
-                    for (let i = 0; i <= data.length - 1; i++) {
-                        //alert('text' + JSON.stringify(data[i]));
-                        var text = JSON.stringify(data[i]).replace(/['"]+/g, '');
-                        elem.value = elem.value + text+'\r\n';
+            const $entity = document.querySelector("#strEntity");
+            function reviewEntity(strDate,strSummary) {
+                var elem = document.getElementById(strSummary);
+                var data = document.getElementById(strDate);
+                const indice = $entity.selectedIndex;
+                if (indice === -1) return; // Esto es cuando no hay elementos
+                const data2 = $entity.options[indice];
+                var url = "@Url.Action("ReviewPending","SearchPendingDataApi")";
+                var data1 = 0;
+                div = document.getElementById('lblInfo');
+                    div.style.display = '';
+                var data = { strDate: data.value, strUser: data1, strEntity: data2.value };
+                $.post(url, data).done(function (data) {
+                    if (data.length > 1) {
+                        for (let i = 0; i <= data.length - 1; i++) {
+                            //alert('text' + JSON.stringify(data[i]));
+                            var text = JSON.stringify(data[i]).replace(/['"]+/g, '');
+                            elem.value = elem.value + text+'\r\n';
+                        }
                     }
-                }
-                else
-                {
-                    elem.value = 'Nada que mostrar \r\n';
-                }
-            }).fail(daError).always(function () {
-            div.style.display = 'none';
-            });
-        }
-        function daError(ex) {
-            console.log("Error");
-            alert("Ocurrio un error,recargue la pagina y vuelva a empezar." +ex);
-            div = document.getElementById('lblInfo');
+                    else
+                    {
+                        elem.value = 'Nada que mostrar \r\n';
+                    }
+                }).fail(daError).always(function () {
                 div.style.display = 'none';
-        }
+                });
+            }
+            function daError(ex) {
+                console.log("Error");
+                alert("Ocurrio un error,recargue la pagina y vuelva a empezar." +ex);
+                div = document.getElementById('lblInfo');
+                    div.style.display = 'none';
+            }
 
-    </script>
-</body>
+        </script>
+    </body>

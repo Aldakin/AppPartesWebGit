@@ -20,7 +20,7 @@
                 </div>
             </div>
         </section>
-        if (Model.user.iLevel >= 3)
+        if ((Model.user.iLevel >= 3)||(Model.user.bAdmin))
         {
             <section style="background-color:#edeef0; ">
                 <div class="row gtr-200">
@@ -28,12 +28,6 @@
                         <h4>Menu Administración (Nivel:@Model.user.iLevel)</h4>
                         <table class="alt">
                             <thead>
-                                <tr>
-                                    <th>Busquedas </th>
-                                    <th>Tipos Excel</th>
-                                    <th>Calendario</th>
-                                    <th><a class="nav-link text-dark" asp-area="" asp-controller="SearchPending" asp-action="Index">Partes Pendientes</a></th>
-                                </tr>
                                 <tr>
                                     <th>
                                         <a class="nav-link text-dark" href="#" onclick="viewEntities('Actualizar');">Actualizar</a>
@@ -80,9 +74,21 @@
                                             </table>
                                         </div>
                                     </th>
-                                    <th>XX XX</th>
+                                    <th><a class="nav-link text-dark" asp-area="" asp-controller="SearchPending" asp-action="Index">Partes Pendientes</a></th>
                                     <th>XX XX</th>
                                 </tr>
+                                <tr>
+                                    @if (Model.user.iLevel >= 4)
+                                    {
+                                        <th><a class="nav-link text-dark" asp-area="" asp-controller="Search" asp-action="Index">Busquedas</a> </th>
+                                    }
+                                    @if (Model.user.iLevel >= 5)
+                                    {
+                                        <th>Tipos Excel</th>
+                                        <th>Calendario</th>
+                                    }
+                                    </tr>
+
                             </thead>
                         </table>
                     </div>
@@ -110,98 +116,6 @@
         </span>
     </section>
 
-    <section>
-
-        <!-- <span class="image main"><video src="http://www.aldakin.com/wp-content/uploads/2017/08/aldakin_video.mp4" width=100% controls poster="images/pic01.jpg" alt="" /></span>-->
-
-        <header class="main">
-            <h1>Gestión de horas</h1>
-        </header>
-
-        <p>Porgrama destinado para la insercion de horas etc etc. Praesent rutrum sem diam, vitae egestas enim auctor sit amet. Pellentesque leo mauris, consectetur id ipsum sit amet, fergiat. Pellentesque in mi eu massa lacinia malesuada et a elit. Donec urna ex, lacinia in purus ac, pretium pulvinar mauris. Curabitur sapien risus, commodo eget turpis at, elementum convallis elit. Pellentesque enim turpis, hendrerit.</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis dapibus rutrum facilisis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Etiam tristique libero eu nibh porttitor fermentum. Nullam venenatis erat id vehicula viverra. Nunc ultrices eros ut ultricies condimentum. Mauris risus lacus, blandit sit amet venenatis non, bibendum vitae dolor. Nunc lorem mauris, fringilla in aliquam at, euismod in lectus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. In non lorem sit amet elit placerat maximus. Pellentesque aliquam maximus risus, vel sed vehicula.</p>
-        <p>Interdum et malesuada fames ac ante ipsum primis in faucibus. Pellentesque venenatis dolor imperdiet dolor mattis sagittis. Praesent rutrum sem diam, vitae egestas enim auctor sit amet. Pellentesque leo mauris, consectetur id ipsum sit amet, fersapien risus, commodo eget turpis at, elementum convallis elit. Pellentesque enim turpis, hendrerit tristique lorem ipsum dolor.</p>
-        <!--
-        <hr class="major" />
-
-        <h2>Interdum sed dapibus</h2>
-        <p>Donec eget ex magna. Interdum et malesuada fames ac ante ipsum primis in faucibus. Pellentesque venenatis dolor imperdiet dolor mattis sagittis. Praesent rutrum sem diam, vitae egestas enim auctor sit amet. Pellentesque leo mauris, consectetur id ipsum sit amet, fergiat. Pellentesque in mi eu massa lacinia malesuada et a elit. Donec urna ex, lacinia in purus ac, pretium pulvinar mauris. Curabitur sapien risus, commodo eget turpis at, elementum convallis elit. Pellentesque enim turpis, hendrerit.</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis dapibus rutrum facilisis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Etiam tristique libero eu nibh porttitor fermentum. Nullam venenatis erat id vehicula viverra. Nunc ultrices eros ut ultricies condimentum. Mauris risus lacus, blandit sit amet venenatis non, bibendum vitae dolor. Nunc lorem mauris, fringilla in aliquam at, euismod in lectus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. In non lorem sit amet elit placerat maximus. Pellentesque aliquam maximus risus, vel sed vehicula. Interdum et malesuada fames ac ante ipsum primis in faucibus. Pellentesque venenatis dolor imperdiet dolor mattis sagittis. Praesent rutrum sem diam, vitae egestas enim auctor sit amet. Pellentesque leo mauris, consectetur id ipsum sit amet, fersapien risus, commodo eget turpis at, elementum convallis elit. Pellentesque enim turpis, hendrerit tristique lorem ipsum dolor.</p>
-            -->
-    </section>
-
-    </section>
-
-    <section>
-        <header class="major">
-            <h2>Sobre Aldakin</h2>
-        </header>
-        <div class="posts">
-            <article>
-                <a href="#" class="image">
-                    <img src="images/pic02.jpg" alt="" />
-                    <!--<iframe width="560" height="315" src="https://www.youtube.com/embed/kRjwgIUp6h8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>-->
-                </a>
-                <h3>Interdum aenean</h3>
-                <p>Aenean ornare velit lacus, ac varius enim lorem ullamcorper dolore. Proin aliquam facilisis ante interdum. Sed nulla amet lorem feugiat tempus aliquam.</p>
-                <ul class="actions">
-                    <li><a href="#" class="button">More</a></li>
-                </ul>
-            </article>
-            <article>
-                <a href="#" class="image">
-                    <img src="images/pic02.jpg" alt="" />
-                    <!--<iframe width="560" height="315" src="https://www.youtube.com/embed/MDl0u_chGlU" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>-->
-                    <!--<img src="images/pic02.jpg" alt="" />-->
-                </a>
-                <h3>Nulla amet dolore</h3>
-                <p>Aenean ornare velit lacus, ac varius enim lorem ullamcorper dolore. Proin aliquam facilisis ante interdum. Sed nulla amet lorem feugiat tempus aliquam.</p>
-                <ul class="actions">
-                    <li><a href="#" class="button">More</a></li>
-                </ul>
-            </article>
-            <article>
-                <a href="#" class="image">
-                    <img src="images/pic02.jpg" alt="" />
-                    <!--<iframe width="560" height="315" src="https://www.youtube.com/embed/1lJ3sKOXjl0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>-->
-                    <!--<img src="images/pic02.jpg" alt="" />-->
-                </a>
-                <h3>Nulla amet dolore</h3>
-                <p>Aenean ornare velit lacus, ac varius enim lorem ullamcorper dolore. Proin aliquam facilisis ante interdum. Sed nulla amet lorem feugiat tempus aliquam.</p>
-                <ul class="actions">
-                    <li><a href="#" class="button">More</a></li>
-                </ul>
-            </article>
-            <article>
-                <a href="#" class="image">
-                    <img src="images/pic02.jpg" alt="" />
-                    <!--<iframe width="560" height="315" src="https://www.youtube.com/embed/RSrEeFk2OGY" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>-->
-                    <!--<img src="images/pic02.jpg" alt="" />-->
-                </a>
-                <h3>Tempus ullamcorper</h3>
-                <p>Aenean ornare velit lacus, ac varius enim lorem ullamcorper dolore. Proin aliquam facilisis ante interdum. Sed nulla amet lorem feugiat tempus aliquam.</p>
-                <ul class="actions">
-                    <li><a href="#" class="button">More</a></li>
-                </ul>
-            </article>
-            <article>
-                <a href="#" class="image"><img src="images/pic04.jpg" alt="" /></a>
-                <h3>Sed etiam facilis</h3>
-                <p>Aenean ornare velit lacus, ac varius enim lorem ullamcorper dolore. Proin aliquam facilisis ante interdum. Sed nulla amet lorem feugiat tempus aliquam.</p>
-                <ul class="actions">
-                    <li><a href="#" class="button">More</a></li>
-                </ul>
-            </article>
-            <article>
-                <a href="#" class="image"><img src="images/pic06.jpg" alt="" /></a>
-                <h3>Amet varius aliquam</h3>
-                <p>Aenean ornare velit lacus, ac varius enim lorem ullamcorper dolore. Proin aliquam facilisis ante interdum. Sed nulla amet lorem feugiat tempus aliquam.</p>
-                <ul class="actions">
-                    <li><a href="#" class="button">More</a></li>
-                </ul>
-            </article>
-        </div>
-    </section>
     <!-- Scripts -->
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/js/browser.min.js"></script>

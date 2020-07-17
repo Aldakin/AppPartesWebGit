@@ -446,6 +446,53 @@ namespace AppPartes.Logic
             }
             return lReturn;
         }
+        public async Task<List<ViewMounthResume>> StatusEntityAsync(int idAldakinUser, string strCalendario, string strEntity)
+        {
+            var lReturn = new List<ViewMounthResume>();
+
+            DateTime dtIni, dtEnd;
+            List<Usuarios> lValidationUser = new List<Usuarios>();
+            DateTime dtSelected = Convert.ToDateTime(strCalendario);
+            dtIni = new DateTime(dtSelected.Year, dtSelected.Month, 1);
+            dtEnd = new DateTime(dtSelected.Year, dtSelected.Month + 1, 1).AddDays(-1);
+            int iEntity = Convert.ToInt32(strEntity);
+            WriteUserDataAsync(idAldakinUser);
+            var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == _iUserId && x.CodEnt == x.CodEntO);
+            lValidationUser = null;
+            if (user.Autorizacion < 5)
+            {
+                var userValidation = await aldakinDbContext.Responsables.FirstOrDefaultAsync(x => x.Name == user.Name);
+                List<string> split = userValidation.PersonasName.Split(new Char[] { '|' }).Distinct().ToList();
+                foreach (string s in split)
+                {
+                    lValidationUser.Add(await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Name == s && x.CodEnt == x.CodEntO && x.Baja == 0));
+                }
+            }
+            else
+            {
+                lValidationUser = await aldakinDbContext.Usuarios.Where(x => x.CodEnt == iEntity && x.CodEnt == x.CodEntO && x.Baja == 0).ToListAsync();
+            }
+            foreach (Usuarios u in lValidationUser)
+            {
+                ViewMounthResume oTemp = new ViewMounthResume();
+                oTemp.lHour = new List<double>();
+                oTemp.lDay = new List<int>();
+                oTemp.User = "[" + u.Nombrecompleto + "]";
+                for (var date = dtIni; date < dtEnd; date = date.AddDays(1.0))
+                {
+                    double dHour = 0.0;
+                    var partDay = await aldakinDbContext.Lineas.Where(x => x.Inicio.Day == date.Day && x.Inicio.Month == date.Month && x.Inicio.Year == date.Year && x.Idusuario == u.Idusuario).ToListAsync();
+                    foreach (Lineas l in partDay)
+                    {
+                        dHour = dHour + l.Horas;
+                    }
+                    oTemp.lDay.Add( date.Day);
+                    oTemp.lHour.Add( dHour );
+                }
+                lReturn.Add(oTemp);
+            }
+            return lReturn;
+        }
         private async Task<List<Usuarios>>  UserPendingWorkPartAsync(DateTime dtSelected, int iEntity)
         {
             var lReturn = new List<Usuarios>();

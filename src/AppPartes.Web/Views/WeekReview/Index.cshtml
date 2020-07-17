@@ -357,12 +357,12 @@
                                                 <th>Presupuesto</th>
                                                 <!--<th>Nombre Presupuesto</th>-->
                                                 <!--<th>Nivel1</th>
-                                <th>Nivel2</th>
-                                <th>Nivel3</th>
-                                <th>Nivel4</th>
-                                <th>Nivel5</th>
-                                <th>Nivel6</th>
-                                <th>Nivel7</th>-->
+            <th>Nivel2</th>
+            <th>Nivel3</th>
+            <th>Nivel4</th>
+            <th>Nivel5</th>
+            <th>Nivel6</th>
+            <th>Nivel7</th>-->
                                                 <th>Horas de Viaje</th>
                                                 <th>Horas</th>
                                                 <th>Gastos</th>
@@ -375,55 +375,57 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
+                                            @foreach (var part in dept)
+                                            {
+                                                <tr>
 
-                                                @if (!Model.SemanaCerrada)
-                                                {
-                                                    <td>
-                                                        <form asp-controller="WeekReview" asp-action="Index" method="POST">
-                                                            <input type="hidden" name="strId" value="@dept.Idlinea" />
-                                                            <input type="hidden" name="strAction" value="editLine" />
-                                                            <input type="submit" value="Editar" />
-                                                        </form>
-                                                        <input type="hidden" id="idLinea" name="idLinea" value="@dept.Idlinea" />
-                                                        <input type="hidden" id="dtIni" name="dtIni" value="@dept.Inicio.Date" />
-                                                        <!--<input type="submit" name="strAction" onclick="deleteConfirmation('idLinea','dtIni');" value="Borrar" />-->
-                                                        <input type="submit" name="strAction" onclick="deleteConfirmation(@dept.Idlinea);" value="Borrar" />
-                                                    </td>
-                                                }
-                                                <td>@dept.Inicio</td>
-                                                <td>@dept.Fin</td>
-                                                <td>@dept.NombreCliente</td>
-                                                <td>@dept.NombreOt</td>
-                                                <!--<td>Nombre OT</td>-->
-                                                <td>@dept.NombrePreslin</td>
-                                                <!--<td>Nombre Presupuesto</td>-->
-                                                <!--<td>Nivel1</td>
-                                <td>Nivel2</td>
-                                <td>Nivel3</td>
-                                <td>Nivel4</td>
-                                <td>Nivel5</td>
-                                <td>Nivel6</td>
-                                <td>Nivel7</td>-->
-                                                <td>@dept.Horasviaje</td>
-                                                <td>@dept.Horas</td>
-                                                <td>@dept.Dietas</td>
-                                                <td>@dept.Km</td>
-                                                <td>@dept.strPernocta</td>
-                                                <td>@dept.Observaciones</td>
-                                                <td>@dept.Idlinea</td>
-                                                <td>@dept.Npartefirmado</td>
-                                                <td>@dept.Validado</td>
-                                            </tr>
-
+                                                    @if (!Model.SemanaCerrada)
+                                                    {
+                                                        <td>
+                                                            <form asp-controller="WeekReview" asp-action="Index" method="POST">
+                                                                <input type="hidden" name="strId" value="@part.Idlinea" />
+                                                                <input type="hidden" name="strAction" value="editLine" />
+                                                                <input type="submit" value="Editar" />
+                                                            </form>
+                                                            <input type="hidden" id="idLinea" name="idLinea" value="@part.Idlinea" />
+                                                            <input type="hidden" id="dtIni" name="dtIni" value="@part.Inicio.Date" />
+                                                            <!--<input type="submit" name="strAction" onclick="deleteConfirmation('idLinea','dtIni');" value="Borrar" />-->
+                                                            <input type="submit" name="strAction" onclick="deleteConfirmation(@part.Idlinea);" value="Borrar" />
+                                                        </td>
+                                                    }
+                                                    <td>@part.Inicio</td>
+                                                    <td>@part.Fin</td>
+                                                    <td>@part.NombreCliente</td>
+                                                    <td>@part.NombreOt</td>
+                                                    <!--<td>Nombre OT</td>-->
+                                                    <td>@part.NombrePreslin</td>
+                                                    <!--<td>Nombre Presupuesto</td>-->
+                                                    <!--<td>Nivel1</td>
+            <td>Nivel2</td>
+            <td>Nivel3</td>
+            <td>Nivel4</td>
+            <td>Nivel5</td>
+            <td>Nivel6</td>
+            <td>Nivel7</td>-->
+                                                    <td>@part.Horasviaje</td>
+                                                    <td>@part.Horas</td>
+                                                    <td>@part.Dietas</td>
+                                                    <td>@part.Km</td>
+                                                    <td>@part.strPernocta</td>
+                                                    <td>@part.Observaciones</td>
+                                                    <td>@part.Idlinea</td>
+                                                    <td>@part.Npartefirmado</td>
+                                                    <td>@part.Validado</td>
+                                                </tr>
+                                            }
                                         </tbody>
 
                                         @*<tfoot>
-                                <tr>
-                                    <td colspan="2"></td>
-                                    <td>100.00</td>
-                                </tr>
-                            </tfoot>*@
+            <tr>
+                <td colspan="2"></td>
+                <td>100.00</td>
+            </tr>
+        </tfoot>*@
                                     </table>
                                 </div>
                             }
