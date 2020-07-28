@@ -561,6 +561,55 @@ namespace AppPartes.Logic
             }
             return lReturn;
         }
+        public async Task<string>StringWeekResumeAsync(int idAldakinUser, string strDate, string strOt, string strWorker, string strEntity)
+        {
+            string strReturn =  string.Empty;
+            var lTemp = new List<Lineas>();
+            DateTime dtIniWeek, dtEndWeek;
+            DateTime dtSelected = Convert.ToDateTime(strDate);
+            IniEndWeek(dtSelected, out dtIniWeek, out dtEndWeek);
+            try
+            {
+                int iOt = Convert.ToInt32(strOt);
+                int iWorker = Convert.ToInt32(strWorker);
+                int iEntity = Convert.ToInt32(strEntity);
+                if ((iWorker > 0) && (iOt > 0))
+                {
+                    //seleccionado trabajador y ot
+                    lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.Idusuario == iWorker && x.CodEnt == iEntity && x.Idot == iOt).OrderBy(x => x.Inicio).ToListAsync();
+                }
+                else
+                {
+                    if ((iWorker > 0) && (iOt == 0))
+                    {
+                        //seleccionado trabajador y no ot
+                        lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.Idusuario == iWorker && x.CodEnt == iEntity).OrderBy(x => x.Inicio).ToListAsync();//&& x.CodEnt == _iUserCondEntO
+                    }
+                    else
+                    {
+                        if ((iWorker == 0) && (iOt > 0))
+                        {
+                            // no seleccionado trabajador y seleccionado ot
+                            lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.CodEnt == iEntity && x.Idot == iOt).OrderBy(x => x.Inicio).ToListAsync();
+                        }
+                        else
+                        {
+                            //caso que no deberia suceder
+                            lTemp = null;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                lTemp = null;
+            }
+            foreach(Lineas l in lTemp)
+            {
+                strReturn =  l.Idlinea+"|" + strReturn;
+            }
+            return strReturn;
+        }
         public async Task<List<List<LineaVisual>>> StatusWeekResumeAsync(int idAldakinUser, string strDate, string strOt, string strWorker, string strEntity)
         {
             var lReturn = new List<List<LineaVisual>>();
@@ -584,7 +633,6 @@ namespace AppPartes.Logic
                     if ((iWorker > 0) && (iOt == 0))
                     {
                         //seleccionado trabajador y no ot
-
                         lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.Idusuario == iWorker && x.CodEnt == iEntity).OrderBy(x => x.Inicio).ToListAsync();//&& x.CodEnt == _iUserCondEntO
                     }
                     else

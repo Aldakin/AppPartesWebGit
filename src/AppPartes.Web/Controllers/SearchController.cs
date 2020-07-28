@@ -24,11 +24,11 @@ namespace AppPartes.Web.Controllers
             _IApplicationUserAldakin = iApplicationUserAldakin;
             _ILoadIndexController = iLoadIndexController;
         }
-        public async Task<IActionResult> Index(string strMessage = "", string strDate = "", string strDate1 = "", string strEntity = "", string action = "", string strOt = "", string strWorker = "")
+        public async Task<IActionResult> Index(string strMessage = "", string strDate = "", string strDate1 = "", string strEntity = "", string action = "", string strOt = "", string strWorker = "",string strListValidation="")
         {
             ViewBag.Message = strMessage;
             _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
-            var oView = await _ILoadIndexController.LoadSearchControllerAsync(_idAldakinUser, strDate, strDate1, strEntity, action, strOt, strWorker);
+            var oView = await _ILoadIndexController.LoadSearchControllerAsync(_idAldakinUser, strDate, strDate1, strEntity, action, strOt, strWorker, strListValidation);
             if (!(string.IsNullOrEmpty(oView.strError)))
             {
                 ViewBag.Message = oView.strError;

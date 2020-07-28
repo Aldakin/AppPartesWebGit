@@ -1166,7 +1166,6 @@ namespace AppPartes.Logic
             }
             return strReturn;
         }
-
         public async Task<List<List<LineaVisual>>> CreateVisualWorkerPartAsync(List<Lineas> lTemp)
         {
             var lReturn = new List<List<LineaVisual>>();
@@ -1303,6 +1302,59 @@ namespace AppPartes.Logic
             return lReturn;
         }
 
+        public async Task<SelectData> ValidateWorkerLineAsync(string strLine, int idAldakinUser)
+        {
+            var oReturn = new SelectData();
+            try
+            {
+                int iLine = Convert.ToInt32(strLine);
+                var line = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == iLine);
+                var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == idAldakinUser);
+                line.Validado = 1;
+                line.Validador = user.Nombrecompleto;
+                var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+                try
+                {
+                    aldakinDbContext.Lineas.Update(line);
+                    await aldakinDbContext.SaveChangesAsync();
+                    
+                    await transaction.CommitAsync();
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    oReturn.strText = "Ha ocurrido un problema durante el proceso de validar la linea.;";
+                    oReturn.iValue = 1;
+                    return oReturn;
+                }
+            }
+            catch(Exception ex)
+            {
+                oReturn.iValue = 0;
+                oReturn.strText = "Error al cerrar la semana tron";
+            }
+
+            return oReturn;
+        }
+
+        public async Task<string> ValidateGlobalLineAsync(int idAldakinUser,string strLine)
+        {
+            string strReturn = string.Empty;
+            try
+            {
+                List<string> split = strLine.Split(new Char[] { '|' }).Distinct().ToList();
+                foreach (string s in split)
+                {
+                    await ValidateWorkerLineAsync(s, idAldakinUser);
+                }
+                strReturn = "Validacion de partes sleccionados satisfactoria";
+            }
+            catch(Exception ex)
+            {
+                strReturn = "Durante la validacion ha ocurrido algun error Revise el estado de los partes";
+            }
+            return strReturn;
+        }
         private bool RangeIsUsed(List<Lineas> lLineas, DateTime dtFin, DateTime dtInicio, ref string strReturn)
         {
             bool bReturn;

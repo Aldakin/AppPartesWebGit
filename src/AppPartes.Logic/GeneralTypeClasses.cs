@@ -141,6 +141,7 @@ namespace AppPartes.Logic
 
         public List<ViewMounthResume> listResume { get; set; }
         public List<List<LineaVisual>> listWeekResume { get; set; }
+        public string strGlobalValidation { get; set; }
     }
     public class SearchPendingViewLogic
     {

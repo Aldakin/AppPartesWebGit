@@ -62,56 +62,6 @@
             </div>
         </form>
         <hr class="major" />
-        @if (Model.listResume != null)
-        {
-            <table class="alt">
-                <tbody>
-                    <tr>
-                        <td style="background-color:#D2691E">Dia generado</td>
-                        <td style="background-color:#B0C4DE">Dia validado</td>
-                        <td style="background-color:#FFFFFF">Dia sin cerrar</td>
-                        <td style="background-color:#D3D3D3">Fin de semana</td>
-                        <td style="background-color:#FF8C00">Validado incompleto</td>
-                    </tr>
-                </tbody>
-            </table>
-
-
-            @foreach (var dept in Model.listResume)
-            {
-                <div class="table-wrapper">
-                    <h4>@dept.User</h4>
-                    <table class="alt">
-                        @*<thead>
-                                <tr>
-                                    <td>@dept.User</td>
-                                </tr>
-                            </thead>*@
-                        <tbody>
-                            @*<tr>
-                                    <td>Dias</td>
-                                </tr>*@
-                            <tr>
-                                <td>Dias:</td>
-                                @foreach (var t in dept.lDay)
-                                {
-                                    <td>@t</td>
-                                }
-                            </tr>
-                            <tr>
-                                <td>Horas:</td>
-                                @foreach (var t in dept.dayStatus)
-                                {
-                                    <td style="background-color: @t.colour;">@t.hour</td>
-                                }
-                            </tr>
-
-                        </tbody>
-                    </table>
-                </div><!-- Elements -->
-            }
-        }
-
     </section>
     <section>
         <h2 id="elements">Estado Partes del trabajador</h2>
@@ -165,8 +115,29 @@
             </div>
         </form>
 
+
+    </section>
+
+    <section>
+
         @{ if (Model.listWeekResume != null)
             {
+                <form asp-controller="Search" asp-action="Index" method="POST">
+                    <div class="col-12">
+                        <input type="hidden" id="strListValidation" name="strListValidation" value="@Model.strGlobalValidation" />
+                        <div class="col-12">
+                            <input type="hidden" name="action" value="globalValidation" />
+                            <input type="submit" name="strStatus" value="validation masiva" class="primary" />
+
+                            @*<input type="submit" name="strSemana" value="Estado Semana " class="primary" />*@
+
+
+                            @*<input type="submit" name="strAction" onclick="statusEntity('strDate','strSummary');" value="Enviar" />*@
+                        </div>
+                    </div>
+                </form>
+
+
                 @foreach (var dept in Model.listWeekResume)
                 {
                     if (dept.Count > 0)
@@ -221,7 +192,7 @@
                                                         <input type="hidden" id="idLinea" name="idLinea" value="@part.Idlinea" />
                                                         <input type="hidden" id="dtIni" name="dtIni" value="@part.Inicio.Date" />
                                                         <!--<input type="submit" name="strAction" onclick="deleteConfirmation('idLinea','dtIni');" value="Borrar" />-->
-                                                        <input type="submit" name="strAction" onclick="deleteConfirmation(@part.Idlinea);" value="Cerrar" />
+                                                        <input type="submit" name="strAction" onclick="validationLineConfir(@part.Idlinea);" value="Validar" />
                                                     </td>
                                                 }
                                                 <td>@part.NombreUsuario</td>
@@ -266,6 +237,70 @@
         }
 
     </section>
+
+
+
+
+
+
+    <section>
+
+        <hr class="major" />
+        @if (Model.listResume != null)
+        {
+            <table class="alt">
+                <tbody>
+                    <tr>
+                        <td style="background-color:#D2691E">Dia generado</td>
+                        <td style="background-color:#B0C4DE">Dia validado</td>
+                        <td style="background-color:#FFFFFF">Dia sin cerrar</td>
+                        <td style="background-color:#D3D3D3">Fin de semana</td>
+                        <td style="background-color:#FF8C00">Validado incompleto</td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+            @foreach (var dept in Model.listResume)
+            {
+                <div class="table-wrapper">
+                    <h4>@dept.User</h4>
+                    <table class="alt">
+                        @*<thead>
+                                <tr>
+                                    <td>@dept.User</td>
+                                </tr>
+                            </thead>*@
+                        <tbody>
+                            @*<tr>
+                                    <td>Dias</td>
+                                </tr>*@
+                            <tr>
+                                <td>Dias:</td>
+                                @foreach (var t in dept.lDay)
+                                {
+                                    <td>@t</td>
+                                }
+                            </tr>
+                            <tr>
+                                <td>Horas:</td>
+                                @foreach (var t in dept.dayStatus)
+                                {
+                                    <td style="background-color: @t.colour;">@t.hour</td>
+                                }
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div><!-- Elements -->
+            }
+        }
+
+    </section>
+
+
+
+
     <script type="text/javascript">
 
             const $worker = document.querySelector("#worker");
@@ -355,6 +390,28 @@
         function daError(ex) {
             console.log("Error");
             alert("Ocurrio un error,recargue la pagina y vuelva a empezar." +ex);
+            }
+
+
+
+            function validationLineConfir(idlinea) {
+            var opcion = confirm("¿Seguro que desea Validar?");
+            var linea = idlinea;
+            if (opcion == true) {
+                var url = "@Url.Action("validateLineFunc","SearchDataApi")";
+                var data = { cantidad: linea};
+                $.post(url, data).done(function (data) {
+                    if (data.length>1) {
+                        window.location.href = "Search?strMessage=Parte validado correctamente;";
+                        }
+                    else {
+                        window.location.href = "Search?strMessage=Error durante el proceso de borrado;";
+                    }
+                    //window.location.href = "WeekReview?strMessage=Parte borrado correctamente;";
+                })
+            } else {
+                alert('Borrado cancelado');
+            }
         }
 
         $EntityWorker.addEventListener("change", EntitySelected);

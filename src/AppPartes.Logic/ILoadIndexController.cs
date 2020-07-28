@@ -9,7 +9,7 @@ namespace AppPartes.Logic
         Task<LoginDataViewLogic> LoadLoginControllerAsync();
         Task<MessageViewLogic> LoadMessageControllerAsync(int idAldakinUser, int idMessage);
         Task<HomeDataViewLogic> LoadHomeControllerAsync(int idAldakinUser);
-        Task<SearchViewLogic> LoadSearchControllerAsync(int idAldakinUser, string strDate, string strDate1, string strEntity, string action, string strOt, string strWorker);
+        Task<SearchViewLogic> LoadSearchControllerAsync(int idAldakinUser, string strDate, string strDate1, string strEntity, string action, string strOt, string strWorker,string strListValidation);
         Task<SearchPendingViewLogic> SearchPendingControllerAsync(int idAldakinUser);
     }
 }

@@ -247,7 +247,7 @@ namespace AppPartes.Logic
             }
             return oReturn;
         }
-        public async Task<SearchViewLogic> LoadSearchControllerAsync(int idAldakinUser, string strDate, string strDate1, string strEntity, string action, string strOt, string strWorker)
+        public async Task<SearchViewLogic> LoadSearchControllerAsync(int idAldakinUser, string strDate, string strDate1, string strEntity, string action, string strOt, string strWorker, string strListValidation)
         {
             var oReturn = new SearchViewLogic();
             try
@@ -262,14 +262,24 @@ namespace AppPartes.Logic
                         case "Index":
                             oReturn.listResume = null;
                             oReturn.listWeekResume = null;
+                            oReturn.strGlobalValidation = null;
                             break;
                         case "MounthResume":
                             oReturn.listWeekResume = null;
+                            oReturn.strGlobalValidation = null;
                             oReturn.listResume = await _iWorkPartInformation.StatusEntityResumeAsync(idAldakinUser, strDate, strEntity);
                             break;
                         case "StatusResume":
                             oReturn.listResume = null;
                             oReturn.listWeekResume = await _iWorkPartInformation.StatusWeekResumeAsync(idAldakinUser, strDate1, strOt, strWorker, strEntity);
+                            oReturn.strGlobalValidation = await _iWorkPartInformation.StringWeekResumeAsync(idAldakinUser, strDate1, strOt, strWorker, strEntity);
+                            break;
+                        case "globalValidation":
+                            oReturn.listResume = null;
+                            oReturn.listWeekResume = null;
+                            oReturn.strGlobalValidation = null;
+
+                            oReturn.strError = await _iWriteDataBase.ValidateGlobalLineAsync(idAldakinUser, strListValidation);
                             break;
                         default:
                             oReturn.strError = "Error en la accion seleccionada, avise a Administracion";
