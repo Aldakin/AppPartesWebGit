@@ -54,6 +54,22 @@ namespace AppPartes.Web.Controllers.Api
             lReturn = await _IWriteDataBase.CloseWorkerWeekAsync(strDataSelected, idAldakin);
             return lReturn;
         }
+        public async Task<List<SelectData>> WeekSummary(string cantidad)
+        {
+            var listaSelect = new List<SelectData>();
+            DateTime dtSelected;
+            try
+            {
+                dtSelected = Convert.ToDateTime(cantidad);
+                int idAldakinUser = await GetIdUserAldakinAsync();
+                listaSelect = await _IWorkPartInformation.WeekHourResume(dtSelected, idAldakinUser);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+            return listaSelect;
+        }
         //public int iValue { set; get; }
         //public string strText { set; get; }
         //public string strValue { set; get; }

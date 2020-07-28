@@ -45,6 +45,7 @@ namespace AppPartes.Logic
     {
         public int Idlinea { get; set; }
         public int Idot { get; set; }
+        public string NombreUsuario { get; set; }
         public string NombreOt { get; set; }
         public string NombreCliente { get; set; }
         public int? Idpreslin { get; set; }
@@ -67,6 +68,7 @@ namespace AppPartes.Logic
         public string Validador { get; set; }
         public string Gastos { get; set; }
         public int ContGastos { get; set; }
+        public bool bStatus { get; set; }
     }
     public class LineMessage
     {
@@ -138,6 +140,7 @@ namespace AppPartes.Logic
         public string strError { set; get; }
 
         public List<ViewMounthResume> listResume { get; set; }
+        public List<List<LineaVisual>> listWeekResume { get; set; }
     }
     public class SearchPendingViewLogic
     {

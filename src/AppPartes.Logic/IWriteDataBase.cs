@@ -16,5 +16,6 @@ namespace AppPartes.Logic
         Task<string> AnswerMessageAsync(LineMessage line);
         Task<string> UpdateEntityDataOrCsvAsync(int iIdEntity, int idAldakinUser, string strAction = "AC");
         Task<List<Usuarios>> GetAllUsersAsync(int iEntity);
+        Task<List<List<LineaVisual>>> CreateVisualWorkerPartAsync(List<Lineas> lTemp);
     }
 }

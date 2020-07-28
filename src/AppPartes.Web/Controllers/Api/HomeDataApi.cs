@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AppPartes.Web.Controllers.Api
 {
-    public class HomeDataApi :ControllerBase
+    public class HomeDataApi : ControllerBase
     {
         private readonly IWriteDataBase _IWriteDataBase;
         private readonly IApplicationUserAldakin _manager;
@@ -20,7 +20,7 @@ namespace AppPartes.Web.Controllers.Api
         {
             string strReturn = "Ha ocurrido un error en la orden de actualizar la Entidad";
             var idAldakin = await _manager.GetIdUserAldakin(HttpContext.User);
-            if (iEntity>0)strReturn =await _IWriteDataBase.UpdateEntityDataOrCsvAsync(iEntity, idAldakin, "AC");
+            if (iEntity > 0) strReturn = await _IWriteDataBase.UpdateEntityDataOrCsvAsync(iEntity, idAldakin, "AC");
             return strReturn;
         }
         public async Task<string> GenerateCsvData(int iEntity)
@@ -30,6 +30,6 @@ namespace AppPartes.Web.Controllers.Api
             if (iEntity > 0) strReturn = await _IWriteDataBase.UpdateEntityDataOrCsvAsync(iEntity, idAldakin, "CS");
             return strReturn;
         }
-        
+
     }
 }

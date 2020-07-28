@@ -1,12 +1,8 @@
-﻿using AppPartes.Data.Models;
-using AppPartes.Logic;
+﻿using AppPartes.Logic;
 using AppPartes.Web.Controllers.Api;
 using AppPartes.Web.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System.Diagnostics;
-using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace AppPartes.Web.Controllers
@@ -32,7 +28,7 @@ namespace AppPartes.Web.Controllers
                 ViewBag.Message = strMessage;
                 _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
                 var oView = await _ILoadIndexController.LoadHomeControllerAsync(_idAldakinUser);
-                if(!(string.IsNullOrEmpty(oView.strError)))
+                if (!(string.IsNullOrEmpty(oView.strError)))
                 {
                     ViewBag.Message = oView.strError;
                 }

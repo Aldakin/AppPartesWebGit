@@ -45,7 +45,7 @@
                                         if (Model.listSelect != null)
                                         {
                                             <input type="date" id="Calendario" name="strDate"
-                                                   value=" "
+                                                   value=""
                                                    min="@(DateTime.Now.Year - 2)-01-01"
                                                    max="@(DateTime.Now.Year + 2)-12-31">
                                             <input type="hidden" name="strAction" value="loadWeek" />
@@ -63,6 +63,46 @@
                                 </div>
                             </form>
                         </div>
+
+                        <div id="tablaResumen" class="col-12" style="display:none">
+                            <label for="start">Resumen Semanal</label>
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Lunes</th>
+                                            <th><input type="text" id="strLunes" name="strLunes" value="0" readonly /></th>
+                                        </tr>
+                                        <tr>
+                                            <th>Martes</th>
+                                            <th><input type="text" id="strMartes" name="strMartes" value="0" readonly /></th>
+                                        </tr>
+                                        <tr>
+                                            <th>Miercoles</th>
+                                            <th><input type="text" id="strMiercoles" name="strMiercoles" value="0" readonly /></th>
+                                        </tr>
+                                        <tr>
+                                            <th>Jueves</th>
+                                            <th><input type="text" id="strJueves" name="strJueves" value="0" readonly /></th>
+                                        </tr>
+                                        <tr>
+                                            <th>Viernes</th>
+                                            <th><input type="text" id="strViernes" name="strViernes" value="0" readonly /></th>
+                                        </tr>
+                                        <tr>
+                                            <th>Sabado</th>
+                                            <th><input type="text" id="strSabado" name="strSabado" value="0" readonly /></th>
+                                        </tr>
+                                        <tr>
+                                            <th>Domingo</th>
+                                            <th><input type="text" id="strDomingo" name="strDomingo" value="0" readonly /></th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+
+
                         <div class="col-12">
                             @{
                                 if (Model.listSemana != null)
@@ -93,12 +133,12 @@
                                                 </tr>
 
                                             </tbody>
-                                            <tfoot>
-                                                <tr>
-                                                    <td colspan="2">Semana del :</td>
-                                                    <td>@Model.DateSelected</td>
-                                                </tr>
-                                            </tfoot>
+                                            @*<tfoot>
+                                                    <tr>
+                                                        <td colspan="2">Semana del :</td>
+                                                        <td>@Model.DateSelected</td>
+                                                    </tr>
+                                                </tfoot>*@
                                         </table>
                                     </div>
                                 }
@@ -120,13 +160,13 @@
                                         </div>-->
                                         <div class="col-12">
                                             <label for="start">Fecha nueva parte(si procede cambiar):</label>
-                                            <input type="date" id="Calendario" name="strCalendario"
+                                            <input type="date" id="Calendario1" name="strCalendario"
                                                    value="@Model.DateSelected"
                                                    min="@(DateTime.Now.Year - 2)-01-01"
                                                    max="@(DateTime.Now.Year + 2)-12-31">
                                             <!--<input type="text" name="demo-name" id="demo-name" value="" placeholder="Name" />-->
                                         </div>
-                                        <div class="col-6 col-12-xsmall">
+                                        <div class="col-12">
                                             <label for="start">Hora Inicio:</label>
                                             <table class="egt">
                                                 <tr>
@@ -174,7 +214,7 @@
 
                                             <!--<input type="email" name="demo-email" id="demo-email" value="" placeholder="Email" />-->
                                         </div>
-                                        <div class="col-6 col-12-xsmall">
+                                        <div class="col-12">
 
                                             <label for="start">Hora Fin:</label>
                                             <table class="egt">
@@ -444,19 +484,26 @@
     </div>
 
     <!-- Scripts -->
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/js/browser.min.js"></script>
-    <script src="assets/js/breakpoints.min.js"></script>
-    <script src="assets/js/util.js"></script>
-    <script src="assets/js/main.js"></script>
+    @*<script src="assets/js/jquery.min.js"></script>
+        <script src="assets/js/browser.min.js"></script>
+        <script src="assets/js/breakpoints.min.js"></script>
+        <script src="assets/js/util.js"></script>
+        <script src="assets/js/main.js"></script>*@
 
     <script type="text/javascript">
-            const $ot = document.querySelector("#ot");
-            const $tipo = document.querySelector("#Tipo");
-            const $pagador = document.querySelector("#Pagador");
+
+        const $ot = document.querySelector("#ot");
+        const $tipo = document.querySelector("#Tipo");
+        const $pagador = document.querySelector("#Pagador");
         const $gastos = document.querySelector("#gastos");
 
-            const PagadorSeleccionado = () => {
+
+
+
+
+
+
+        const PagadorSeleccionado = () => {
             const indice = $pagador.selectedIndex;
             if (indice === -1) return; // Esto es cuando no hay elementos
             const optionSelec = $pagador.options[indice];
@@ -503,6 +550,9 @@
                 //esto se ejecuta siempre
             });
         }
+
+
+
 
         function insertText(idGasto, strCantidad, strPagador, strTipo, strGastos, strObservaciones) {
             var elem = document.getElementById(strGastos);
@@ -580,12 +630,6 @@
                 //alert('Marcar un parte como solo gastos implica 0 horas');
             }
         }
-
-
-
-
-
-
         function daError(ex) {
             console.log("Error");
             alert("Ocurrio un error,recargue la pagina y vuelva a empezar." +ex);

@@ -20,6 +20,15 @@
         <div class="col-12" id="lblInfo" name="lblInfo" style="display:none">
             <blockquote>Cargando información, espere...</blockquote>
         </div>
+
+    </section>
+
+
+    <!-- Content -->
+    <section>
+        <h2 id="elements">Estado Partes del mes</h2>
+        <p>Seleccione una delgación y una fecha para ver el estado de los partes de trabajo de cada dia de cada trabajador del mes seleccionado.</p>
+        <p>Cuantos mas trabajadores se pueden validar más largo es el tiempo de obtención de datos.</p>
         <form asp-controller="Search" asp-action="Index" method="POST">
             <div class="col-12">
                 <label for="start">Seleccione delegación:</label>
@@ -34,38 +43,35 @@
                         </option>
                     }
                 </select>
+            </div>
+            <div class="col-12">
                 <label>Seleccione en el calendario:</label>
                 <input type="date" id="strDate" name="strDate"
                        value=" "
                        min="@(DateTime.Now.Year - 2)-01-01"
                        max="@(DateTime.Now.Year + 2)-12-31" required>
+            </div>
+            <div class="col-12">
+                <input type="hidden" name="action" value="MounthResume" />
                 <input type="submit" name="strStatus" value="Estado Partes" class="primary" />
+
                 @*<input type="submit" name="strSemana" value="Estado Semana " class="primary" />*@
 
 
                 @*<input type="submit" name="strAction" onclick="statusEntity('strDate','strSummary');" value="Enviar" />*@
             </div>
         </form>
-    </section>
-
-
-    <!-- Content -->
-    <section>
-        <header class="main">
-            <h1>Elements</h1>
-        </header>
-
         <hr class="major" />
         @if (Model.listResume != null)
         {
             <table class="alt">
                 <tbody>
                     <tr>
-                        <td style="background-color:#D2691E">Todo generado</td>
-                        <td style="background-color:#B0C4DE">Todo validado</td>
-                        <td style="background-color:#FFFFFF">Todo vacio</td>
+                        <td style="background-color:#D2691E">Dia generado</td>
+                        <td style="background-color:#B0C4DE">Dia validado</td>
+                        <td style="background-color:#FFFFFF">Dia sin cerrar</td>
                         <td style="background-color:#D3D3D3">Fin de semana</td>
-                        <td style="background-color:#FF8C00">Validado incomplero</td>
+                        <td style="background-color:#FF8C00">Validado incompleto</td>
                     </tr>
                 </tbody>
             </table>
@@ -76,22 +82,24 @@
                 <div class="table-wrapper">
                     <h4>@dept.User</h4>
                     <table class="alt">
-                        <thead>
-                            <tr>
-                                <td>@dept.User</td>
-                            </tr>
-                        </thead>
+                        @*<thead>
+                                <tr>
+                                    <td>@dept.User</td>
+                                </tr>
+                            </thead>*@
                         <tbody>
+                            @*<tr>
+                                    <td>Dias</td>
+                                </tr>*@
                             <tr>
-                                <td>Dias</td>
-                            </tr>
-                            <tr>
+                                <td>Dias:</td>
                                 @foreach (var t in dept.lDay)
                                 {
                                     <td>@t</td>
                                 }
                             </tr>
                             <tr>
+                                <td>Horas:</td>
                                 @foreach (var t in dept.dayStatus)
                                 {
                                     <td style="background-color: @t.colour;">@t.hour</td>
@@ -103,113 +111,254 @@
                 </div><!-- Elements -->
             }
         }
-        <h2 id="elements">Elements</h2>
-        <div class="row gtr-200">
-            <div class="col-12-large">
-                <!-- Blockquote -->
-                <h3>Blockquote</h3>
-                <blockquote>Lorem ipsum dolor vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent. Lorem ipsum dolor. Lorem ipsum dolor vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus.</blockquote>
 
-                <!-- Table -->
-                <div class="col-12">
-                    <textarea name="strSummary" id="strSummary" value="" rows="12"></textarea>
-                </div>
-
-                @* @grid.GetHtml()*@
-
-                @*<h4>Alternate</h4>
-                <div class="table-wrapper">
-                    <table class="alt">
-                        <thead>
-                            <tr>
-                                <th>Trabajador</th>
-                                <th>Description</th>
-                                <th>Price</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Item1</td>
-                                <td>Ante turpis integer aliquet porttitor.</td>
-                                <td>29.99</td>
-                            </tr>
-                            <tr>
-                                <td>Item2</td>
-                                <td>Vis ac commodo adipiscing arcu aliquet.</td>
-                                <td>19.99</td>
-                            </tr>
-                            <tr>
-                                <td>Item3</td>
-                                <td> Morbi faucibus arcu accumsan lorem.</td>
-                                <td>29.99</td>
-                            </tr>
-                            <tr>
-                                <td>Item4</td>
-                                <td>Vitae integer tempus condimentum.</td>
-                                <td>19.99</td>
-                            </tr>
-                            <tr>
-                                <td>Item5</td>
-                                <td>Ante turpis integer aliquet porttitor.</td>
-                                <td>29.99</td>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="2"></td>
-                                <td>100.00</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>*@
-
-            </div>
-        </div>
     </section>
-    <!-- Scripts -->
-    <!--
-        <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/js/browser.min.js"></script>
-    <script src="assets/js/breakpoints.min.js"></script>
-    <script src="assets/js/util.js"></script>
-    <script src="assets/js/main.js"></script>
-        -->
-    @*<script type="text/javascript">
+    <section>
+        <h2 id="elements">Estado Partes del trabajador</h2>
+        <p>Info.....</p>
+        <form asp-controller="Search" asp-action="Index" method="POST">
+            <div class="col-12">
 
-            const $entity = document.querySelector("#strEntity");
-            function statusEntity(strDate,strSummary) {
-                var elem = document.getElementById(strSummary);
-                var data = document.getElementById(strDate);
-                const indice = $entity.selectedIndex;
+                <label>Seleccione en el calendario:</label>
+                <input type="date" id="strDate" name="strDate1"
+                       value=" "
+                       min="@(DateTime.Now.Year - 2)-01-01"
+                       max="@(DateTime.Now.Year + 2)-12-31" required>
+            </div>
+            <div class="col-12">
+                <label for="start">Seleccione delegación:</label>
+
+                <select id="EntityWorker" name="strEntity">
+                    <option value="">
+                    </option>
+                    @foreach (var dept in Model.listCompany)
+                    {
+                        <option value="@dept.CodEnt">
+                            @dept.Nombre
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="col-12">
+                <label id="lblWorker" for="start">* Trabajadores:</label>
+                <select id="worker" name="strWorker">
+
+                    <option value="0"></option>
+                </select>
+            </div>
+            <div class="col-12">
+                <label id="lblOt" for="start">* Ot:</label>
+                <select id="ot" name="strOt">
+
+                    <option value="0"></option>
+                </select>
+            </div>
+            <div class="col-12">
+                <input type="hidden" name="action" value="StatusResume" />
+                <input type="submit" name="strStatus" value="Resumen Estado Partes " class="primary" />
+
+
+                @*<input type="submit" name="strSemana" value="Estado Semana " class="primary" />*@
+
+
+                @*<input type="submit" name="strAction" onclick="statusEntity('strDate','strSummary');" value="Enviar" />*@
+            </div>
+        </form>
+
+        @{ if (Model.listWeekResume != null)
+            {
+                @foreach (var dept in Model.listWeekResume)
+                {
+                    if (dept.Count > 0)
+                    {
+                        <div class="col-12">
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            @*@if (!Model.SemanaCerrada)
+                                                {
+                                                    <th></th>
+                                                }*@
+                                            <th>Trabajador</th>
+                                            <th>Inicio</th>
+                                            <th>Fin</th>
+                                            <th>Empresa</th>
+                                            <th>OT</th>
+                                            <!--<th>Nombre OT</th>-->
+                                            <th>Presupuesto</th>
+                                            <!--<th>Nombre Presupuesto</th>-->
+                                            <!--<th>Nivel1</th>
+                                            <th>Nivel2</th>
+                                            <th>Nivel3</th>
+                                            <th>Nivel4</th>
+                                            <th>Nivel5</th>
+                                            <th>Nivel6</th>
+                                            <th>Nivel7</th>-->
+                                            <th>Horas de Viaje</th>
+                                            <th>Horas</th>
+                                            <th>Gastos</th>
+                                            <th>Kilometros</th>
+                                            <th>Pernoctación</th>
+                                            <th>Observaciones</th>
+                                            <th>Identificador</th>
+                                            <th>Nº Parte</th>
+                                            <th>Bloqueado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var part in dept)
+                                        {
+                                            <tr>
+                                                @if (part.bStatus == false)
+                                                {
+                                                    <td>
+                                                        <form asp-controller="WeekReview" asp-action="Index" method="POST">
+                                                            <input type="hidden" name="strId" value="@part.Idlinea" />
+                                                            <input type="hidden" name="strAction" value="editLine" />
+                                                            <input type="submit" value="Editar" />
+                                                        </form>
+                                                        <input type="hidden" id="idLinea" name="idLinea" value="@part.Idlinea" />
+                                                        <input type="hidden" id="dtIni" name="dtIni" value="@part.Inicio.Date" />
+                                                        <!--<input type="submit" name="strAction" onclick="deleteConfirmation('idLinea','dtIni');" value="Borrar" />-->
+                                                        <input type="submit" name="strAction" onclick="deleteConfirmation(@part.Idlinea);" value="Cerrar" />
+                                                    </td>
+                                                }
+                                                <td>@part.NombreUsuario</td>
+                                                <td>@part.Inicio</td>
+                                                <td>@part.Fin</td>
+                                                <td>@part.NombreCliente</td>
+                                                <td>@part.NombreOt</td>
+                                                <!--<td>Nombre OT</td>-->
+                                                <td>@part.NombrePreslin</td>
+                                                <!--<td>Nombre Presupuesto</td>-->
+                                                <!--<td>Nivel1</td>
+                                                <td>Nivel2</td>
+                                                <td>Nivel3</td>
+                                                <td>Nivel4</td>
+                                                <td>Nivel5</td>
+                                                <td>Nivel6</td>
+                                                <td>Nivel7</td>-->
+                                                <td>@part.Horasviaje</td>
+                                                <td>@part.Horas</td>
+                                                <td>@part.Dietas</td>
+                                                <td>@part.Km</td>
+                                                <td>@part.strPernocta</td>
+                                                <td>@part.Observaciones</td>
+                                                <td>@part.Idlinea</td>
+                                                <td>@part.Npartefirmado</td>
+                                                <td>@part.Validado</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                    @*<tfoot>
+                                            <tr>
+                                                <td></td>
+                                            </tr>
+                                        </tfoot>*@
+                                </table>
+                            </div>
+                        </div>
+                    }
+                }
+            }
+
+        }
+
+    </section>
+    <script type="text/javascript">
+
+            const $worker = document.querySelector("#worker");
+            const $ot = document.querySelector("#ot");
+            const $EntityWorker = document.querySelector("#EntityWorker");
+
+            const EntitySelected = () => {
+                //alert('1');
+                const indice = $EntityWorker.selectedIndex;
                 if (indice === -1) return; // Esto es cuando no hay elementos
-                const data1 = $entity.options[indice];
-                var url = "@Url.Action("statusEntityApi","SearchDataApi")";
-                div = document.getElementById('lblInfo');
-                div.style.display = '';
-                var data = { strDate: data.value, strEntity: data1.value };
-                $.post(url, data).done(function (data) {
-                    if (data.length > 1) {
+                const optionSelec = $EntityWorker.options[indice];
+                var url = "@Url.Action("GetWorker","SearchDataApi")";
+                var cantidad = optionSelec.value;
+                var data = { cantidad: cantidad };
+                $.post(url, data).done(function (data)
+                {
+                    if (data.length > 1)
+                    {
+                        const option = document.createElement('option');
+                        $worker.appendChild(option);
+                        for (let i = 0; i <= data.length - 1; i++)
+                        {
+                            const option = document.createElement('option');
+                            option.value = JSON.stringify(data[i].iValue);
+                            option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
+                            $worker.appendChild(option);
+                        }
+                    } else {
+                        if (data.length == 1)
+                        {
+                            const option = document.createElement('option');
+                            for (let i = 0; i <= data.length - 1; i++)
+                            {
+                                const option = document.createElement('option');
+                                option.value = JSON.stringify(data[i].iValue);
+                                option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
+                                $worker.appendChild(option);
+                            }
+                        }
+                        else
+                        {
+                        }
+                    }
+                }).fail(daError).always(function ()
+                {
+                //esto se ejecuta siempre
+                });
+
+                url = "@Url.Action("GetOt","SearchDataApi")";
+                cantidad = optionSelec.value;
+                data = { cantidad: cantidad };
+                $.post(url, data).done(function (data)
+                {
+                    //si la operacion es buena
+                    if (data.length > 1)
+                    {
+                        const option = document.createElement('option');
+                        $ot.appendChild(option);
                         for (let i = 0; i <= data.length - 1; i++) {
-                            //alert('text' + JSON.stringify(data[i]));
-                            var text = JSON.stringify(data[i]).replace(/['"]+/g, '');
-                            elem.value = elem.value + text+'\r\n';
+                            const option = document.createElement('option');
+                            option.value = JSON.stringify(data[i].iValue);
+                            option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
+                            $ot.appendChild(option);
                         }
                     }
                     else
                     {
-                        elem.value = 'Nada que mostrar \r\n';
+                        if (data.length == 1)
+                        {
+                            const option = document.createElement('option');
+                            for (let i = 0; i <= data.length - 1; i++)
+                            {
+                                const option = document.createElement('option');
+                                option.value = JSON.stringify(data[i].iValue);
+                                option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
+                                $ot.appendChild(option);
+                            }
+                        }
+                        else
+                        {
+                        }
                     }
                 }).fail(daError).always(function () {
-                div.style.display = 'none';
+                //esto se ejecuta siempre
                 });
             }
-            function daError(ex) {
-                console.log("Error");
-                alert("Ocurrio un error,recargue la pagina y vuelva a empezar." +ex);
-                div = document.getElementById('lblInfo');
-                    div.style.display = 'none';
-            }
+        function daError(ex) {
+            console.log("Error");
+            alert("Ocurrio un error,recargue la pagina y vuelva a empezar." +ex);
+        }
 
-        </script>*@
+        $EntityWorker.addEventListener("change", EntitySelected);
+        $entidad.addEventListener("change", EntidadSeleccionada);
+    </script>
 </body>
 

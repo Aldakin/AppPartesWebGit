@@ -26,7 +26,7 @@ namespace AppPartes.Web.Controllers
             ViewBag.Message = strMessage;
             _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
             var oView = await _ILoadIndexController.LoadMainControllerAsync(_idAldakinUser);
-            if(!(string.IsNullOrEmpty(oView.strError)))
+            if (!(string.IsNullOrEmpty(oView.strError)))
             {
                 ViewBag.Message = oView.strError;
             }

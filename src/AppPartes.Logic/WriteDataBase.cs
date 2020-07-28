@@ -37,9 +37,9 @@ namespace AppPartes.Logic
             try
             {
                 //var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == idAldakinUser && x.CodEnt == x.CodEntO);
-                var user =  aldakinDbContext.Usuarios.FirstOrDefault(x => x.Idusuario == idAldakinUser && x.CodEnt == x.CodEntO);
+                var user = aldakinDbContext.Usuarios.FirstOrDefault(x => x.Idusuario == idAldakinUser && x.CodEnt == x.CodEntO);
                 var admin = aldakinDbContext.Administracion.FirstOrDefault(x => x.Idusuario == idAldakinUser);//select * from administracion where idusuario = {0}
-                if(!(admin is null))
+                if (!(admin is null))
                 {
                     bAdmin = false;
                 }
@@ -71,7 +71,7 @@ namespace AppPartes.Logic
             }
             return oReturn;
         }
-        public async Task<List<Usuarios>> GetAllUsersAsync(int iEntity=0)
+        public async Task<List<Usuarios>> GetAllUsersAsync(int iEntity = 0)
         {
             var lReturn = new List<Usuarios>();
             if (iEntity == 0)
@@ -80,10 +80,10 @@ namespace AppPartes.Logic
             }
             else
             {
-                lReturn = await aldakinDbContext.Usuarios.Where(x => x.CodEnt == x.CodEntO && x.Baja == 0 && x.CodEnt==iEntity).ToListAsync();
+                lReturn = await aldakinDbContext.Usuarios.Where(x => x.CodEnt == x.CodEntO && x.Baja == 0 && x.CodEnt == iEntity).ToListAsync();
             }
             return lReturn;
-        }    
+        }
         public async Task<string> InsertWorkerLineAsync(WorkerLineData dataToInsertLine, int idAldakinUser)
         {
             WriteUserDataAsync(idAldakinUser);
@@ -593,7 +593,7 @@ namespace AppPartes.Logic
             {
                 WorkPartInformation.IniEndWeek(dtSelected, out dtIniWeek, out dtEndWeek);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 oReturn.iValue = 0;
                 oReturn.strText = "Error en la seleccion de dia!!!";
@@ -627,7 +627,7 @@ namespace AppPartes.Logic
                     lListEstados.Add(new Estadodias { Dia = date.Date, Idusuario = _iUserId, Estado = 2, Horas = (float)(dHorasDia) });//
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 oReturn.iValue = 0;
                 oReturn.strText = "Ha ocurrido un problema durante el proceso de cerrar semana.;";
@@ -1166,6 +1166,143 @@ namespace AppPartes.Logic
             }
             return strReturn;
         }
+
+        public async Task<List<List<LineaVisual>>> CreateVisualWorkerPartAsync(List<Lineas> lTemp)
+        {
+            var lReturn = new List<List<LineaVisual>>();
+            var lSunday = new List<LineaVisual>();
+            var lMonday = new List<LineaVisual>();
+            var lTuesday = new List<LineaVisual>();
+            var lWednesday = new List<LineaVisual>();
+            var lThursday = new List<LineaVisual>();
+            var lFriday = new List<LineaVisual>();
+            var lSaturday = new List<LineaVisual>();
+
+            string strObservaciones;
+            var NombreOt = string.Empty;
+            var NombreCliente = string.Empty;
+            var strPernocta = string.Empty;
+            var strPreslin = string.Empty;
+            foreach (var l in lTemp)
+            {
+                var oTemp = new LineaVisual();
+                oTemp = null;
+                var worker = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == l.Idusuario);
+
+                var nombre = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == l.Idot);
+                NombreOt = "[" + nombre.Numero + "] " + nombre.Nombre;
+                var nombreCliente = await aldakinDbContext.Clientes.FirstOrDefaultAsync(x => x.Idclientes == aldakinDbContext.Ots.FirstOrDefault(o => o.Idots == l.Idot).Cliente);
+                NombreCliente = nombreCliente.Nombre;
+                if (l.Facturable == 0)
+                {
+                    strPernocta = "NO";
+                }
+                else
+                {
+                    var pernocta = await aldakinDbContext.Pernoctaciones.FirstOrDefaultAsync(x => x.Tipo == l.Facturable && x.CodEnt == _iUserCondEntO);
+                    strPernocta = pernocta.Descripcion;
+                }
+                if (l.Idoriginal == 0)
+                {
+                    if (l.Observaciones.Length > 50)
+                    {
+                        strObservaciones = l.Observaciones.Substring(0, 45) + "...";
+                    }
+                    else
+                    {
+                        strObservaciones = l.Observaciones;
+                    }
+                    oTemp = (new LineaVisual
+                    {
+                        bStatus = Convert.ToBoolean(l.Registrado),
+                        NombreUsuario = worker.Nombrecompleto,
+                        Idlinea = l.Idlinea,
+                        Idot = l.Idot,
+                        NombreOt = NombreOt,
+                        NombreCliente = NombreCliente,
+                        NombrePreslin = strPreslin,
+                        Dietas = l.Dietas,
+                        Km = l.Km,
+                        Observaciones = strObservaciones,
+                        Horasviaje = l.Horasviaje,
+                        Horas = l.Horas,
+                        Inicio = l.Inicio,
+                        Fin = l.Fin,
+                        Idusuario = l.Idusuario,
+                        strPernocta = strPernocta,
+                        Npartefirmado = l.Npartefirmado,
+                        Idoriginal = l.Idoriginal,
+                        Registrado = l.Registrado,
+                        CodEnt = l.CodEnt,
+                        Validado = l.Validado,
+                        Validador = l.Validador
+                    });
+                }
+                else
+                {
+                    var lineaOriginal = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == l.Idoriginal);
+                    oTemp = (new LineaVisual
+                    {
+                        Idlinea = lineaOriginal.Idlinea,
+                        Idot = lineaOriginal.Idot,
+                        NombreOt = NombreOt,
+                        NombreCliente = NombreCliente,
+                        NombrePreslin = strPreslin,
+                        Dietas = lineaOriginal.Dietas,
+                        Km = lineaOriginal.Km,
+                        Observaciones = lineaOriginal.Observaciones,
+                        Horasviaje = lineaOriginal.Horasviaje,
+                        Horas = lineaOriginal.Horas,
+                        Inicio = lineaOriginal.Inicio,
+                        Fin = lineaOriginal.Fin,
+                        Idusuario = lineaOriginal.Idusuario,
+                        strPernocta = strPernocta,
+                        Npartefirmado = lineaOriginal.Npartefirmado,
+                        Idoriginal = lineaOriginal.Idoriginal,
+                        Registrado = lineaOriginal.Registrado,
+                        CodEnt = lineaOriginal.CodEnt,
+                        Validado = lineaOriginal.Validado,
+                        Validador = lineaOriginal.Validador
+                    });
+                }
+                var i = Convert.ToInt32(l.Inicio.DayOfWeek);
+                switch (i)
+                {
+                    case 0:
+                        lSunday.Add(oTemp);
+                        break;
+                    case 1:
+                        lMonday.Add(oTemp);
+                        break;
+                    case 2:
+                        lTuesday.Add(oTemp);
+                        break;
+                    case 3:
+                        lWednesday.Add(oTemp);
+                        break;
+                    case 4:
+                        lThursday.Add(oTemp);
+                        break;
+                    case 5:
+                        lFriday.Add(oTemp);
+                        break;
+                    case 6:
+                        lSaturday.Add(oTemp);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            lReturn.Add(lSunday);
+            lReturn.Add(lMonday);
+            lReturn.Add(lTuesday);
+            lReturn.Add(lWednesday);
+            lReturn.Add(lThursday);
+            lReturn.Add(lFriday);
+            lReturn.Add(lSaturday);
+            return lReturn;
+        }
+
         private bool RangeIsUsed(List<Lineas> lLineas, DateTime dtFin, DateTime dtInicio, ref string strReturn)
         {
             bool bReturn;

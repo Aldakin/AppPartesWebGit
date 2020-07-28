@@ -15,7 +15,11 @@ namespace AppPartes.Logic
         Task<List<SelectData>> ReadLevel2(int iData, int iData2, int idAldakinUser);
         Task<List<SelectData>> ReadLevelGeneral(int iData, int idAldakinUser);
         Task<List<SelectData>> SelectedPayerAsync(int iPayer, int iOt, int idAldakinUser);
-        Task<List<string>> PendingWorkPartApiAsync(string strCalendario, string strUser,string strEntity);
-        Task<List<ViewMounthResume>> StatusEntityAsync(int idAldakinUser, string strCalendario, string strEntity);
+        Task<List<string>> PendingWorkPartApiAsync(string strCalendario, string strUser, string strEntity);
+        Task<List<ViewMounthResume>> StatusEntityResumeAsync(int idAldakinUser, string strCalendario, string strEntity);
+        Task<List<List<LineaVisual>>> StatusWeekResumeAsync(int idAldakinUser, string strDate, string strOt, string strWorker, string strEntity);
+        Task<List<SelectData>> GetWorkerValidationAsnc(int idAldakinUser, int iEntity);
+        Task<List<SelectData>> GetOtValidationAsync(int idAldakinUser, int iEntity);
     }
 }
+

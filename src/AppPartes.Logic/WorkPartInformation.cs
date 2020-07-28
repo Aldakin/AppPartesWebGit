@@ -446,7 +446,68 @@ namespace AppPartes.Logic
             }
             return lReturn;
         }
-        public async Task<List<ViewMounthResume>> StatusEntityAsync(int idAldakinUser, string strCalendario, string strEntity)
+        public async Task<List<SelectData>> GetWorkerValidationAsnc(int idAldakinUser, int iEntity)
+        {
+            List<SelectData> lReturn = new List<SelectData>();
+            List<Usuarios> lValidationUser = new List<Usuarios>();
+            WriteUserDataAsync(idAldakinUser);
+            var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == _iUserId && x.CodEnt == x.CodEntO);
+            lValidationUser = null;
+            if (user.Autorizacion < 5)
+            {
+                var userValidation = await aldakinDbContext.Responsables.FirstOrDefaultAsync(x => x.Name == user.Name);
+                List<string> split = userValidation.PersonasName.Split(new Char[] { '|' }).Distinct().ToList();
+                foreach (string s in split)
+                {
+                    lValidationUser.Add(await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Name == s && x.CodEnt == x.CodEntO && x.Baja == 0));
+                }
+            }
+            else
+            {
+                lValidationUser = await aldakinDbContext.Usuarios.Where(x => x.CodEnt == iEntity && x.CodEnt == x.CodEntO && x.Baja == 0).ToListAsync();
+            }
+            foreach (Usuarios u in lValidationUser)
+            {
+                lReturn.Add(new SelectData
+                {
+                    iValue = u.Idusuario,
+                    strText = u.Nombrecompleto
+                });
+            }
+            return lReturn;
+        }
+        public async Task<List<SelectData>> GetOtValidationAsync(int idAldakinUser, int iEntity)
+        {
+            List<SelectData> lReturn = new List<SelectData>();
+            List<Ots> lValidationOT = new List<Ots>();
+            WriteUserDataAsync(idAldakinUser);
+            var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == _iUserId && x.CodEnt == x.CodEntO);
+            lValidationOT = null;
+            if (user.Autorizacion < 5)
+            {
+                var userValidation = await aldakinDbContext.Responsables.FirstOrDefaultAsync(x => x.Name == user.Name);
+                List<string> split = userValidation.Ots.Split(new Char[] { '|' }).Distinct().ToList();
+                foreach (string s in split)
+                {
+                    lValidationOT.Add(await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == Convert.ToInt32(s)));
+
+                }
+            }
+            else
+            {
+                lValidationOT = await aldakinDbContext.Ots.Where(x => x.CodEnt == iEntity && x.Cierre == null).ToListAsync();
+            }
+            foreach (Ots o in lValidationOT)
+            {
+                lReturn.Add(new SelectData
+                {
+                    iValue = o.Idots,
+                    strText = o.Numero + " " + o.Nombre
+                });
+            }
+            return lReturn;
+        }
+        public async Task<List<ViewMounthResume>> StatusEntityResumeAsync(int idAldakinUser, string strCalendario, string strEntity)
         {
             var lReturn = new List<ViewMounthResume>();
 
@@ -497,6 +558,57 @@ namespace AppPartes.Logic
                     oTemp.dayStatus.Add(oSeach);
                 }
                 lReturn.Add(oTemp);
+            }
+            return lReturn;
+        }
+        public async Task<List<List<LineaVisual>>> StatusWeekResumeAsync(int idAldakinUser, string strDate, string strOt, string strWorker, string strEntity)
+        {
+            var lReturn = new List<List<LineaVisual>>();
+            var lTemp = new List<Lineas>();
+            DateTime dtIniWeek, dtEndWeek;
+            lReturn = null;
+            DateTime dtSelected = Convert.ToDateTime(strDate);
+            IniEndWeek(dtSelected, out dtIniWeek, out dtEndWeek);
+            try
+            {
+                int iOt = Convert.ToInt32(strOt);
+                int iWorker = Convert.ToInt32(strWorker);
+                int iEntity = Convert.ToInt32(strEntity);
+                if ((iWorker > 0) && (iOt > 0))
+                {
+                    //seleccionado trabajador y ot
+                    lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.Idusuario == iWorker && x.CodEnt == iEntity && x.Idot == iOt).OrderBy(x => x.Inicio).ToListAsync();
+                }
+                else
+                {
+                    if ((iWorker > 0) && (iOt == 0))
+                    {
+                        //seleccionado trabajador y no ot
+
+                        lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.Idusuario == iWorker && x.CodEnt == iEntity).OrderBy(x => x.Inicio).ToListAsync();//&& x.CodEnt == _iUserCondEntO
+                    }
+                    else
+                    {
+                        if ((iWorker == 0) && (iOt > 0))
+                        {
+                            // no seleccionado trabajador y seleccionado ot
+                            lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.CodEnt == iEntity && x.Idot == iOt).OrderBy(x => x.Inicio).ToListAsync();
+                        }
+                        else
+                        {
+                            //caso que no deberia suceder
+                            lTemp = null;
+                        }
+                    }
+                }
+                if (!(lTemp is null))
+                {
+                    lReturn = await _iWriteDataBase.CreateVisualWorkerPartAsync(lTemp); // ver si es linea original y obteniendo nombres de ots y empresas  
+                }
+            }
+            catch (Exception ex)
+            {
+                lReturn = null;
             }
             return lReturn;
         }
@@ -698,6 +810,9 @@ namespace AppPartes.Logic
                 default:
                     throw new Exception();
             }
+            DateTime s = dtEndWeek;
+            TimeSpan ts = new TimeSpan(23, 59, 0);
+            dtEndWeek = s.Date + ts;
         }
     }
 }

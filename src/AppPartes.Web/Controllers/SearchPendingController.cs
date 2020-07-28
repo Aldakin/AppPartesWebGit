@@ -20,7 +20,7 @@ namespace AppPartes.Web.Controllers
         private readonly ILoadIndexController _ILoadIndexController;
         private readonly IApplicationUserAldakin _IApplicationUserAldakin;
         private int _idAldakinUser;
-        public SearchPendingController(IWorkPartInformation iWorkPartInformation,IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController, IApplicationUserAldakin iApplicationUserAldakin)
+        public SearchPendingController(IWorkPartInformation iWorkPartInformation, IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController, IApplicationUserAldakin iApplicationUserAldakin)
         {
             _IWriteDataBase = iWriteDataBase;
             _IApplicationUserAldakin = iApplicationUserAldakin;
@@ -32,8 +32,8 @@ namespace AppPartes.Web.Controllers
             ViewBag.Message = strMessage;
             _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
             var oView = new SearchPendingViewLogic();
-            oView =await _ILoadIndexController.SearchPendingControllerAsync(_idAldakinUser);
-            if (lSummary.Count==0)
+            oView = await _ILoadIndexController.SearchPendingControllerAsync(_idAldakinUser);
+            if (lSummary.Count == 0)
             {
                 oView.lSummary = null;
             }
@@ -47,6 +47,6 @@ namespace AppPartes.Web.Controllers
             }
             return View(oView);
         }
-        
+
     }
 }
