@@ -1176,7 +1176,7 @@ namespace AppPartes.Logic
             var lThursday = new List<LineaVisual>();
             var lFriday = new List<LineaVisual>();
             var lSaturday = new List<LineaVisual>();
-
+            int iStatus = 0;
             string strObservaciones;
             var NombreOt = string.Empty;
             var NombreCliente = string.Empty;
@@ -1191,6 +1191,22 @@ namespace AppPartes.Logic
                 var nombre = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == l.Idot);
                 NombreOt = "[" + nombre.Numero + "] " + nombre.Nombre;
                 var nombreCliente = await aldakinDbContext.Clientes.FirstOrDefaultAsync(x => x.Idclientes == aldakinDbContext.Ots.FirstOrDefault(o => o.Idots == l.Idot).Cliente);
+                var statusDay = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Idusuario == l.Idusuario && x.Dia == Convert.ToDateTime(l.Inicio.ToString("yyyy-MM-dd"))  );
+                if (statusDay is null)
+                {
+                    iStatus =0;//no hay estadodia no esta cerrado el dia
+                }
+                else
+                {
+                    if(l.Registrado==1)
+                    {
+                        iStatus = 1;////hay estadodia por lo que esta cerrada y volcada
+                    }
+                    else
+                    {
+                        iStatus = 2;//semana cerrada no registrada
+                    }
+                }
                 NombreCliente = nombreCliente.Nombre;
                 if (l.Facturable == 0)
                 {
@@ -1213,7 +1229,7 @@ namespace AppPartes.Logic
                     }
                     oTemp = (new LineaVisual
                     {
-                        bStatus = Convert.ToBoolean(l.Registrado),
+                        iStatus = iStatus,
                         NombreUsuario = worker.Nombrecompleto,
                         Idlinea = l.Idlinea,
                         Idot = l.Idot,
@@ -1240,8 +1256,18 @@ namespace AppPartes.Logic
                 else
                 {
                     var lineaOriginal = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == l.Idoriginal);
+                    if (lineaOriginal.Observaciones.Length > 50)
+                    {
+                        strObservaciones = lineaOriginal.Observaciones.Substring(0, 45) + "...";
+                    }
+                    else
+                    {
+                        strObservaciones = lineaOriginal.Observaciones;
+                    }
                     oTemp = (new LineaVisual
                     {
+                        iStatus = iStatus,
+                        NombreUsuario = worker.Nombrecompleto,
                         Idlinea = lineaOriginal.Idlinea,
                         Idot = lineaOriginal.Idot,
                         NombreOt = NombreOt,
@@ -1249,7 +1275,7 @@ namespace AppPartes.Logic
                         NombrePreslin = strPreslin,
                         Dietas = lineaOriginal.Dietas,
                         Km = lineaOriginal.Km,
-                        Observaciones = lineaOriginal.Observaciones,
+                        Observaciones = strObservaciones,
                         Horasviaje = lineaOriginal.Horasviaje,
                         Horas = lineaOriginal.Horas,
                         Inicio = lineaOriginal.Inicio,

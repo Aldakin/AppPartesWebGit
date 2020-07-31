@@ -122,21 +122,23 @@
 
         @{ if (Model.listWeekResume != null)
             {
-                <form asp-controller="Search" asp-action="Index" method="POST">
-                    <div class="col-12">
-                        <input type="hidden" id="strListValidation" name="strListValidation" value="@Model.strGlobalValidation" />
+                if (Model.strGlobalValidation != null)
+                {
+                    <form asp-controller="Search" asp-action="Index" method="POST">
                         <div class="col-12">
-                            <input type="hidden" name="action" value="globalValidation" />
-                            <input type="submit" name="strStatus" value="validation masiva" class="primary" />
+                            <input type="hidden" id="strListValidation" name="strListValidation" value="@Model.strGlobalValidation" />
+                            <div class="col-12">
+                                <input type="hidden" name="action" value="globalValidation" />
+                                <input type="submit" name="strStatus" value="validation masiva" class="primary" />
 
-                            @*<input type="submit" name="strSemana" value="Estado Semana " class="primary" />*@
+                                @*<input type="submit" name="strSemana" value="Estado Semana " class="primary" />*@
 
 
-                            @*<input type="submit" name="strAction" onclick="statusEntity('strDate','strSummary');" value="Enviar" />*@
+                                @*<input type="submit" name="strAction" onclick="statusEntity('strDate','strSummary');" value="Enviar" />*@
+                            </div>
                         </div>
-                    </div>
-                </form>
-
+                    </form>
+                }
 
                 @foreach (var dept in Model.listWeekResume)
                 {
@@ -181,20 +183,36 @@
                                         @foreach (var part in dept)
                                         {
                                             <tr>
-                                                @if (part.bStatus == false)
-                                                {
-                                                    <td>
-                                                        <form asp-controller="WeekReview" asp-action="Index" method="POST">
-                                                            <input type="hidden" name="strId" value="@part.Idlinea" />
-                                                            <input type="hidden" name="strAction" value="editLine" />
-                                                            <input type="submit" value="Editar" />
-                                                        </form>
-                                                        <input type="hidden" id="idLinea" name="idLinea" value="@part.Idlinea" />
-                                                        <input type="hidden" id="dtIni" name="dtIni" value="@part.Inicio.Date" />
-                                                        <!--<input type="submit" name="strAction" onclick="deleteConfirmation('idLinea','dtIni');" value="Borrar" />-->
-                                                        <input type="submit" name="strAction" onclick="validationLineConfir(@part.Idlinea);" value="Validar" />
-                                                    </td>
-                                                }
+                                                <td>
+                                                    @{
+                                                        switch (part.iStatus)
+                                                        {
+                                                            case 0:
+                                                                <p>Parte no cerrado</p>
+                                                                break;  // Always break each case
+                                                            case 1:
+                                                                <p>Parte Volcado</p>
+                                                                break;
+                                                            case 2:
+                                                                <form asp-controller="SearchEdit" asp-action="Index" method="POST">
+                                                                    <input type="hidden" name="strLineId" value="@part.Idlinea" />
+                                                                    <input type="hidden" name="strAction" value="editLine" />
+                                                                    <input type="submit" value="Editar" />
+                                                                </form>
+                                                                <form asp-controller="SearchEdit" asp-action="Index" method="POST">
+                                                                    <input type="hidden" id="idLinea" name="idLinea" value="@part.Idlinea" />
+                                                                    <input type="hidden" id="dtIni" name="dtIni" value="@part.Inicio.Date" />
+                                                                    <input type="hidden" name="strAction" value="validateLine" />
+                                                                    <input type="submit" value="Validar" />
+                                                                </form>
+                                                                break;
+
+                                                            default:
+                                                                <p>Situacion descontrolada</p>
+                                                                break;
+                                                        }
+                                                    }
+                                                </td>
                                                 <td>@part.NombreUsuario</td>
                                                 <td>@part.Inicio</td>
                                                 <td>@part.Fin</td>
@@ -392,7 +410,15 @@
             alert("Ocurrio un error,recargue la pagina y vuelva a empezar." +ex);
             }
 
-
+        function viewLblPart(idlinea) {
+            div = document.getElementById('lblPart_'+idlinea);
+            if (div.style.display == 'none') {
+                div.style.display = '';
+            }
+            else {
+                div.style.display = 'none';
+            }
+        }
 
             function validationLineConfir(idlinea) {
             var opcion = confirm("¿Seguro que desea Validar?");

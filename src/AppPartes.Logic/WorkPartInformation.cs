@@ -540,7 +540,7 @@ namespace AppPartes.Logic
                 oTemp.lDay = new List<int>();
                 oTemp.User = "[" + u.Nombrecompleto + "]";
                 oTemp.dayStatus = new List<SearchDay>();
-                for (var date = dtIni; date < dtEnd; date = date.AddDays(1.0))
+                for (var date = dtIni; date <= dtEnd; date = date.AddDays(1.0))
                 {
                     SearchDay oSeach = new SearchDay();
                     double dHour = 0.0;
@@ -576,21 +576,21 @@ namespace AppPartes.Logic
                 if ((iWorker > 0) && (iOt > 0))
                 {
                     //seleccionado trabajador y ot
-                    lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.Idusuario == iWorker && x.CodEnt == iEntity && x.Idot == iOt).OrderBy(x => x.Inicio).ToListAsync();
+                    lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.Idusuario == iWorker && x.CodEnt == iEntity && x.Idot == iOt && x.Validado==1 &&x.Registrado==0).OrderBy(x => x.Inicio).ToListAsync();
                 }
                 else
                 {
                     if ((iWorker > 0) && (iOt == 0))
                     {
                         //seleccionado trabajador y no ot
-                        lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.Idusuario == iWorker && x.CodEnt == iEntity).OrderBy(x => x.Inicio).ToListAsync();//&& x.CodEnt == _iUserCondEntO
+                        lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.Idusuario == iWorker && x.CodEnt == iEntity && x.Validado == 1 && x.Registrado == 0).OrderBy(x => x.Inicio).ToListAsync();//&& x.CodEnt == _iUserCondEntO
                     }
                     else
                     {
                         if ((iWorker == 0) && (iOt > 0))
                         {
                             // no seleccionado trabajador y seleccionado ot
-                            lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.CodEnt == iEntity && x.Idot == iOt).OrderBy(x => x.Inicio).ToListAsync();
+                            lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.CodEnt == iEntity && x.Idot == iOt && x.Validado == 1 && x.Registrado == 0).OrderBy(x => x.Inicio).ToListAsync();
                         }
                         else
                         {
@@ -604,9 +604,12 @@ namespace AppPartes.Logic
             {
                 lTemp = null;
             }
-            foreach(Lineas l in lTemp)
+            if (!(lTemp is null))
             {
-                strReturn =  l.Idlinea+"|" + strReturn;
+                foreach (Lineas l in lTemp)
+                {
+                    strReturn = l.Idlinea + "|" + strReturn;
+                }
             }
             return strReturn;
         }
@@ -649,6 +652,7 @@ namespace AppPartes.Logic
                         }
                     }
                 }
+
                 if (!(lTemp is null))
                 {
                     lReturn = await _iWriteDataBase.CreateVisualWorkerPartAsync(lTemp); // ver si es linea original y obteniendo nombres de ots y empresas  

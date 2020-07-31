@@ -66,21 +66,24 @@ namespace AppPartes.Logic
             {
                 string strTemp = strAction + e.CodEnt;
                 var temp = await aldakinDbContext.Servicios.FirstOrDefaultAsync(x => x.CodEnt == e.CodEnt && x.Condicion == strTemp);
-                if (temp.Ejecutar == 1)
+                if (!(temp is null))
                 {
-                    lReturn.Add(new Entidad
+                    if (temp.Ejecutar == 1)
                     {
-                        CodEnt = e.CodEnt,
-                        Nombre = e.Nombre + "(Running)"
-                    });
-                }
-                else
-                {
-                    lReturn.Add(new Entidad
+                        lReturn.Add(new Entidad
+                        {
+                            CodEnt = e.CodEnt,
+                            Nombre = e.Nombre + "(Running)"
+                        });
+                    }
+                    else
                     {
-                        CodEnt = e.CodEnt,
-                        Nombre = e.Nombre + "(NotRunning)"
-                    });
+                        lReturn.Add(new Entidad
+                        {
+                            CodEnt = e.CodEnt,
+                            Nombre = e.Nombre + "(NotRunning)"
+                        });
+                    }
                 }
             }
             return lReturn;
@@ -294,6 +297,48 @@ namespace AppPartes.Logic
             return oReturn;
         }
 
+        public async Task<SearchEditViewLogic> LoadSearchEditControllerAsync(int idAldakinUser, string strLineId, string strAction)
+        {
+            var oReturn = new SearchEditViewLogic();
+            try
+            {
+                WriteUserDataAsync(idAldakinUser);
+                //oReturn.listCompany = await GetAldakinCompaniesAsync();
+                oReturn.strError = string.Empty;
+                if (!(string.IsNullOrEmpty(strAction)))
+                {
+                    switch (strAction)
+                    {
+                        case "Index":
+                            oReturn.listSelect = null;
+                            oReturn.listPernocta = null;
+                            break;
+                        case "editLine":
+                            var lSelect = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(strLineId));
+                            oReturn.listSelect = await GetDayWorkerPartAsync(lSelect);
+                            oReturn.listPernocta = await GetAldakinNightAsync(lSelect);
+                            oReturn.DateSelected = lSelect.Inicio.Date.ToString("yyyy-MM-dd"); // dtSelected.Date;
+                            break;
+                        case "validateLine":
+                            oReturn.listSelect = null;
+                            oReturn.listPernocta = null;
+                            break;
+                        case "globalValidation":
+                            oReturn.listSelect = null;
+                            oReturn.listPernocta = null;
+                            break;
+                        default:
+                            oReturn.strError = "Error en la accion seleccionada, avise a Administracion";
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                oReturn.strError = "Error durnate la carga de la pagina";
+            }
+            return oReturn;
+        }
         private async Task<bool> PendingMessageAsync()
         {
             bool bReturn = true;

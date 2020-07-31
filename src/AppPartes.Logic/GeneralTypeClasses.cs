@@ -68,7 +68,7 @@ namespace AppPartes.Logic
         public string Validador { get; set; }
         public string Gastos { get; set; }
         public int ContGastos { get; set; }
-        public bool bStatus { get; set; }
+        public int iStatus { get; set; }
     }
     public class LineMessage
     {
@@ -142,6 +142,14 @@ namespace AppPartes.Logic
         public List<ViewMounthResume> listResume { get; set; }
         public List<List<LineaVisual>> listWeekResume { get; set; }
         public string strGlobalValidation { get; set; }
+    }
+    public class SearchEditViewLogic
+    {
+
+        public string strError { set; get; }
+        public List<LineaVisual> listSelect { set; get; }
+        public List<Pernoctaciones> listPernocta { set; get; }
+        public string DateSelected { set; get; }
     }
     public class SearchPendingViewLogic
     {
