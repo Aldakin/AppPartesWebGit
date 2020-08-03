@@ -296,7 +296,6 @@ namespace AppPartes.Logic
             }
             return oReturn;
         }
-
         public async Task<SearchEditViewLogic> LoadSearchEditControllerAsync(int idAldakinUser, string strLineId, string strAction)
         {
             var oReturn = new SearchEditViewLogic();
@@ -339,6 +338,23 @@ namespace AppPartes.Logic
             }
             return oReturn;
         }
+        public async Task<UdObraPresuViewLogic> LoadUdObraPresuAsync(int idAldakinUser)
+        {
+            UdObraPresuViewLogic oReturn = new UdObraPresuViewLogic();
+            try
+            {
+                oReturn.lUdObra = await aldakinDbContext.Udobrapresu.ToListAsync();
+                oReturn.lEntidad = await aldakinDbContext.Entidad.ToListAsync();
+            }
+            catch(Exception ex)
+            {
+                oReturn.lUdObra = null;
+                oReturn.lEntidad = null;
+                oReturn.strMensaje = "Ocurrio un error al cargar la página recargue y avisa a administración";
+            }
+            return oReturn;
+        }
+
         private async Task<bool> PendingMessageAsync()
         {
             bool bReturn = true;
@@ -486,7 +502,6 @@ namespace AppPartes.Logic
             lReturn = await _iWriteDataBase.CreateVisualWorkerPartAsync(lTemp); // ver si es linea original y obteniendo nombres de ots y empresas            
             return lReturn;
         }
-
         private async Task<List<LineaVisual>> GetDayWorkerPartAsync(Lineas lSelect)
         {
             var lReturn = new List<LineaVisual>();

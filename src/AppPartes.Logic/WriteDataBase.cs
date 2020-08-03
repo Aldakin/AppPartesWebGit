@@ -1337,7 +1337,7 @@ namespace AppPartes.Logic
                 var line = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == iLine);
                 var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == idAldakinUser);
                 line.Validado = 1;
-                line.Validador = user.Nombrecompleto;
+                line.Validador = user.Nombrecompleto+"["+DateTime.Now+"]";
                 var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
                 try
                 {
@@ -1362,7 +1362,6 @@ namespace AppPartes.Logic
 
             return oReturn;
         }
-
         public async Task<string> ValidateGlobalLineAsync(int idAldakinUser,string strLine)
         {
             string strReturn = string.Empty;
@@ -1371,13 +1370,77 @@ namespace AppPartes.Logic
                 List<string> split = strLine.Split(new Char[] { '|' }).Distinct().ToList();
                 foreach (string s in split)
                 {
-                    await ValidateWorkerLineAsync(s, idAldakinUser);
+                    if (!(string.IsNullOrEmpty(s)))
+                    {
+                        await ValidateWorkerLineAsync(s, idAldakinUser);
+                    }
                 }
                 strReturn = "Validacion de partes sleccionados satisfactoria";
             }
             catch(Exception ex)
             {
                 strReturn = "Durante la validacion ha ocurrido algun error Revise el estado de los partes";
+            }
+            return strReturn;
+        }
+        public async Task<string> WritetUdObrePresuNewAsync(string strDescription, string strRef, string strEntidad)
+        {
+            string strReturn=string.Empty;
+            try
+            {
+                int iCodEnt = Convert.ToInt32(strEntidad);
+                int iRef = Convert.ToInt32(strRef);
+                var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+                try
+                {
+                    var line =new Udobrapresu{
+                        Descripcion=strDescription,
+                        RefiPes=iRef,
+                        CodEnt= iCodEnt
+                    };
+                    aldakinDbContext.Udobrapresu.Add(line);
+                    await aldakinDbContext.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    strReturn = "Datos guardados satisfactoriamente";
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    strReturn = "Recargue la páguina error al guardar los datos";
+                }
+            }
+            catch (Exception ex)
+            {
+                strReturn = "Recargue la páguina y revise los datos a insertar";
+            }
+            return strReturn;
+        }
+        public async Task<string> DeletetUdObrePresuNewAsync(string strId)
+        {
+            string strReturn = string.Empty;
+            try
+            {
+                int iId = Convert.ToInt32(strId);
+                var transaction =await aldakinDbContext.Database.BeginTransactionAsync();
+                try
+                {
+                    var line = await aldakinDbContext.Udobrapresu.FirstOrDefaultAsync(x => x.IdudObraPresu == iId);
+                    if(!(line is null))
+                    {
+                        aldakinDbContext.Udobrapresu.RemoveRange(line);
+                        await aldakinDbContext.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                    }
+                }
+                catch(Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    strReturn = "Recargue la páguina error al borrar los datos";
+                }
+            }
+            catch(Exception ex)
+            {
+                strReturn = "Error en el borrado avise a Administración";
             }
             return strReturn;
         }

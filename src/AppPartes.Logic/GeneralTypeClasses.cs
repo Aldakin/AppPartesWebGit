@@ -99,6 +99,7 @@ namespace AppPartes.Logic
         public List<Entidad> listCompanyUpdate { set; get; }
         public List<Entidad> listCompanyCsv { set; get; }
         public string strError { set; get; }
+
     }
     public class MainDataViewLogic
     {
@@ -156,6 +157,12 @@ namespace AppPartes.Logic
         public List<Entidad> listCompany { set; get; }
         public List<string> lSummary { set; get; }
         public string strError { set; get; }
+    }
+    public class UdObraPresuViewLogic
+    {
+        public List<Udobrapresu> lUdObra { set; get; }
+        public List<Entidad> lEntidad { set; get; }
+        public string strMensaje { set; get; }
     }
     public class ViewMounthResume
     {

@@ -12,6 +12,7 @@ namespace AppPartes.Logic
         Task<SearchViewLogic> LoadSearchControllerAsync(int idAldakinUser, string strDate, string strDate1, string strEntity, string action, string strOt, string strWorker, string strListValidation);
         Task<SearchEditViewLogic> LoadSearchEditControllerAsync(int idAldakinUser, string strLineId, string strAction);
         Task<SearchPendingViewLogic> SearchPendingControllerAsync(int idAldakinUser);
+        Task<UdObraPresuViewLogic> LoadUdObraPresuAsync(int idAldakinUser);
     }
 }
 

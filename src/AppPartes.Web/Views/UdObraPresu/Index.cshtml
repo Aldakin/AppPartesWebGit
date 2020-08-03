@@ -1,0 +1,93 @@
+﻿@model AppPartes.Logic.UdObraPresuViewLogic
+@{
+    ViewData["Title"] = "Index";
+}
+
+<body class="is-preload">
+
+    <!-- Wrapper -->
+    <div id="wrapper">
+
+        <!-- Main -->
+        <div id="main">
+            <!--<div class="inner">-->
+            <!-- Header -->
+            <header id="header">
+                <a href="#" class="logo"><strong>Grupo Aldakin</strong></a>
+            </header>
+            <!-- Content -->
+            <section>
+                @{
+                    if (!string.IsNullOrEmpty(ViewBag.Message))
+                    {
+                    <div class="alert alert-warning">@ViewBag.Message</div>
+                    }
+                }
+                <header class="main">
+                    <h1>Gestión Unidada de Obre de Presupuesto </h1>
+                </header>
+                <!-- Content -->
+                <!--<h2 id="content">Sample Content</h2>-->
+
+                <div class="col-12">
+                    <label for="start">XX</label>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Descipción</th>
+                                    <th>Ref. Ud.Obra Presu</th>
+                                    <th>Cod. Ent</th>
+                                    <th>Id</th>
+                                </tr>
+                                @foreach(var l in Model.lUdObra)
+                                {
+                            <tr>
+                                <th>
+                                    <form asp-action="DeleteLine" asp-controller="UdObraPresu" method="post">
+                                        <input type="hidden" name="strId" value="@l.IdudObraPresu" />
+                                        <input type="submit" value="Borrar" class="primary" />
+                                    </form>
+                                </th>
+                                <th>@l.Descripcion</th>
+                                <th>@l.RefiPes</th>
+                                <th>@l.CodEnt</th>
+                                <th>@l.IdudObraPresu</th>
+                            </tr>
+                                }
+
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="col-12">
+
+                    <form asp-action="InsertLine" asp-controller="UdObraPresu" method="post">
+                        <label for="start">Descripción:</label>
+                        <input type="text" name="strDescription" required/>
+                        <label for="start">Referencia Presu:</label>
+                        <input type="text" name="strRef" required/>
+                        <label for="start">Entidad:</label>
+                        <select id="entidad" name="strEntidad" required>
+                            <option value="">                                
+                            </option>
+                            @foreach (var dept in Model.lEntidad)
+                            {
+                            <option value="@dept.CodEnt">
+                                @dept.Nombre
+                            </option>
+                            }
+                        </select>
+                        <input type="hidden" name="strAction" value="save" />
+                        <input type="submit" value="Guardar" class="primary" />
+                    </form>
+                </div>
+            </section>
+            <!--</div>-->
+        </div>
+    </div>
+
+</body>
+

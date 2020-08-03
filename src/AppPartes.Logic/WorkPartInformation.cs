@@ -510,7 +510,7 @@ namespace AppPartes.Logic
         public async Task<List<ViewMounthResume>> StatusEntityResumeAsync(int idAldakinUser, string strCalendario, string strEntity)
         {
             var lReturn = new List<ViewMounthResume>();
-
+            int iStatus = 0;
             DateTime dtIni, dtEnd;
             List<Usuarios> lValidationUser = new List<Usuarios>();
             DateTime dtSelected = Convert.ToDateTime(strCalendario);
@@ -540,17 +540,48 @@ namespace AppPartes.Logic
                 oTemp.lDay = new List<int>();
                 oTemp.User = "[" + u.Nombrecompleto + "]";
                 oTemp.dayStatus = new List<SearchDay>();
+                var partMonth = await aldakinDbContext.Lineas.Where(x => x.Inicio.Day >= dtIni.Day && x.Inicio.Month >= dtIni.Month && x.Inicio.Year >= dtIni.Year && x.Fin.Day <= dtEnd.Day && x.Fin.Month <= dtEnd.Month && x.Fin.Year <= dtEnd.Year && x.Idusuario == u.Idusuario && x.CodEnt==u.CodEnt).ToListAsync();
+
                 for (var date = dtIni; date <= dtEnd; date = date.AddDays(1.0))
                 {
                     SearchDay oSeach = new SearchDay();
                     double dHour = 0.0;
                     int iValidated = 0, iGenerated = 0;
-                    var partDay = await aldakinDbContext.Lineas.Where(x => x.Inicio.Day == date.Day && x.Inicio.Month == date.Month && x.Inicio.Year == date.Year && x.Idusuario == u.Idusuario).ToListAsync();
+                    //var partDay = await aldakinDbContext.Lineas.Where(x => x.Inicio.Day == date.Day && x.Inicio.Month == date.Month && x.Inicio.Year == date.Year && x.Idusuario == u.Idusuario).ToListAsync();
+                    var partDay = (from p in partMonth
+                                   where (p.Inicio.Day == date.Day)
+                                   && (p.Inicio.Month == date.Month)
+                                   && (p.Inicio.Year == date.Year)select p).ToList();
+                    //result = (from p in lUser
+                    //          where (p.Dni.Contains(txtDniBuscar.Text)
+                    //          && (p.Nombre.Contains(txtNombreBuscar.Text.ToUpper()) || (p.Apellidos.Contains(txtNombreBuscar.Text.ToUpper())))
+                    //          && p.Email.Contains(txtEmailBuscar.Text)
+                    //           )
+                    //          select p).ToList();
+
                     foreach (Lineas l in partDay)
                     {
                         dHour = dHour + l.Horas;
                         if (l.Validado == 1) iValidated++;
                         if (l.Registrado == 1) iGenerated++;
+                    }
+                    var status = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Dia.Day == date.Day && x.Dia.Month == date.Month && x.Dia.Year == date.Year && x.Idusuario == u.Idusuario);
+                    //bool status = false;
+                    if(status is null)
+                    {
+                        iStatus = 0;//no cerrada
+                    }
+                    else
+                    {
+                        if(status.Estado==2)
+                        {
+                            iStatus = 2;//cerrada
+                        }
+                        else
+                        {
+                            iStatus = 4;//quien sabe
+                           // hay que ver como poner bien el mostrar los estados de los dias, cerrados, validaods, etc
+                        }
                     }
                     oSeach.hour = dHour;
                     oSeach.colour = DayStatusColour(partDay.Count, iGenerated, iValidated, date);
@@ -576,21 +607,21 @@ namespace AppPartes.Logic
                 if ((iWorker > 0) && (iOt > 0))
                 {
                     //seleccionado trabajador y ot
-                    lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.Idusuario == iWorker && x.CodEnt == iEntity && x.Idot == iOt && x.Validado==1 &&x.Registrado==0).OrderBy(x => x.Inicio).ToListAsync();
+                    lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.Idusuario == iWorker && x.CodEnt == iEntity && x.Idot == iOt && x.Validado==0 &&x.Registrado==0).OrderBy(x => x.Inicio).ToListAsync();
                 }
                 else
                 {
                     if ((iWorker > 0) && (iOt == 0))
                     {
                         //seleccionado trabajador y no ot
-                        lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.Idusuario == iWorker && x.CodEnt == iEntity && x.Validado == 1 && x.Registrado == 0).OrderBy(x => x.Inicio).ToListAsync();//&& x.CodEnt == _iUserCondEntO
+                        lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.Idusuario == iWorker && x.CodEnt == iEntity && x.Validado == 0 && x.Registrado == 0).OrderBy(x => x.Inicio).ToListAsync();//&& x.CodEnt == _iUserCondEntO
                     }
                     else
                     {
                         if ((iWorker == 0) && (iOt > 0))
                         {
                             // no seleccionado trabajador y seleccionado ot
-                            lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.CodEnt == iEntity && x.Idot == iOt && x.Validado == 1 && x.Registrado == 0).OrderBy(x => x.Inicio).ToListAsync();
+                            lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.CodEnt == iEntity && x.Idot == iOt && x.Validado == 0 && x.Registrado == 0).OrderBy(x => x.Inicio).ToListAsync();
                         }
                         else
                         {
