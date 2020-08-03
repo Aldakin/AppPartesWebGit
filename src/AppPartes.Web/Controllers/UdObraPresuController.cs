@@ -28,7 +28,6 @@ namespace AppPartes.Web.Controllers
             ViewBag.Message = strMessage;
             _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
             var oReturn = await _ILoadIndexController.LoadUdObraPresuAsync(_idAldakinUser);
-
             return View(oReturn);
         }
         [HttpPost, ValidateAntiForgeryToken]
