@@ -39,14 +39,47 @@ namespace AppPartes.Logic
         public string strObservaciones { set; get; }
         public string strPreslin { set; get; }
         public string strGastos { set; get; }
+        public string strMensaje { set; get; }
+        public string strIdlineaAntigua { set; get; }
+        public string strAction { set; get; }
 
     }
     public class LineaVisual
     {
-        public int Idlinea { get; set; }
+        public int iEntidad { get; set; }
+        public string strEntidad { set; get; }
         public int Idot { get; set; }
-        public string NombreUsuario { get; set; }
         public string NombreOt { get; set; }
+        public int iPresu { set; get; }
+        public string NombrePresu { get; set; }
+
+        public List<Presupuestos> lpresupuesto { set; get; }
+
+        public List<Preslin> lNivel1 { get; set; }
+        public List<Preslin> lNivel2 { get; set; }
+        public List<Preslin> lNivel3 { get; set; }
+        public List<Preslin> lNivel4 { get; set; }
+        public List<Preslin> lNivel5 { get; set; }
+        public List<Preslin> lNivel6 { get; set; }
+        public List<Preslin> lNivel7 { get; set; }
+        public int iNivel1 { get; set; }
+        public int iNivel2 { get; set; }
+        public int iNivel3 { get; set; }
+        public int iNivel4 { get; set; }
+        public int iNivel5 { get; set; }
+        public int iNivel6 { get; set; }
+        public int iNivel7 { get; set; }
+        public string strNivel1 { get; set; }
+        public string strNivel2 { get; set; }
+        public string strNivel3 { get; set; }
+        public string strNivel4 { get; set; }
+        public string strNivel5 { get; set; }
+        public string strNivel6 { get; set; }
+        public string strNivel7 { get; set; }
+
+
+        public int Idlinea { get; set; }
+        public string NombreUsuario { get; set; }
         public string NombreCliente { get; set; }
         public int? Idpreslin { get; set; }
         public string NombrePreslin { get; set; }
@@ -99,6 +132,7 @@ namespace AppPartes.Logic
         public List<Entidad> listCompanyUpdate { set; get; }
         public List<Entidad> listCompanyCsv { set; get; }
         public string strError { set; get; }
+        public string strVersion { set; get; }
 
     }
     public class MainDataViewLogic
@@ -143,6 +177,8 @@ namespace AppPartes.Logic
         public List<ViewMounthResume> listResume { get; set; }
         public List<List<LineaVisual>> listWeekResume { get; set; }
         public string strGlobalValidation { get; set; }
+        public string strDate { get; set; }
+        public string strDate1 { get; set; }
     }
     public class SearchEditViewLogic
     {
@@ -150,6 +186,9 @@ namespace AppPartes.Logic
         public string strError { set; get; }
         public List<LineaVisual> listSelect { set; get; }
         public List<Pernoctaciones> listPernocta { set; get; }
+        public List<Entidad> listCompany { get; set; }
+        public List<Clientes> listClient { get; set; }
+        public List<Ots> listOts { set; get; }
         public string DateSelected { set; get; }
     }
     public class SearchPendingViewLogic
@@ -163,6 +202,15 @@ namespace AppPartes.Logic
         public List<Udobrapresu> lUdObra { set; get; }
         public List<Entidad> lEntidad { set; get; }
         public string strMensaje { set; get; }
+    }
+    public class HoliDaysViewLogic
+    {
+        public string strMensaje { set; get; }
+        public List<Entidad> lEntidad { set; get; }
+        public List<Diasfestivos> lDiasFestivos { set; get; }
+        public string dtSelectedIni { set; get; }
+        public string dtSelectedFin { set; get; }
+        public string strEntidadSelec { set; get; }
     }
     public class ViewMounthResume
     {

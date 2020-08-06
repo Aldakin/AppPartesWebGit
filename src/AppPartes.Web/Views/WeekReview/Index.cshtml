@@ -122,6 +122,7 @@
                                             </thead>
                                             <tbody>
                                                 <tr>
+
                                                     <td>@Model.listSemana[0]</td>
                                                     <td>@Model.listSemana[1]</td>
                                                     <td>@Model.listSemana[2]</td>
@@ -152,197 +153,200 @@
                             @foreach (var dept in Model.listSelect)
                             {
                                 <form asp-action="EditLine" asp-controller="WeekReview" method="POST">
-                                    <input type="hidden" id="ot" name="ot" value="@dept.Idot" readonly />
                                     <div class="row gtr-uniform">
-                                        <!--<div class="col-6 col-12-xsmall">
-                                            <label for="start">Fecha actual parte:</label>
-                                            <input type="text" name="strCalendarioAnterior" id="demo-name" value="@dept.Inicio.Year-@dept.Inicio.Month-@dept.Inicio.Day" readonly />
-                                        </div>-->
-                                        <div class="col-12">
-                                            <label for="start">Fecha nueva parte(si procede cambiar):</label>
-                                            <input type="date" id="Calendario1" name="strCalendario"
-                                                   value="@Model.DateSelected"
-                                                   min="@(DateTime.Now.Year - 2)-01-01"
-                                                   max="@(DateTime.Now.Year + 2)-12-31">
-                                            <!--<input type="text" name="demo-name" id="demo-name" value="" placeholder="Name" />-->
-                                        </div>
-                                        <div class="col-12">
-                                            <label for="start">Hora Inicio:</label>
-                                            <table class="egt">
-                                                <tr>
-                                                    <td>
-                                                        <select id="strHoraInicio" name="strHoraInicio">
-                                                            <option value="@dept.Inicio.Hour" selected>@dept.Inicio.Hour</option>
-                                                            <option value="00">00</option>
-                                                            <option value="01">01</option>
-                                                            <option value="02">02</option>
-                                                            <option value="03">03</option>
-                                                            <option value="04">04</option>
-                                                            <option value="05">05</option>
-                                                            <option value="06">06</option>
-                                                            <option value="07">07</option>
-                                                            <option value="08">08</option>
-                                                            <option value="09">09</option>
-                                                            <option value="10">10</option>
-                                                            <option value="11">11</option>
-                                                            <option value="12">12</option>
-                                                            <option value="13">13</option>
-                                                            <option value="14">14</option>
-                                                            <option value="15">15</option>
-                                                            <option value="16">16</option>
-                                                            <option value="17">17</option>
-                                                            <option value="18">18</option>
-                                                            <option value="19">19</option>
-                                                            <option value="20">20</option>
-                                                            <option value="21">21</option>
-                                                            <option value="22">22</option>
-                                                            <option value="23">23</option>
-                                                        </select>
-                                                    </td>
-                                                    <td>:</td>
-                                                    <td>
-                                                        <select id="strMinutoInicio" name="strMinutoInicio">
-                                                            <option value="@dept.Inicio.Minute" selected>@dept.Inicio.Minute</option>
-                                                            <option value="00">00</option>
-                                                            <option value="15">15</option>
-                                                            <option value="30">30</option>
-                                                            <option value="45">45</option>
-                                                        </select>
-                                                    </td>
-                                                </tr>
-                                            </table>
+                                        <input type="hidden" id="ot" name="ot" value="@dept.Idot" readonly />
+                                        <div class="row gtr-uniform">
+                                            <!--<div class="col-6 col-12-xsmall">
+                                                <label for="start">Fecha actual parte:</label>
+                                                <input type="text" name="strCalendarioAnterior" id="demo-name" value="@dept.Inicio.Year-@dept.Inicio.Month-@dept.Inicio.Day" readonly />
+                                            </div>-->
+                                            <div class="col-12">
+                                                <label for="start">Fecha nueva parte(si procede cambiar):</label>
+                                                <input type="date" id="Calendario1" name="strCalendario"
+                                                       value="@Model.DateSelected"
+                                                       min="@(DateTime.Now.Year - 2)-01-01"
+                                                       max="@(DateTime.Now.Year + 2)-12-31">
+                                                <!--<input type="text" name="demo-name" id="demo-name" value="" placeholder="Name" />-->
+                                            </div>
+                                            <div class="col-12">
+                                                <label for="start">Hora Inicio:</label>
+                                                <table class="egt">
+                                                    <tr>
+                                                        <td>
+                                                            <select id="strHoraInicio" name="strHoraInicio">
+                                                                <option value="@dept.Inicio.Hour" selected>@dept.Inicio.Hour</option>
+                                                                <option value="00">00</option>
+                                                                <option value="01">01</option>
+                                                                <option value="02">02</option>
+                                                                <option value="03">03</option>
+                                                                <option value="04">04</option>
+                                                                <option value="05">05</option>
+                                                                <option value="06">06</option>
+                                                                <option value="07">07</option>
+                                                                <option value="08">08</option>
+                                                                <option value="09">09</option>
+                                                                <option value="10">10</option>
+                                                                <option value="11">11</option>
+                                                                <option value="12">12</option>
+                                                                <option value="13">13</option>
+                                                                <option value="14">14</option>
+                                                                <option value="15">15</option>
+                                                                <option value="16">16</option>
+                                                                <option value="17">17</option>
+                                                                <option value="18">18</option>
+                                                                <option value="19">19</option>
+                                                                <option value="20">20</option>
+                                                                <option value="21">21</option>
+                                                                <option value="22">22</option>
+                                                                <option value="23">23</option>
+                                                            </select>
+                                                        </td>
+                                                        <td>:</td>
+                                                        <td>
+                                                            <select id="strMinutoInicio" name="strMinutoInicio">
+                                                                <option value="@dept.Inicio.Minute" selected>@dept.Inicio.Minute</option>
+                                                                <option value="00">00</option>
+                                                                <option value="15">15</option>
+                                                                <option value="30">30</option>
+                                                                <option value="45">45</option>
+                                                            </select>
+                                                        </td>
+                                                    </tr>
+                                                </table>
 
-                                            <!--<input type="email" name="demo-email" id="demo-email" value="" placeholder="Email" />-->
-                                        </div>
-                                        <div class="col-12">
+                                                <!--<input type="email" name="demo-email" id="demo-email" value="" placeholder="Email" />-->
+                                            </div>
+                                            <div class="col-12">
 
-                                            <label for="start">Hora Fin:</label>
-                                            <table class="egt">
-                                                <tr>
-                                                    <td>
-                                                        <select id="strHoraFin" name="strHoraFin">
-                                                            <option value="@dept.Fin.Hour" selected>@dept.Fin.Hour</option>
-                                                            <option value="00">00</option>
-                                                            <option value="01">01</option>
-                                                            <option value="02">02</option>
-                                                            <option value="03">03</option>
-                                                            <option value="04">04</option>
-                                                            <option value="05">05</option>
-                                                            <option value="06">06</option>
-                                                            <option value="07">07</option>
-                                                            <option value="08">08</option>
-                                                            <option value="09">09</option>
-                                                            <option value="10">10</option>
-                                                            <option value="11">11</option>
-                                                            <option value="12">12</option>
-                                                            <option value="13">13</option>
-                                                            <option value="14">14</option>
-                                                            <option value="15">15</option>
-                                                            <option value="16">16</option>
-                                                            <option value="17">17</option>
-                                                            <option value="18">18</option>
-                                                            <option value="19">19</option>
-                                                            <option value="20">20</option>
-                                                            <option value="21">21</option>
-                                                            <option value="22">22</option>
-                                                            <option value="23">23</option>
-                                                        </select>
-                                                    </td>
-                                                    <td>:</td>
-                                                    <td>
-                                                        <select id="strMinutoFin" name="strMinutoFin">
-                                                            <option value="@dept.Fin.Minute" selected>@dept.Fin.Minute</option>
-                                                            <option value="00">00</option>
-                                                            <option value="15">15</option>
-                                                            <option value="30">30</option>
-                                                            <option value="45">45</option>
-                                                        </select>
-                                                    </td>
-                                                </tr>
-                                            </table>
+                                                <label for="start">Hora Fin:</label>
+                                                <table class="egt">
+                                                    <tr>
+                                                        <td>
+                                                            <select id="strHoraFin" name="strHoraFin">
+                                                                <option value="@dept.Fin.Hour" selected>@dept.Fin.Hour</option>
+                                                                <option value="00">00</option>
+                                                                <option value="01">01</option>
+                                                                <option value="02">02</option>
+                                                                <option value="03">03</option>
+                                                                <option value="04">04</option>
+                                                                <option value="05">05</option>
+                                                                <option value="06">06</option>
+                                                                <option value="07">07</option>
+                                                                <option value="08">08</option>
+                                                                <option value="09">09</option>
+                                                                <option value="10">10</option>
+                                                                <option value="11">11</option>
+                                                                <option value="12">12</option>
+                                                                <option value="13">13</option>
+                                                                <option value="14">14</option>
+                                                                <option value="15">15</option>
+                                                                <option value="16">16</option>
+                                                                <option value="17">17</option>
+                                                                <option value="18">18</option>
+                                                                <option value="19">19</option>
+                                                                <option value="20">20</option>
+                                                                <option value="21">21</option>
+                                                                <option value="22">22</option>
+                                                                <option value="23">23</option>
+                                                            </select>
+                                                        </td>
+                                                        <td>:</td>
+                                                        <td>
+                                                            <select id="strMinutoFin" name="strMinutoFin">
+                                                                <option value="@dept.Fin.Minute" selected>@dept.Fin.Minute</option>
+                                                                <option value="00">00</option>
+                                                                <option value="15">15</option>
+                                                                <option value="30">30</option>
+                                                                <option value="45">45</option>
+                                                            </select>
+                                                        </td>
+                                                    </tr>
+                                                </table>
 
-                                            <!--<input type="email" name="demo-email" id="demo-email" value="" placeholder="Email" />-->
-                                        </div>
-                                        <!-- Break -->
-                                        <div class="col-6 col-12-small">
-                                            @if (dept.Horasviaje > 0)
-                                            {
-                                                <input type="checkbox" id="viaje" value="true" name="bHorasViaje" checked="checked"> <label for="viaje">Viaje</label>
-                                            }
-                                            else
-                                            {
-                                                <input type="checkbox" id="viaje" value="true" name="bHorasViaje"> <label for="viaje">Viaje</label>
-                                            }
-                                        </div>
-                                        <div class="col-6 col-12-small">
-                                            <label for="start">NºParte:</label>
-                                            <input type="text" name="strParte" value="@dept.Npartefirmado" />
-                                        </div>
-                                        <div class="col-6 col-12-small">
-                                            @{
-                                                if ((dept.Horas == 0) && (dept.Horasviaje == 0))
+                                                <!--<input type="email" name="demo-email" id="demo-email" value="" placeholder="Email" />-->
+                                            </div>
+                                            <!-- Break -->
+                                            <div class="col-6 col-12-small">
+                                                @if (dept.Horasviaje > 0)
                                                 {
-                                                    <input type="checkbox" id="gastos" value="true" name="bGastos" checked="checked"> <label for="gastos">Solo gastos</label>
+                                                    <input type="checkbox" id="viaje" value="true" name="bHorasViaje" checked="checked"> <label for="viaje">Viaje</label>
                                                 }
                                                 else
                                                 {
-                                                    <input type="checkbox" id="gastos" value="true" name="bGastos"> <label for="gastos">Solo gastos</label>
+                                                    <input type="checkbox" id="viaje" value="true" name="bHorasViaje"> <label for="viaje">Viaje</label>
                                                 }
-                                            }
-                                        </div>
-                                        <div class="col-6 col-12-small">
-                                            <label for="vehicle1">Pernoctación</label>
-                                            <select name="strPernoctacion" required>
-                                                <option value="0">NO</option>
-                                                @foreach (var client in Model.listPernocta)
-                                                {
-                                                    if (@client.Tipo == @dept.Facturable)
+                                            </div>
+                                            <div class="col-6 col-12-small">
+                                                <label for="start">NºParte:</label>
+                                                <input type="text" name="strParte" value="@dept.Npartefirmado" />
+                                            </div>
+                                            <div class="col-6 col-12-small">
+                                                @{
+                                                    if ((dept.Horas == 0) && (dept.Horasviaje == 0))
                                                     {
-                                                        <option value="@client.Tipo" selected> @client.Descripcion </option>
+                                                        <input type="checkbox" id="gastos" value="true" name="bGastos" checked="checked"> <label for="gastos">Solo gastos</label>
                                                     }
                                                     else
                                                     {
-                                                        <option value="@client.Tipo"> @client.Descripcion </option>
+                                                        <input type="checkbox" id="gastos" value="true" name="bGastos"> <label for="gastos">Solo gastos</label>
                                                     }
                                                 }
-                                                <!--<option value="NACIONAL">NACIONAL</option>
-                                                <option value="INTERNACIONAL">INTERNACIONAL</option>-->
-                                            </select>
-                                        </div>
-                                        <div class="col-12">
-                                            <textarea name="strObservaciones" id="txtObservaciones" placeholder="Enter your message" value="@dept.Observaciones" rows="6" required>@dept.Observaciones</textarea>
-                                        </div>
-                                        <div class="col-12">
-                                            <span class="button" onclick="viewLblGastos();" style="display: inline-block">Mostrar Gastos</span>
-                                            <hr class="major" />
-                                            <div class="col-12" id="lblGastos" name="lblGastos" style="display:none">
-                                                <input type="hidden" id="idGasto" name="idGasto" value="@dept.ContGastos" readonly />
-
-                                                <label for="start">Cantidad:</label>
-                                                <input type="text" id="strCantidad" name="strCantidad" value="0" />
-                                                <label for="start">Pagador:</label>
-                                                <select id="Pagador" name="Pagador">
-                                                    <option value="0"></option>
-                                                    <option value="TRABAJADOR">TRABAJADOR</option>
-                                                    <option value="ALDAKIN">ALDAKIN</option>
-                                                </select>
-                                                <label id="lblTipo" for="start">Tipo Gasto:</label>
-                                                <select id="Tipo" name="Tipo" disabled>
-                                                    <option value="0"></option>
-                                                </select>
-                                                <label for="start">Observaciones:</label>
-                                                <input type="text" id="strObservaciones" name="strObservaciones" value=" " />
-                                                <span class="button" onclick="insertText('idGasto','strCantidad','Pagador','Tipo','strGastos','strObservaciones');" style="display: inline-block">Añadir Gasto</span>
-                                                <label for="start">Lista de gastos:</label>
-                                                <textarea name="strGastos" id="strGastos" value="@dept.Gastos" rows="6">@dept.Gastos</textarea>
-                                                <hr class="major" />
                                             </div>
-                                        </div>
+                                            <div class="col-6 col-12-small">
+                                                <label for="vehicle1">Pernoctación</label>
+                                                <select name="strPernoctacion" required>
+                                                    <option value="0">NO</option>
+                                                    @foreach (var client in Model.listPernocta)
+                                                    {
+                                                        if (@client.Tipo == @dept.Facturable)
+                                                        {
+                                                            <option value="@client.Tipo" selected> @client.Descripcion </option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@client.Tipo"> @client.Descripcion </option>
+                                                        }
+                                                    }
+                                                    <!--<option value="NACIONAL">NACIONAL</option>
+                                                    <option value="INTERNACIONAL">INTERNACIONAL</option>-->
+                                                </select>
+                                            </div>
+                                            <div class="col-12">
+                                                <textarea name="strObservaciones" id="txtObservaciones" placeholder="Enter your message" value="@dept.Observaciones" rows="6" required>@dept.Observaciones</textarea>
+                                            </div>
+                                            <div class="col-12">
+                                                <span class="button" onclick="viewLblGastos();" style="display: inline-block">Mostrar Gastos</span>
+                                                <hr class="major" />
+                                                <div class="col-12" id="lblGastos" name="lblGastos" style="display:none">
+                                                    <input type="hidden" id="idGasto" name="idGasto" value="@dept.ContGastos" readonly />
 
-                                        <div class="col-12">
+                                                    <label for="start">Cantidad:</label>
+                                                    <input type="text" id="strCantidad" name="strCantidad" value="0" />
+                                                    <label for="start">Pagador:</label>
+                                                    <select id="Pagador" name="Pagador">
+                                                        <option value="0"></option>
+                                                        <option value="TRABAJADOR">TRABAJADOR</option>
+                                                        <option value="ALDAKIN">ALDAKIN</option>
+                                                    </select>
+                                                    <label id="lblTipo" for="start">Tipo Gasto:</label>
+                                                    <select id="Tipo" name="Tipo" disabled>
+                                                        <option value="0"></option>
+                                                    </select>
+                                                    <label for="start">Observaciones:</label>
+                                                    <input type="text" id="strObservaciones" name="strObservaciones" value=" " />
+                                                    <span class="button" onclick="insertText('idGasto','strCantidad','Pagador','Tipo','strGastos','strObservaciones');" style="display: inline-block">Añadir Gasto</span>
+                                                    <label for="start">Lista de gastos:</label>
+                                                    <textarea name="strGastos" id="strGastos" value="@dept.Gastos" rows="6">@dept.Gastos</textarea>
+                                                    <hr class="major" />
+                                                </div>
+                                            </div>
                                             <input type="hidden" name="strIdLinea" value="@dept.Idlinea" />
                                             <input type="hidden" name="strAction" value="guardar" />
-                                            <input type="submit" value="Modificar" />
+                                            <div class="col-12">
+                                                <ul class="actions">
+                                                    <li><input type="submit" value="Modificar" /></li>
+                                                </ul>
+                                            </div>
                                         </div>
                                     </div>
                                 </form>
@@ -388,6 +392,7 @@
                                             <table>
                                                 <thead>
                                                     <tr>
+                                                        <th></th>
                                                         @if (!Model.SemanaCerrada)
                                                         {
                                                             <th></th>
@@ -397,7 +402,7 @@
                                                         <th>Empresa</th>
                                                         <th>OT</th>
                                                         <!--<th>Nombre OT</th>-->
-                                                        <th>Presupuesto</th>
+                                                        <th>Nivel</th>
                                                         <!--<th>Nombre Presupuesto</th>-->
                                                         <!--<th>Nivel1</th>
                                                         <th>Nivel2</th>

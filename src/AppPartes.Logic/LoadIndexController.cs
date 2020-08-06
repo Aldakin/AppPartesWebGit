@@ -97,6 +97,8 @@ namespace AppPartes.Logic
                 oReturn.user = WriteUserData();
                 oReturn.listCompanyUpdate = await GetAldakinCompaniesAndRunningAsync("AC");
                 oReturn.listCompanyCsv = await GetAldakinCompaniesAndRunningAsync("CS");
+                var version= await aldakinDbContext.Versiones.FirstOrDefaultAsync(x => x.Idfichero == 12);
+                oReturn.strVersion = version.Version;
                 oReturn.strError = string.Empty;
             }
             catch (Exception ex)
@@ -157,7 +159,6 @@ namespace AppPartes.Logic
                     {
                         strId = "0";
                     }
-                    var lSelect = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(strId));
                     List<Estadodias> lEstadoDia;
                     switch (strAction)
                     {
@@ -167,16 +168,32 @@ namespace AppPartes.Logic
                                 var dtSelected = Convert.ToDateTime(strDate);
                                 WorkPartInformation.IniEndWeek(dtSelected, out dtIniWeek, out dtEndWeek);
                                 oReturn.listSemana = await ResumeHourPerDayAsync(dtIniWeek, dtEndWeek);
+                                if (dtIniWeek.Month != dtEndWeek.Month)
+                                {
+                                    if (dtSelected.Month == dtEndWeek.Month)
+                                    {
+                                        dtIniWeek = new DateTime(dtEndWeek.Year, dtEndWeek.Month, 1);
+                                    }
+                                    else if (dtSelected.Month == dtIniWeek.Month)
+                                    {
+                                        dtEndWeek = new DateTime(dtIniWeek.Year, dtIniWeek.Month, 1).AddMonths(1).AddDays(-1);
+                                    }
+                                }
                                 oReturn.listPartes = await GetWeekWorkerPartsAsync(dtIniWeek, dtEndWeek);
-                                var weekStatus = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Dia == dtSelected.Date && x.Idusuario == _iUserId);
-                                if (weekStatus is null)
-                                {
-                                    oReturn.SemanaCerrada = false;
-                                }
-                                else
-                                {
-                                    oReturn.SemanaCerrada = true;
-                                }
+
+                                //var weekStatus = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Dia == dtSelected.Date && x.Idusuario == _iUserId);
+                                //if (weekStatus is null)
+                                //{
+                                //    oReturn.SemanaCerrada = false;
+                                //}
+                                //else
+                                //{
+                                //    oReturn.SemanaCerrada = true;
+                                //}
+                                var weekStatus = await aldakinDbContext.Estadodias.Where(x => x.Dia >= dtIniWeek.Date && x.Dia <= dtEndWeek.Date && x.Idusuario == _iUserId).ToListAsync();
+
+                                oReturn.SemanaCerrada = StatusWeek(dtIniWeek, dtEndWeek, _iUserId, weekStatus);
+
                                 oReturn.DateSelected = dtSelected.ToString("yyyy-MM-dd"); // dtSelected.Date;
                             }
                             catch (Exception ex)
@@ -186,6 +203,7 @@ namespace AppPartes.Logic
                             break;
 
                         case "editLine":
+                            var lSelect = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(strId));
                             if (lSelect is null)
                             {
                                 oReturn.Mensaje = "Error en la seleccion de parte";
@@ -253,6 +271,14 @@ namespace AppPartes.Logic
         public async Task<SearchViewLogic> LoadSearchControllerAsync(int idAldakinUser, string strDate, string strDate1, string strEntity, string action, string strOt, string strWorker, string strListValidation)
         {
             var oReturn = new SearchViewLogic();
+            if (!(string.IsNullOrEmpty(strDate)))
+            {
+                oReturn.strDate = strDate;
+            }
+            if (!(string.IsNullOrEmpty(strDate1)))
+            {
+                oReturn.strDate1 = strDate1;
+            }
             try
             {
                 WriteUserDataAsync(idAldakinUser);
@@ -316,6 +342,10 @@ namespace AppPartes.Logic
                             var lSelect = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(strLineId));
                             oReturn.listSelect = await GetDayWorkerPartAsync(lSelect);
                             oReturn.listPernocta = await GetAldakinNightAsync(lSelect);
+
+                            oReturn.listOts = await GetOtsAsync();
+                            oReturn.listCompany = await GetAldakinCompaniesAsync();
+                            oReturn.listClient = await GetAldakinClientsAsync();
                             oReturn.DateSelected = lSelect.Inicio.Date.ToString("yyyy-MM-dd"); // dtSelected.Date;
                             break;
                         case "validateLine":
@@ -346,7 +376,7 @@ namespace AppPartes.Logic
                 oReturn.lUdObra = await aldakinDbContext.Udobrapresu.ToListAsync();
                 oReturn.lEntidad = await aldakinDbContext.Entidad.ToListAsync();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 oReturn.lUdObra = null;
                 oReturn.lEntidad = null;
@@ -354,7 +384,49 @@ namespace AppPartes.Logic
             }
             return oReturn;
         }
-
+        public async Task<HoliDaysViewLogic> LoadHoliDaysAsync(string strCalendarioIni = "", string strCalendarioFin = "", string strEntidad = "", string strAction = "")
+        {
+            HoliDaysViewLogic oReturn = new HoliDaysViewLogic();
+            try
+            {
+                if(!(string.IsNullOrEmpty(strAction)))
+                {
+                    switch (strAction)
+                    {
+                        case "Index":
+                            oReturn.lDiasFestivos = null;
+                            break;
+                        case "list":
+                            //
+                            try
+                            {
+                                DateTime dtIni = Convert.ToDateTime(strCalendarioIni);
+                                DateTime dtFin = Convert.ToDateTime(strCalendarioFin);
+                                int iEntidad = Convert.ToInt32(strEntidad);
+                                oReturn.lDiasFestivos = await aldakinDbContext.Diasfestivos.Where(x => x.Calendario == iEntidad && x.Dia >= dtIni.Date && x.Dia <= dtFin.Date).OrderBy(x=>x.Dia).ToListAsync();
+                            }
+                            catch(Exception ex)
+                            {
+                                oReturn.lDiasFestivos = null;
+                                oReturn.strMensaje = "Error al mostar datos seleccionados";
+                            }
+                            break;
+                        default:
+                            oReturn.lDiasFestivos = null;
+                            break;
+                    }
+                }
+                else
+                {
+                }
+                oReturn.lEntidad = await aldakinDbContext.Entidad.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                oReturn.strMensaje = "Ocurrio un error al cargar la página recargue y avisa a administración";
+            }
+            return oReturn;
+        }
         private async Task<bool> PendingMessageAsync()
         {
             bool bReturn = true;
@@ -492,6 +564,13 @@ namespace AppPartes.Logic
                 }
                 lReturn.Add(dHorasDia);
             }
+            //if(lReturn.Count<7)
+            //{
+            //    for(int i=0;i<=7-lReturn.Count;i++)
+            //    {
+            //        lReturn.Add(0);
+            //    }
+            //}
             return lReturn;
         }
         private async Task<List<List<LineaVisual>>> GetWeekWorkerPartsAsync(DateTime dtIniWeek, DateTime dtEndWeek)
@@ -507,13 +586,160 @@ namespace AppPartes.Logic
             var lReturn = new List<LineaVisual>();
             var NombreOt = string.Empty;
             var NombreCliente = string.Empty;
-            var nombreOt = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == lSelect.Idot);
-            NombreOt = nombreOt.Nombre;
+            var NombrePresu = string.Empty;
+            List<Presupuestos> presu = new List<Presupuestos>();
+            List<Preslin> lNivel1 = new List<Preslin>();
+            List<Preslin> lNivel2 = new List<Preslin>();
+            List<Preslin> lNivel3 = new List<Preslin>();
+            List<Preslin> lNivel4 = new List<Preslin>();
+            List<Preslin> lNivel5 = new List<Preslin>();
+            List<Preslin> lNivel6 = new List<Preslin>();
+            List<Preslin> lNivel7 = new List<Preslin>();
+            int iNivel1 = 0;
+            int iNivel2 = 0;
+            int iNivel3 = 0;
+            int iNivel4 = 0;
+            int iNivel5 = 0;
+            int iNivel6 = 0;
+            int iNivel7 = 0;
+            string strNivel1 = string.Empty;
+            string strNivel2 = string.Empty;
+            string strNivel3 = string.Empty;
+            string strNivel4 = string.Empty;
+            string strNivel5 = string.Empty;
+            string strNivel6 = string.Empty;
+            string strNivel7 = string.Empty;
+
+            var strPreslin = string.Empty;
+            int iOt = 0, iPresu=0;
             var nombreCliente = await aldakinDbContext.Clientes.FirstOrDefaultAsync(x => x.Idclientes == aldakinDbContext.Ots.FirstOrDefault(o => o.Idots == lSelect.Idot).Cliente);
             NombreCliente = nombreCliente.Nombre;
             var lGastos = await aldakinDbContext.Gastos.Where(x => x.Idlinea == lSelect.Idlinea).ToListAsync();
             var iCont = 0;
             var strGastos = "";
+            int iNivel = 0, iTempCodpPes = 0, iEntidad = 0;
+            string strEntidad = string.Empty;
+
+
+            iEntidad = lSelect.CodEnt;
+            var temp = await aldakinDbContext.Entidad.FirstOrDefaultAsync(x => x.CodEnt == lSelect.CodEnt);
+            strEntidad = temp.Nombre;
+
+            var nombreOt = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == lSelect.Idot);
+            NombreOt = nombreOt.Nombre;
+            iOt = lSelect.Idot;
+
+            presu = await aldakinDbContext.Presupuestos.Where(x => x.Idot == lSelect.Idot).ToListAsync();
+            var tempPresu = await aldakinDbContext.Presupuestos.FirstOrDefaultAsync(x => x.Idot == lSelect.Idot && x.Idpresupuestos == aldakinDbContext.Preslin.FirstOrDefault(y => y.Idpreslin == lSelect.Idpreslin).Idpresupuesto);
+            if (presu.Count <= 1)
+            {
+                NombrePresu = tempPresu.Nombre;
+                iPresu = tempPresu.Idpresupuestos;
+                presu = null;
+            }
+            else
+            {
+                NombrePresu = tempPresu.Nombre;
+                iPresu = tempPresu.Idpresupuestos;
+            }
+
+            var tempPreslin = await aldakinDbContext.Preslin.FirstOrDefaultAsync(x => x.Idpreslin == lSelect.Idpreslin);
+            iNivel = tempPreslin.Nivel ?? default(int);//oPreslin.nivel es nuleable
+            var lPreslin = await aldakinDbContext.Preslin.Where(x => x.Idpresupuesto == tempPreslin.Idpresupuesto && x.CodpPes == tempPreslin.CodpPes && x.Nivel == tempPreslin.Nivel).ToListAsync();
+            switch (iNivel)
+            {
+                case 1:
+                    strNivel1 = tempPreslin.Nombre;
+                    iNivel1 = tempPreslin.Idpreslin;
+                    lNivel1 = lPreslin;
+                    break;
+                case 2:
+                    strNivel2 = tempPreslin.Nombre;
+                    iNivel2 = tempPreslin.Idpreslin;
+                    lNivel2 = lPreslin;
+                    break;
+                case 3:
+                    strNivel3 = tempPreslin.Nombre;
+                    iNivel3 = tempPreslin.Idpreslin;
+                    lNivel3 = lPreslin;
+                    break;
+                case 4:
+                    strNivel4 = tempPreslin.Nombre;
+                    iNivel4 = tempPreslin.Idpreslin;
+                    lNivel4 = lPreslin;
+                    break;
+                case 5:
+                    strNivel5 = tempPreslin.Nombre;
+                    iNivel5 = tempPreslin.Idpreslin;
+                    lNivel5 = lPreslin;
+                    break;
+                case 6:
+                    strNivel6 = tempPreslin.Nombre;
+                    iNivel6 = tempPreslin.Idpreslin;
+                    lNivel6 = lPreslin;
+                    break;
+                case 7:
+                    strNivel7 = tempPreslin.Nombre;
+                    iNivel7 = tempPreslin.Idpreslin;
+                    lNivel7 = lPreslin;
+                    break;
+                default:
+                    Console.WriteLine("Default case");
+                    break;
+            }
+            iTempCodpPes = tempPreslin.CodpPes ?? default(int);
+            for (int i = iNivel - 1; i >= 1; i--)
+            {
+                tempPreslin = await aldakinDbContext.Preslin.FirstOrDefaultAsync(x => x.Idpresupuesto == tempPreslin.Idpresupuesto && x.Nivel == i && x.CodhPes == iTempCodpPes);
+                iTempCodpPes = tempPreslin.CodpPes ?? default(int);
+                lPreslin = await aldakinDbContext.Preslin.Where(x => x.Idpresupuesto == tempPreslin.Idpresupuesto && x.CodpPes == tempPreslin.CodpPes && x.Nivel == tempPreslin.Nivel).ToListAsync();
+                switch (i)
+                {
+                    case 1:
+                        strNivel1 = tempPreslin.Nombre;
+                        iNivel1 = tempPreslin.Idpreslin;
+                        lNivel1 = lPreslin;
+                        break;
+                    case 2:
+                        strNivel2 = tempPreslin.Nombre;
+                        iNivel2 = tempPreslin.Idpreslin;
+                        lNivel2 = lPreslin;
+                        break;
+                    case 3:
+                        strNivel3 = tempPreslin.Nombre;
+                        iNivel3 = tempPreslin.Idpreslin;
+                        lNivel3 = lPreslin;
+                        break;
+                    case 4:
+                        strNivel4 = tempPreslin.Nombre;
+                        iNivel4 = tempPreslin.Idpreslin;
+                        lNivel4 = lPreslin;
+                        break;
+                    case 5:
+                        strNivel5 = tempPreslin.Nombre;
+                        iNivel5 = tempPreslin.Idpreslin;
+                        lNivel5 = lPreslin;
+                        break;
+                    case 6:
+                        strNivel6 = tempPreslin.Nombre;
+                        iNivel6 = tempPreslin.Idpreslin;
+                        lNivel6 = lPreslin;
+                        break;
+                    case 7:
+                        strNivel7 = tempPreslin.Nombre;
+                        iNivel7 = tempPreslin.Idpreslin;
+                        lNivel7 = lPreslin;
+                        break;
+                    default:
+                        Console.WriteLine("Default case");
+                        break;
+                }
+            }
+
+
+
+
+
             foreach (var g in lGastos)
             {
                 var strPagador = "";
@@ -532,10 +758,39 @@ namespace AppPartes.Logic
             }
             lReturn.Add(new LineaVisual
             {
-                Idlinea = lSelect.Idlinea,
-                Idot = lSelect.Idot,
+
+                iEntidad = iEntidad,
+                strEntidad = strEntidad,
+                Idot = iOt,
                 NombreOt = NombreOt,
+                NombrePresu = NombrePresu,
+                iPresu = iPresu,
+                lpresupuesto = presu,
+
+                lNivel1 = lNivel1,
+                lNivel2 = lNivel2,
+                lNivel3 = lNivel3,
+                lNivel4 = lNivel4,
+                lNivel5 = lNivel5,
+                lNivel6 = lNivel6,
+                lNivel7 = lNivel7,
+                iNivel1 = iNivel1,
+                iNivel2 = iNivel2,
+                iNivel3 = iNivel3,
+                iNivel4 = iNivel4,
+                iNivel5 = iNivel5,
+                iNivel6 = iNivel6,
+                iNivel7 = iNivel7,
+                strNivel1 = strNivel1,
+                strNivel2 = strNivel2,
+                strNivel3 = strNivel3,
+                strNivel4 = strNivel4,
+                strNivel5 = strNivel5,
+                strNivel6 = strNivel6,
+                strNivel7 = strNivel7,
+                Idlinea = lSelect.Idlinea,
                 NombreCliente = NombreCliente,
+                NombrePreslin = strPreslin,
                 Idpreslin = lSelect.Idpreslin,
                 Dietas = lSelect.Dietas,
                 Km = lSelect.Km,
@@ -556,6 +811,27 @@ namespace AppPartes.Logic
                 ContGastos = iCont + 1
             });
             return lReturn;
+        }
+        public static bool StatusWeek(DateTime dtIni, DateTime dtEnd, int idUser, List<Estadodias> weekStatus)
+        {
+            var bReturn = false;
+            for (var date = dtIni; date <= dtEnd; date = date.AddDays(1.0))
+            {
+                var temp = (from t in weekStatus
+                            where (t.Dia.Day == date.Day)
+                               && (t.Idusuario == idUser)
+                            select t).ToList();
+                if (temp.Count == 0)
+                {
+                    bReturn = false;//semana abierta
+                    return bReturn;
+                }
+                else
+                {
+                    bReturn = true;//semana cerrada
+                }
+            }
+            return bReturn;
         }
     }
 }

@@ -1,0 +1,230 @@
+﻿@model AppPartes.Logic.HoliDaysViewLogic
+@{
+    ViewData["Title"] = "Index";
+}
+
+    <body class="is-preload">
+
+        <!-- Wrapper -->
+        <div id="wrapper">
+
+            <!-- Main -->
+            <div id="main">
+                <!--<div class="inner">-->
+                <!-- Header -->
+                <header id="header">
+                    <a href="#" class="logo"><strong>Grupo Aldakin</strong></a>
+                </header>
+                <!-- Content -->
+                <section>
+                    @{
+                        if (!string.IsNullOrEmpty(ViewBag.Message))
+                        {
+                            <div class="alert alert-warning">@ViewBag.Message</div>
+                        }
+                    }
+                    <header class="main">
+                        <h1>Gestión Calendario Entidades </h1>
+                    </header>
+                    <!-- Content -->
+                    <!--<h2 id="content">Sample Content</h2>-->
+                    <div class="col-12">
+                        <p>añadir varios días</p>
+                        <form asp-action="InsertAllLine" asp-controller="HoliDays" method="post">
+                        <div class="row gtr-uniform">
+                            <div class="col-12">
+                                <!--<h3>Seleccione un dia:</h3>-->
+                                <label for="start">* Seleccione un día:</label>
+
+                                <input type="date" id="CalendarioSelec" name="strCalendario"
+                                       value=""
+                                       min="@(DateTime.Now.Year-2)-01-01"
+                                       max="@(DateTime.Now.Year+2)-12-31" required>
+
+                            </div>
+
+                            <div class="col-12">
+                                <label for="start">Entidad:</label>
+                                <select id="entidadSelec" name="strEntidad" required>
+                                    <option value=""></option>
+                                    @foreach (var dept in Model.lEntidad)
+                                    {
+                                        <option value="@dept.CodEnt">
+                                            @dept.Nombre
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="start">Jornada Reducida:</label>
+                                <select id="jornadaSelec" name="strJornada" required>
+                                    <option value=""></option>
+                                    <option value="False">No</option>
+                                    <option value="True">Si</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <ul class="actions">
+                                    <li><span class="button" onclick="insertCalendario('CalendarioSelec','entidadSelec','jornadaSelec','lista');">Añadir a Lista</span></li>
+                                    <li><input type="submit" value="Guardar Lista" class="primary" /></li>
+                                </ul>
+                            </div>
+                            <div class="col-12">
+                                <label for="start">Lista de Días:</label>
+                                <textarea name="strlista" id="lista" value="" rows="6"></textarea>
+                            </div>
+                        </div>
+                        </form>
+                    </div>
+
+
+
+
+
+
+
+                    <div class="col-12">
+                        <p>Seleccione fecha, entidad y jornada reducida(si fuera necesario) para crear un día festivo.</p>
+                        <form asp-action="InsertLine" asp-controller="HoliDays" method="post">
+                            <div class="row gtr-uniform">
+                                <div class="col-12">
+                                    <!--<h3>Seleccione un dia:</h3>-->
+                                    <label for="start">* Seleccione un día:</label>
+
+                                    <input type="date" id="Calendario" name="strCalendario"
+                                           value=""
+                                           min="@(DateTime.Now.Year-2)-01-01"
+                                           max="@(DateTime.Now.Year+2)-12-31" required>
+
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="start">Entidad:</label>
+                                    <select id="entidad" name="strEntidad" required>
+                                        <option value=""></option>
+                                        @foreach (var dept in Model.lEntidad)
+                                        {
+                                            <option value="@dept.CodEnt">
+                                                @dept.Nombre
+                                            </option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="start">Jornada Reducida:</label>
+                                    <select id="jornada" name="strJornada" required>
+                                        <option value=""></option>
+                                        <option value="False">No</option>
+                                        <option value="True">Si</option>
+                                    </select>
+                                </div>
+                                <input type="hidden" name="strAction" value="save" />
+                                <div class="col-12">
+                                    <ul class="actions">
+                                        <li><input type="submit" value="Guardar" class="primary" /></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <hr class="major" />
+                    <div class="col-12">
+                        <p>Seleccione las opciones que desee para listar los días festivos</p>
+                        <form asp-action="Index" asp-controller="HoliDays" method="post">
+                            <div class="row gtr-uniform">
+                                <div class="col-12">
+                                    <!--<h3>Seleccione un dia:</h3>-->
+                                    <label for="start">* Seleccione inicio:</label>
+
+                                    <input type="date" id="Calendario" name="strCalendarioIni"
+                                           value=""
+                                           min="@(DateTime.Now.Year-2)-01-01"
+                                           max="@(DateTime.Now.Year+2)-12-31" required>
+                                </div>
+                                <div class="col-12">
+                                    <!--<h3>Seleccione un dia:</h3>-->
+                                    <label for="start">* Seleccione fin:</label>
+
+                                    <input type="date" id="Calendario" name="strCalendarioFin"
+                                           value=""
+                                           min="@(DateTime.Now.Year-2)-01-01"
+                                           max="@(DateTime.Now.Year+2)-12-31" required>
+                                </div>
+                                <div class="col-12">
+                                    <label for="start">Entidad:</label>
+                                    <select id="entidad" name="strEntidad" required>
+                                        <option value=""></option>
+                                        @foreach (var dept in Model.lEntidad)
+                                        {
+                                            <option value="@dept.CodEnt">
+                                                @dept.Nombre
+                                            </option>
+                                        }
+                                    </select>
+                                </div>
+                                <input type="hidden" name="strAction" value="list" />
+                                <div class="col-12">
+                                    <ul class="actions">
+                                        <li><input type="submit" value="Mostrar" class="primary" /></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    @if (Model.lDiasFestivos != null)
+                    {
+                        <div class="col-12">
+                            <label for="start">Lista de días festivos  </label>
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Día</th>
+                                            <th>Entidad</th>
+                                            <th>Jornada Reducida</th>
+                                        </tr>
+                                        @foreach (var l in Model.lDiasFestivos)
+                                        {
+                                            <tr>
+                                                <th>
+                                                    <form asp-action="DeleteLine" asp-controller="HoliDays" method="post">
+                                                        <input type="hidden" name="dtSelectedIni" value="@Model.dtSelectedIni" />
+                                                        <input type="hidden" name="dtSelectedFin" value="@Model.dtSelectedFin" />
+                                                        <input type="hidden" name="strEntidad" value="@Model.strEntidadSelec" />
+                                                        <input type="hidden" name="strId" value="@l.Idfestivos" />
+                                                        <input type="submit" value="Borrar" class="primary" />
+                                                    </form>
+                                                </th>
+                                                <th>@l.Dia.Date</th>
+                                                <th>@l.Calendario</th>
+                                                <th>@l.Jornadareducida</th>
+                                            </tr>
+                                        }
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    }
+                </section>
+                <!--</div>-->
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            function insertCalendario(CalendarioSelec, entidadSelec, jornadaSelec, lista) {
+                var elem = document.getElementById(lista);
+                var calendario = document.getElementById(CalendarioSelec);
+                var entidad = document.getElementById(entidadSelec);
+                var jornada = document.getElementById(jornadaSelec);
+                if ((calendario.value == 0) || (calendario.value == "")||(entidad.value == 0) || (entidad.value == "")||(jornada.value == 0) || (jornada.value == "")) {
+                    alert("Dastos de Día incorrectos");
+                }
+                else {
+                elem.value = elem.value  +calendario.value + '|' + entidad.value + '|' + jornada.value +'\r\n';                
+                }
+            }
+        </script>
+    </body>

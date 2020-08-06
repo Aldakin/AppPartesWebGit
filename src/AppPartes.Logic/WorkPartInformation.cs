@@ -518,11 +518,10 @@ namespace AppPartes.Logic
             dtEnd = new DateTime(dtSelected.Year, dtSelected.Month + 1, 1).AddDays(-1);
             int iEntity = Convert.ToInt32(strEntity);
             WriteUserDataAsync(idAldakinUser);
-            var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == _iUserId && x.CodEnt == x.CodEntO);
             lValidationUser = null;
-            if (user.Autorizacion < 5)
+            if (_iUserLevel < 5)
             {
-                var userValidation = await aldakinDbContext.Responsables.FirstOrDefaultAsync(x => x.Name == user.Name);
+                var userValidation = await aldakinDbContext.Responsables.FirstOrDefaultAsync(x => x.Name == _strUserName);
                 List<string> split = userValidation.PersonasName.Split(new Char[] { '|' }).Distinct().ToList();
                 foreach (string s in split)
                 {
@@ -552,13 +551,6 @@ namespace AppPartes.Logic
                                    where (p.Inicio.Day == date.Day)
                                    && (p.Inicio.Month == date.Month)
                                    && (p.Inicio.Year == date.Year)select p).ToList();
-                    //result = (from p in lUser
-                    //          where (p.Dni.Contains(txtDniBuscar.Text)
-                    //          && (p.Nombre.Contains(txtNombreBuscar.Text.ToUpper()) || (p.Apellidos.Contains(txtNombreBuscar.Text.ToUpper())))
-                    //          && p.Email.Contains(txtEmailBuscar.Text)
-                    //           )
-                    //          select p).ToList();
-
                     foreach (Lineas l in partDay)
                     {
                         dHour = dHour + l.Horas;
@@ -569,22 +561,21 @@ namespace AppPartes.Logic
                     //bool status = false;
                     if(status is null)
                     {
-                        iStatus = 0;//no cerrada
+                        iStatus = 0;//no cerrada blanco
                     }
                     else
                     {
                         if(status.Estado==2)
                         {
-                            iStatus = 2;//cerrada
+                            iStatus = 2;//cerrada amarillo
                         }
                         else
                         {
-                            iStatus = 4;//quien sabe
-                           // hay que ver como poner bien el mostrar los estados de los dias, cerrados, validaods, etc
+                            iStatus = 4;//generada azul
                         }
                     }
                     oSeach.hour = dHour;
-                    oSeach.colour = DayStatusColour(partDay.Count, iGenerated, iValidated, date);
+                    oSeach.colour = DayStatusColour(partDay.Count, iGenerated, iValidated, date, iStatus);
                     oTemp.lDay.Add(date.Day);
                     oTemp.dayStatus.Add(oSeach);
                 }
@@ -695,14 +686,18 @@ namespace AppPartes.Logic
             }
             return lReturn;
         }
-        private string DayStatusColour(int iNumPart, int iGenerated, int iValidated, DateTime dtDay)
+        private string DayStatusColour(int iNumPart, int iGenerated, int iValidated, DateTime dtDay,int iStatus)
         {
             string strReturn = "#FFFFFF";
-            string strAllGenerated = "#D2691E";
-            string strAllValidated = "#B0C4DE";
+            string strAllGenerated = "#0000FF";//
+            string strAllValidated = "#006400";//
+            string strAllClose = "#FFFF00";//
             string strEmpty = "#FFFFFF";
-            string strWeekend = "#D3D3D3";
+            string strWeekend = "#D3D3D3";//
             string strHalfValidated = "#FF8C00";
+            //iStatus = 0;//no cerrada blanco
+            //iStatus = 2;//cerrada amarillo
+            //iStatus = 4;//generada azul
             if (iNumPart == 0)
             {
                 if (((Convert.ToInt32(dtDay.DayOfWeek) == 0)) || ((Convert.ToInt32(dtDay.DayOfWeek) == 6)))
@@ -718,14 +713,14 @@ namespace AppPartes.Logic
             {
                 if (iNumPart == iGenerated)
                 {
-                    //todo el dia volcado #D2691E
+                    //todo el dia generado  	#0000FF
                     strReturn = strAllGenerated;
                 }
                 else
                 {
                     if ((iNumPart == iValidated))
                     {
-                        //no todo el dia generado todo el dia validado #B0C4DE
+                        //no todo el dia generado todo el dia validado #006400
                         strReturn = strAllValidated;
                     }
                     else
@@ -740,7 +735,15 @@ namespace AppPartes.Logic
                             }
                             else
                             {
-                                strReturn = strEmpty;
+                                if (iStatus == 2)
+                                {
+
+                                    strReturn = strAllClose;
+                                }
+                                else
+                                {
+                                    strReturn = strEmpty;
+                                }
                             }
                         }
                         else
@@ -893,6 +896,7 @@ namespace AppPartes.Logic
                 default:
                     throw new Exception();
             }
+            
             DateTime s = dtEndWeek;
             TimeSpan ts = new TimeSpan(23, 59, 0);
             dtEndWeek = s.Date + ts;

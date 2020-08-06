@@ -54,12 +54,12 @@ namespace AppPartes.Web.Controllers.Api
             }
             return listaSelect;
         }
-        public async Task<SelectData> validateLineFunc(string strLine)
-        {
-            var lReturn = new SelectData();
-            int idAldakin = await GetIdUserAldakinAsync();
-            lReturn = await _IWriteDataBase.ValidateWorkerLineAsync(strLine, idAldakin);
-            return lReturn;
-        }
+        //public async Task<SelectData> validateLineFunc(string strLine)
+        //{
+        //    var lReturn = new SelectData();
+        //    int idAldakin = await GetIdUserAldakinAsync();
+        //    lReturn = await _IWriteDataBase.ValidateWorkerLineAsync(strLine, idAldakin);
+        //    return lReturn;
+        //}
     }
 }

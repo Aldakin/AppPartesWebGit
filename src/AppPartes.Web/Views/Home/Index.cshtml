@@ -2,129 +2,134 @@
 @{
     ViewData["Title"] = "Home Page";
 }
-<body class="is-preload">
-    <section>
-        @{
-            if (!string.IsNullOrEmpty(ViewBag.Message))
-            {
-                <div class="alert alert-warning">@ViewBag.Message</div>
-            }
-        }
-    </section>
-    @if (Model.user != null)
-    {
+    <body class="is-preload">
         <section>
-            <div class="row">
-                <div class="col-12 col-12-medium">
-                    <h3>Bienvenido: @Model.user.strUserName</h3>
-                </div>
-            </div>
+            @{
+                if (!string.IsNullOrEmpty(ViewBag.Message))
+                {
+                    <div class="alert alert-warning">@ViewBag.Message</div>
+                }
+            }
         </section>
-        if ((Model.user.iLevel >= 3) || (Model.user.bAdmin))
+        @if (Model.user != null)
         {
-            <section style="background-color:#edeef0; ">
-                <div class="row gtr-200">
-                    <div class="table-wrapper">
-                        <h4>Menu Administración (Nivel:@Model.user.iLevel)</h4>
-                        <table class="alt">
-                            <thead>
-                                <tr>
-                                    <th>
-                                        <a class="nav-link text-dark" href="#" onclick="viewEntities('Actualizar');">Actualizar</a>
-                                        <div class="col-12" id="Actualizar" name="Actualizar" style="display:none">
-                                            <table>
-                                                <thead>
-                                                    <tr>
-                                                        <th></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody style="font-size:0.6em;">
-                                                    @foreach (var dept in Model.listCompanyUpdate)
-                                                    {
-                                                        <tr>
-                                                            <td>
-                                                                <a class="nav-link text-dark" href="#" onclick="UpdateData(@dept.CodEnt);">@dept.Nombre</a>
-                                                            </td>
-                                                        </tr>
-                                                    }
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </th>
-                                    <th>
-                                        <a class="nav-link text-dark" href="#" onclick="viewEntities('Generar');">Generar CSV</a>
-                                        <div class="col-12" id="Generar" name="Generar" style="display:none">
-                                            <table>
-                                                <thead>
-                                                    <tr>
-                                                        <th></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody style="font-size:0.6em;">
-                                                    @foreach (var dept in Model.listCompanyCsv)
-                                                    {
-                                                        <tr>
-                                                            <td>
-
-                                                                <a class="nav-link text-dark" href="#" onclick="GenerateCsv(@dept.CodEnt);">@dept.Nombre</a>
-                                                            </td>
-                                                        </tr>
-                                                    }
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </th>
-                                    <th><a class="nav-link text-dark" asp-area="" asp-controller="SearchPending" asp-action="Index">Partes Pendientes</a></th>
-                                    <th>XX XX</th>
-                                </tr>
-                                <tr>
-                                    @if (Model.user.iLevel >= 4)
-                                    {
-                                        <th><a class="nav-link text-dark" asp-area="" asp-controller="Search" asp-action="Index">Busquedas</a> </th>
-                                    }
-                                    @if (Model.user.iLevel >= 5)
-                                    {
-                                        <th>Tipos Excel</th>
-                                        <th>Calendario</th>
-                                        <th><a class="nav-link text-dark" asp-area="" asp-controller="UdObraPresu" asp-action="Index">Ud. Obra Presu</a></th>
-                                    }
-                                </tr>
-
-                            </thead>
-                        </table>
+            <section>
+                <div class="row">
+                    <div class="col-12 col-12-medium">
+                        <h3>Bienvenido: @Model.user.strUserName</h3>
                     </div>
                 </div>
             </section>
+            if ((Model.user.iLevel >= 3) || (Model.user.bAdmin))
+            {
+                <section style="background-color:#edeef0; ">
+                    <div class="row gtr-200">
+                        <div class="table-wrapper">
+                            <h4>Menu Administración (Nivel:@Model.user.iLevel)</h4>
+                            <table class="alt">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <a class="nav-link text-dark" href="#" onclick="viewEntities('Actualizar');">Actualizar</a>
+                                            <div class="col-12" id="Actualizar" name="Actualizar" style="display:none">
+                                                <table>
+                                                    <thead>
+                                                        <tr>
+                                                            <th></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody style="font-size:0.6em;">
+                                                        @foreach (var dept in Model.listCompanyUpdate)
+                                                        {
+                                                            <tr>
+                                                                <td>
+                                                                    <a class="nav-link text-dark" href="#" onclick="UpdateData(@dept.CodEnt);">@dept.Nombre</a>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </th>
+                                        <th>
+                                            <a class="nav-link text-dark" href="#" onclick="viewEntities('Generar');">Generar CSV</a>
+                                            <div class="col-12" id="Generar" name="Generar" style="display:none">
+                                                <table>
+                                                    <thead>
+                                                        <tr>
+                                                            <th></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody style="font-size:0.6em;">
+                                                        @foreach (var dept in Model.listCompanyCsv)
+                                                        {
+                                                            <tr>
+                                                                <td>
+
+                                                                    <a class="nav-link text-dark" href="#" onclick="GenerateCsv(@dept.CodEnt);">@dept.Nombre</a>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </th>
+                                        <th><a class="nav-link text-dark" asp-area="" asp-controller="SearchPending" asp-action="Index">Partes Pendientes</a></th>
+                                        <th>XX XX</th>
+                                    </tr>
+                                    <tr>
+                                        @if (Model.user.iLevel >= 4)
+                                        {
+                                            <th><a class="nav-link text-dark" asp-area="" asp-controller="Search" asp-action="Index">Busquedas</a> </th>
+                                        }
+                                        @if (Model.user.iLevel >= 5)
+                                        {
+                                            <th>Tipos Excel</th>
+                                            <th><a class="nav-link text-dark" asp-area="" asp-controller="HoliDays" asp-action="Index">Calendario</a></th>
+                                            <th><a class="nav-link text-dark" asp-area="" asp-controller="UdObraPresu" asp-action="Index">Ud. Obra Presu</a></th>
+                                        }
+                                    </tr>
+
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            }
         }
-    }
-    <!-- Banner -->
-    <section id="banner">
-        <div class="content">
-            <header>
-                <h1>
-                    Grupo Aldakin
-                </h1>
-                <p>Servicio integral y personalizado</p>
-            </header>
-            <p>Especialistas en ingeniería, trabajamos desde el diseño y automatización, hasta el montaje y mantenimiento de sus instalaciones eléctricas y productivas</p>
-            <p>Si desea saber más pulse sobre el enlace.</p>
-            <ul class="actions">
-                <li><a href="http://www.aldakin.com/" target="_blank" class="button big">Saber Más</a></li>
-            </ul>
-        </div>
-        <span class="image object">
-            <img src="~/img/MARCA_formato_horizontal.png" alt="" /><!--DSCF2311-->
-        </span>
-    </section>
+        <!-- Banner -->
+        <section id="banner">
+            <div class="content">
+                <header>
+                    <h1>
+                        Grupo Aldakin
+                    </h1>
+                    <p>Servicio integral y personalizado</p>
+                </header>
+                <p>Especialistas en ingeniería, trabajamos desde el diseño y automatización, hasta el montaje y mantenimiento de sus instalaciones eléctricas y productivas</p>
+                <p>Si desea saber más pulse sobre el enlace.</p>
+                <ul class="actions">
+                    <li><a href="http://www.aldakin.com/" target="_blank" class="button big">Saber Más</a></li>
+                </ul>
+            </div>
+            <span class="image object">
+                <img src="~/img/MARCA_formato_horizontal.png" alt="" /><!--DSCF2311-->
+            </span>
+        </section>
+        <footer class="border-top footer text-muted">
+            <div class="container">
+                &copy; @DateTime.Now.Year -Grupo Aldakin AppPartes.Web - @Model.strVersion
+                @*&copy; 2020 - AppPartes.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>*@
+            </div>
+        </footer>
+        <!-- Scripts -->
+        @*<script src="assets/js/jquery.min.js"></script>
+        <script src="assets/js/browser.min.js"></script>
+        <script src="assets/js/breakpoints.min.js"></script>
+        <script src="assets/js/util.js"></script>
+        <script src="assets/js/main.js"></script>*@
 
-    <!-- Scripts -->
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/js/browser.min.js"></script>
-    <script src="assets/js/breakpoints.min.js"></script>
-    <script src="assets/js/util.js"></script>
-    <script src="assets/js/main.js"></script>
-
-    <script type="text/javascript">
+        <script type="text/javascript">
 
         function UpdateData(strData) {
                 var url = "@Url.Action("UpdateEntityData","HomeDataApi")";
@@ -150,8 +155,8 @@
                 div.style.display = 'none';
             }
         }
-    </script>
-</body>
+        </script>
+    </body>
 
 
 

@@ -30,88 +30,108 @@
         <p>Seleccione una delgación y una fecha para ver el estado de los partes de trabajo de cada dia de cada trabajador del mes seleccionado.</p>
         <p>Cuantos mas trabajadores se pueden validar más largo es el tiempo de obtención de datos.</p>
         <form asp-controller="Search" asp-action="Index" method="POST">
-            <div class="col-12">
-                <label for="start">Seleccione delegación:</label>
-
-                <select id="strEntity" name="strEntity" required>
-                    <option value="">
-                    </option>
-                    @foreach (var dept in Model.listCompany)
-                    {
-                        <option value="@dept.CodEnt">
-                            @dept.Nombre
+            <div class="row gtr-uniform">
+                <div class="col-12">
+                    <label for="start">Seleccione delegación:</label>
+                    <select id="strEntity" name="strEntity" required>
+                        <option value="">
                         </option>
+                        @foreach (var dept in Model.listCompany)
+                        {
+                                <option value="@dept.CodEnt">
+                                    @dept.Nombre
+                                </option>
+                        }
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label>Seleccione en el calendario:</label>
+                    @if (Model.strDate != null)
+                    {
+                        <input type="date" id="strDate" name="strDate"
+                               value="@Model.strDate"
+                               min="@(DateTime.Now.Year - 2)-01-01"
+                               max="@(DateTime.Now.Year + 2)-12-31" required>
                     }
-                </select>
-            </div>
-            <div class="col-12">
-                <label>Seleccione en el calendario:</label>
-                <input type="date" id="strDate" name="strDate"
-                       value=" "
-                       min="@(DateTime.Now.Year - 2)-01-01"
-                       max="@(DateTime.Now.Year + 2)-12-31" required>
-            </div>
-            <div class="col-12">
-                <input type="hidden" name="action" value="MounthResume" />
-                <input type="submit" name="strStatus" value="Estado Partes" class="primary" />
-
-                @*<input type="submit" name="strSemana" value="Estado Semana " class="primary" />*@
-
-
-                @*<input type="submit" name="strAction" onclick="statusEntity('strDate','strSummary');" value="Enviar" />*@
+                    else
+                    {
+                        <input type="date" id="strDate" name="strDate"
+                               value=" "
+                               min="@(DateTime.Now.Year - 2)-01-01"
+                               max="@(DateTime.Now.Year + 2)-12-31" required>
+                    }
+                </div>
+                <input type="hidden" name="strAction" value="MounthResume" />
+                <div class="col-12">
+                    <ul class="actions">
+                        <li><input type="submit" name="strStatus" value="Estado Partes" class="primary" /></li>
+                    </ul>
+                </div>
             </div>
         </form>
         <hr class="major" />
     </section>
     <section>
         <h2 id="elements">Estado Partes del trabajador</h2>
-        <p>Info.....</p>
+        <p>Seleccione dia día de semana,delegación y trabajador para ver los partes de la semana seleccionada.</p>
         <form asp-controller="Search" asp-action="Index" method="POST">
-            <div class="col-12">
+            <div class="row gtr-uniform">
+                <div class="col-12">
 
-                <label>Seleccione en el calendario:</label>
-                <input type="date" id="strDate" name="strDate1"
-                       value=" "
-                       min="@(DateTime.Now.Year - 2)-01-01"
-                       max="@(DateTime.Now.Year + 2)-12-31" required>
-            </div>
-            <div class="col-12">
-                <label for="start">Seleccione delegación:</label>
+                    <label>Seleccione en el calendario:</label>
 
-                <select id="EntityWorker" name="strEntity">
-                    <option value="">
-                    </option>
-                    @foreach (var dept in Model.listCompany)
+                    @if (Model.strDate1 != null)
                     {
-                        <option value="@dept.CodEnt">
-                            @dept.Nombre
-                        </option>
+                        <input type="date" id="strDate" name="strDate1"
+                               value="@Model.strDate1"
+                               min="@(DateTime.Now.Year - 2)-01-01"
+                               max="@(DateTime.Now.Year + 2)-12-31" required>
                     }
-                </select>
-            </div>
-            <div class="col-12">
-                <label id="lblWorker" for="start">* Trabajadores:</label>
-                <select id="worker" name="strWorker">
+                    else
+                    {
+                        <input type="date" id="strDate" name="strDate1"
+                               value=" "
+                               min="@(DateTime.Now.Year - 2)-01-01"
+                               max="@(DateTime.Now.Year + 2)-12-31" required>
+                    }
+                </div>
+                <div class="col-12">
+                    <label for="start">Seleccione delegación:</label>
 
-                    <option value="0"></option>
-                </select>
-            </div>
-            <div class="col-12">
-                <label id="lblOt" for="start">* Ot:</label>
-                <select id="ot" name="strOt">
+                    <select id="EntityWorker" name="strEntity">
+                        <option value="">
+                        </option>
+                        @foreach (var dept in Model.listCompany)
+                        {
+                                <option value="@dept.CodEnt">
+                                    @dept.Nombre
+                                </option>
+                        }
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label id="lblWorker" for="start">* Trabajadores:</label>
+                    <select id="worker" name="strWorker">
 
-                    <option value="0"></option>
-                </select>
-            </div>
-            <div class="col-12">
-                <input type="hidden" name="action" value="StatusResume" />
-                <input type="submit" name="strStatus" value="Resumen Estado Partes " class="primary" />
+                        <option value="0"></option>
+                    </select>
+                </div>
+                @*<div class="col-12">
+                    <label id="lblOt" for="start">* Ot:</label>
+                    <select id="ot" name="strOt">
 
+                        <option value="0"></option>
+                    </select>
+                </div>*@
+                <!-- de momento se comenta la ot y se fuerza a o -->
+                <input type="hidden" name="strOt" value="0" />
 
-                @*<input type="submit" name="strSemana" value="Estado Semana " class="primary" />*@
-
-
-                @*<input type="submit" name="strAction" onclick="statusEntity('strDate','strSummary');" value="Enviar" />*@
+                <input type="hidden" name="strAction" value="StatusResume" />
+                <div class="col-12">
+                    <ul class="actions">
+                        <li><input type="submit" name="strStatus" value="Resumen Estado Partes " class="primary" /></li>
+                    </ul>
+                </div>
             </div>
         </form>
 
@@ -121,23 +141,23 @@
     <section>
 
         @{ if (Model.listWeekResume != null)
+
             {
                 if (Model.strGlobalValidation != null)
                 {
-                    <form asp-controller="Search" asp-action="Index" method="POST">
-                        <div class="col-12">
-                            <input type="hidden" id="strListValidation" name="strListValidation" value="@Model.strGlobalValidation" />
-                            <div class="col-12">
-                                <input type="hidden" name="action" value="globalValidation" />
-                                <input type="submit" name="strStatus" value="validation masiva" class="primary" />
-
-                                @*<input type="submit" name="strSemana" value="Estado Semana " class="primary" />*@
-
-
-                                @*<input type="submit" name="strAction" onclick="statusEntity('strDate','strSummary');" value="Enviar" />*@
+                <form asp-controller="Search" asp-action="Index" method="POST">
+                            <div class="row gtr-uniform">
+                                        <div class="col-12">
+                                            <input type="hidden" id="strListValidation" name="strListValidation" value="@Model.strGlobalValidation" />
+                                            <input type="hidden" name="strAction" value="globalValidation" />
+                                            <div class="col-12">
+                                                <ul class="actions">
+                                                    <li><input type="submit" name="strStatus" value="validation masiva" class="primary" /></li>
+                                                </ul>
+                                            </div>
+                                        </div>
                             </div>
-                        </div>
-                    </form>
+                </form>
                 }
 
                 @foreach (var dept in Model.listWeekResume)
@@ -153,13 +173,14 @@
                                                 {
                                                     <th></th>
                                                 }*@
+                                            <th></th>
                                             <th>Trabajador</th>
                                             <th>Inicio</th>
                                             <th>Fin</th>
                                             <th>Empresa</th>
                                             <th>OT</th>
                                             <!--<th>Nombre OT</th>-->
-                                            <th>Presupuesto</th>
+                                            <th>Nivel</th>
                                             <!--<th>Nombre Presupuesto</th>-->
                                             <!--<th>Nivel1</th>
                                             <th>Nivel2</th>
@@ -199,8 +220,8 @@
                                                                     <input type="hidden" name="strAction" value="editLine" />
                                                                     <input type="submit" value="Editar" />
                                                                 </form>
-                                                                <form asp-controller="SearchEdit" asp-action="Index" method="POST">
-                                                                    <input type="hidden" id="idLinea" name="idLinea" value="@part.Idlinea" />
+                                                                <form asp-controller="Search" asp-action="SearchValidate" method="POST">
+                                                                    <input type="hidden" id="idLinea" name="idLine" value="@part.Idlinea" />
                                                                     <input type="hidden" id="dtIni" name="dtIni" value="@part.Inicio.Date" />
                                                                     <input type="hidden" name="strAction" value="validateLine" />
                                                                     <input type="submit" value="Validar" />

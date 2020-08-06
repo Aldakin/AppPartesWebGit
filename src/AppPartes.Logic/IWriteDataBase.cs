@@ -21,5 +21,9 @@ namespace AppPartes.Logic
         Task<List<List<LineaVisual>>> CreateVisualWorkerPartAsync(List<Lineas> lTemp);
         Task<string> WritetUdObrePresuNewAsync(string strDescription, string strRef, string strEntidad);
         Task<string> DeletetUdObrePresuNewAsync(string strId);
+        Task<string> InsertHoliDayAsync(string strCalendario, string strEntidad, string strJornada, string strAction);
+        Task<string> DeleteHoliDayAsync(string strId);
+        Task<string> WriteAllHolidaysAsync(string strAllHoliDays);
+        Task<string> EditWorkerLineAdminAsync(WorkerLineData lineData);
     }
 }

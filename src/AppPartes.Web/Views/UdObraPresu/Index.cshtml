@@ -20,17 +20,17 @@
                 @{
                     if (!string.IsNullOrEmpty(ViewBag.Message))
                     {
-                    <div class="alert alert-warning">@ViewBag.Message</div>
+                        <div class="alert alert-warning">@ViewBag.Message</div>
                     }
                 }
                 <header class="main">
-                    <h1>Gestión Unidada de Obre de Presupuesto </h1>
+                    <h1>Gestión Unidad de Obra de Presupuesto </h1>
                 </header>
                 <!-- Content -->
                 <!--<h2 id="content">Sample Content</h2>-->
 
                 <div class="col-12">
-                    <label for="start">XX</label>
+                    <label for="start">Listado de todas las unidades de obra de los presupuests por entidad</label>
                     <div class="table-wrapper">
                         <table>
                             <thead>
@@ -41,20 +41,20 @@
                                     <th>Cod. Ent</th>
                                     <th>Id</th>
                                 </tr>
-                                @foreach(var l in Model.lUdObra)
+                                @foreach (var l in Model.lUdObra)
                                 {
-                            <tr>
-                                <th>
-                                    <form asp-action="DeleteLine" asp-controller="UdObraPresu" method="post">
-                                        <input type="hidden" name="strId" value="@l.IdudObraPresu" />
-                                        <input type="submit" value="Borrar" class="primary" />
-                                    </form>
-                                </th>
-                                <th>@l.Descripcion</th>
-                                <th>@l.RefiPes</th>
-                                <th>@l.CodEnt</th>
-                                <th>@l.IdudObraPresu</th>
-                            </tr>
+                                    <tr>
+                                        <th>
+                                            <form asp-action="DeleteLine" asp-controller="UdObraPresu" method="post">
+                                                <input type="hidden" name="strId" value="@l.IdudObraPresu" />
+                                                <input type="submit" value="Borrar" class="primary" />
+                                            </form>
+                                        </th>
+                                        <th>@l.Descripcion</th>
+                                        <th>@l.RefiPes</th>
+                                        <th>@l.CodEnt</th>
+                                        <th>@l.IdudObraPresu</th>
+                                    </tr>
                                 }
 
                             </thead>
@@ -65,23 +65,35 @@
                 <div class="col-12">
 
                     <form asp-action="InsertLine" asp-controller="UdObraPresu" method="post">
-                        <label for="start">Descripción:</label>
-                        <input type="text" name="strDescription" required/>
-                        <label for="start">Referencia Presu:</label>
-                        <input type="text" name="strRef" required/>
-                        <label for="start">Entidad:</label>
-                        <select id="entidad" name="strEntidad" required>
-                            <option value="">                                
-                            </option>
-                            @foreach (var dept in Model.lEntidad)
-                            {
-                            <option value="@dept.CodEnt">
-                                @dept.Nombre
-                            </option>
-                            }
-                        </select>
-                        <input type="hidden" name="strAction" value="save" />
-                        <input type="submit" value="Guardar" class="primary" />
+                        <div class="row gtr-uniform">
+                            <div class="col-12">
+                                <label for="start">Descripción:</label>
+                                <input type="text" name="strDescription" required />
+                            </div>
+                            <div class="col-12">
+                                <label for="start">Referencia Presu:</label>
+                                <input type="text" name="strRef" required />
+                            </div>
+                            <div class="col-12">
+                                <label for="start">Entidad:</label>
+                                <select id="entidad" name="strEntidad" required>
+                                    <option value="">
+                                    </option>
+                                    @foreach (var dept in Model.lEntidad)
+                                    {
+                                        <option value="@dept.CodEnt">
+                                            @dept.Nombre
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                            <input type="hidden" name="strAction" value="save" />
+                            <div class="col-12">
+                                <ul class="actions">
+                                    <li><input type="submit" value="Guardar" class="primary" /></li>
+                                </ul>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </section>

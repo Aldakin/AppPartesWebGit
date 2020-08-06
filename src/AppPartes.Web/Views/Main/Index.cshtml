@@ -34,308 +34,310 @@
                 <!-- Content -->
                 <!--<h2 id="content">Sample Content</h2>-->
                 <form asp-action="InsertLine" asp-controller="Main" method="POST">
-                    <div class="col-12">
-                        <p>Seleccione la orden de trabajo para su parte de trabajo .</p>
-                        <label for="start">Entidad:</label>
-                        <select id="entidad" name="strEntidad">
-                            @foreach (var dept in Model.listCompany)
-                            {
-                                <option value="@dept.CodEnt">
-                                    @dept.Nombre
-                                </option>
-                            }
-                        </select>
-                        <label for="start">Clientes:</label>
-                        <select id="cliente" name="strCliente">
-                            <option value="0"></option>
-                            @foreach (var client in Model.listClient)
-                            {
-                                <option value="@client.Idclientes">
-                                    @client.Nombre
-                                </option>
-                            }
-                        </select>
-                        <label for="start">* Ots:</label>
-                        <select id="ot" name="strOt">
-                            <option value="0"></option>
-                            @foreach (var dept in Model.listOts)
-                            {
-                                <option value="@dept.Idots">
-                                    @dept.Numero || @dept.Nombre
-                                </option>
-                            }
-                        </select>
-                        <label id="lbPresupuesto" for="start" style="display:none">* Presupuesto:</label>
-                        <select id="presupuesto" name="strPresupuesto" style="display:none">
-                            <option value="0"></option>
-                            <option value=" ">presupuesto</option>
-
-                        </select>
-                        <label id="lbNivel1" for="start" style="display:none">* Nivel1:</label>
-                        <select id="nivel1" name="strNivel1" style="display:none">
-                            <option value="0"></option>
-
-                        </select>
-                        <label id="lbNivel2" for="start" style="display:none">* Nivel2:</label>
-                        <select id="nivel2" name="strNivel2" style="display:none">
-                            <option value="0"></option>
-
-                        </select>
-                        <label id="lbNivel3" for="start" style="display:none">* Nivel3:</label>
-                        <select id="nivel3" name="strNivel3" style="display:none">
-                            <option value="0"></option>
-
-                        </select>
-                        <label id="lbNivel4" for="start" style="display:none">* Nivel4:</label>
-                        <select id="nivel4" name="strNivel4" style="display:none">
-                            <option value="0"></option>
-
-                        </select>
-                        <label id="lbNivel5" for="start" style="display:none">* Nivel5:</label>
-                        <select id="nivel5" name="strNivel5" style="display:none">
-                            <option value="0"></option>
-
-                        </select>
-                        <label id="lbNivel6" for="start" style="display:none">* Nivel6:</label>
-                        <select id="nivel6" name="strNivel6" style="display:none">
-                            <option value="0"></option>
-
-                        </select>
-                        <label id="lbNivel7" for="start" style="display:none">* Nivel7:</label>
-                        <select id="nivel7" name="strNivel7" style="display:none">
-                            <option value="0"></option>
-
-                        </select>
-                        <hr class="major" />
-                    </div>
-                    <div id="information1" class="row" style="display:none">
+                    <div class="row gtr-uniform">
                         <div class="col-12">
-                            <h1>Datos de parte de trabajo.</h1>
-                            <p>Rellene todos los campos necesarios para completar el parte de trabajo</p>
-                        </div>
-                        <div class="col-12">
-                            <div class="col-12">
-                                <!--<h3>Seleccione un dia:</h3>-->
-                                <label for="start">* Seleccione un dia:</label>
-
-                                <input type="date" id="Calendario" name="strCalendario"
-                                       value=""
-                                       min="@(DateTime.Now.Year-2)-01-01"
-                                       max="@(DateTime.Now.Year+2)-12-31" required>
-                                <hr class="major" />
-                            </div>
-                            <div id="tablaResumen" class="col-12" style="display:none">
-                                <label for="start">Resumen Semanal</label>
-                                <div class="table-wrapper">
-                                    <table>
-                                        <thead>
-                                            <tr>
-                                                <th>Lunes</th>
-                                                <th><input type="text" id="strLunes" name="strLunes" value="0" readonly /></th>
-                                            </tr>
-                                            <tr>
-                                                <th>Martes</th>
-                                                <th><input type="text" id="strMartes" name="strMartes" value="0" readonly /></th>
-                                            </tr>
-                                            <tr>
-                                                <th>Miercoles</th>
-                                                <th><input type="text" id="strMiercoles" name="strMiercoles" value="0" readonly /></th>
-                                            </tr>
-                                            <tr>
-                                                <th>Jueves</th>
-                                                <th><input type="text" id="strJueves" name="strJueves" value="0" readonly /></th>
-                                            </tr>
-                                            <tr>
-                                                <th>Viernes</th>
-                                                <th><input type="text" id="strViernes" name="strViernes" value="0" readonly /></th>
-                                            </tr>
-                                            <tr>
-                                                <th>Sabado</th>
-                                                <th><input type="text" id="strSabado" name="strSabado" value="0" readonly /></th>
-                                            </tr>
-                                            <tr>
-                                                <th>Domingo</th>
-                                                <th><input type="text" id="strDomingo" name="strDomingo" value="0" readonly /></th>
-                                            </tr>
-                                        </thead>
-                                    </table>
-                                </div>
-                            </div>
-                            <hr class="major" />
-                            <div class="col-12">
-                                <label for="start">* Hora Inicio:</label>
-                                <table class="egt">
-                                    <tr>
-                                        <td>
-                                            <select id="strHoraInicio" name="strHoraInicio" required>
-                                                <option value=""></option>
-                                                <option value="00">00</option>
-                                                <option value="01">01</option>
-                                                <option value="02">02</option>
-                                                <option value="03">03</option>
-                                                <option value="04">04</option>
-                                                <option value="05">05</option>
-                                                <option value="06">06</option>
-                                                <option value="07">07</option>
-                                                <option value="08">08</option>
-                                                <option value="09">09</option>
-                                                <option value="10">10</option>
-                                                <option value="11">11</option>
-                                                <option value="12">12</option>
-                                                <option value="13">13</option>
-                                                <option value="14">14</option>
-                                                <option value="15">15</option>
-                                                <option value="16">16</option>
-                                                <option value="17">17</option>
-                                                <option value="18">18</option>
-                                                <option value="19">19</option>
-                                                <option value="20">20</option>
-                                                <option value="21">21</option>
-                                                <option value="22">22</option>
-                                                <option value="23">23</option>
-                                            </select>
-                                        </td>
-                                        <td>:</td>
-                                        <td>
-                                            <select id="strMinutoInicio" name="strMinutoInicio" required>
-                                                <option value="00" selected="selected">00</option>
-                                                <option value="15">15</option>
-                                                <option value="30">30</option>
-                                                <option value="45">45</option>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <div class="col-12">
-                                <label for="start">* Hora Fin:</label>
-                                <table class="egt">
-                                    <tr>
-                                        <td>
-                                            <select id="strHoraFin" name="strHoraFin" required>
-                                                <option value=""></option>
-                                                <option value="00">00</option>
-                                                <option value="01">01</option>
-                                                <option value="02">02</option>
-                                                <option value="03">03</option>
-                                                <option value="04">04</option>
-                                                <option value="05">05</option>
-                                                <option value="06">06</option>
-                                                <option value="07">07</option>
-                                                <option value="08">08</option>
-                                                <option value="09">09</option>
-                                                <option value="10">10</option>
-                                                <option value="11">11</option>
-                                                <option value="12">12</option>
-                                                <option value="13">13</option>
-                                                <option value="14">14</option>
-                                                <option value="15">15</option>
-                                                <option value="16">16</option>
-                                                <option value="17">17</option>
-                                                <option value="18">18</option>
-                                                <option value="19">19</option>
-                                                <option value="20">20</option>
-                                                <option value="21">21</option>
-                                                <option value="22">22</option>
-                                                <option value="23">23</option>
-                                            </select>
-                                        </td>
-                                        <td>:</td>
-                                        <td>
-                                            <select id="strMinutoFin" name="strMinutoFin" required>
-                                                <option value="00" selected="selected">00</option>
-                                                <option value="15">15</option>
-                                                <option value="30">30</option>
-                                                <option value="45">45</option>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <!--
-                            <p>Nunc lacinia ante nunc ac lobortis. Interdum adipiscing gravida odio porttitor sem non mi integer non faucibus ornare mi ut ante amet placerat aliquet. Volutpat commodo eu sed ante lacinia. Sapien a lorem in integer ornare praesent commodo adipiscing arcu in massa commodo lorem accumsan at odio massa ac ac. Semper adipiscing varius montes viverra nibh in adipiscing blandit tempus accumsan.</p>
-                                -->
-                            <hr class="major" />
-                        </div>
-                        <div class="col-6 col-12-small">
-                            <input type="checkbox" id="cbox2" value="true" name="bHorasViaje"> <label for="cbox2">Viaje</label>
-                        </div>
-                        <div class="col-6 col-12-small">
-                            <input type="checkbox" id="gastos" value="true" name="bGastos"> <label for="gastos">Solo gastos</label>
-                        </div>
-                        <div class="col-12">
-                            <!--<h3>Magna odio tempus commodo</h3>-->
-                            <!--<label><input type="checkbox" id="cbox1" value="first_checkbox"> Este es mi primer checkbox</label><br>-->
-                            <!--
-                            <input type="checkbox" id="checkgastos" name="checkgastos" value="true"><br>
-                                -->
-
-                            <label for="start">NºParte:</label>
-                            <input type="text" name="strParte" />
-
-                            <label for="vehicle1">Pernoctación</label>
-                            <select name="strPernoctacion">
-                                <option value="0" selected>NO</option>
-                                @foreach (var client in Model.listNight)
+                            <p>Seleccione la orden de trabajo para su parte de trabajo .</p>
+                            <label for="start">Entidad:</label>
+                            <select id="entidad" name="strEntidad">
+                                @foreach (var dept in Model.listCompany)
                                 {
-                                    <option value="@client.Tipo">
-                                        @client.Descripcion
+                                    <option value="@dept.CodEnt">
+                                        @dept.Nombre
                                     </option>
                                 }
-                                <!--<option value="NACIONAL">NACIONAL</option>
-                                <option value="INTERNACIONAL">INTERNACIONAL</option>-->
                             </select>
-                            <!--
-                            <p>In arcu accumsan arcu adipiscing accumsan orci ac. Felis id enim aliquet. Accumsan ac integer lobortis commodo ornare aliquet accumsan erat tempus amet porttitor. Ante commodo blandit adipiscing integer semper orci eget. Faucibus commodo adipiscing mi eu nullam accumsan morbi arcu ornare odio mi adipiscing nascetur lacus ac interdum morbi accumsan vis mi accumsan.</p>
-                                -->
+                            <label for="start">Clientes:</label>
+                            <select id="cliente" name="strCliente">
+                                <option value="0"></option>
+                                @foreach (var client in Model.listClient)
+                                {
+                                    <option value="@client.Idclientes">
+                                        @client.Nombre
+                                    </option>
+                                }
+                            </select>
+                            <label for="start">* Ots:</label>
+                            <select id="ot" name="strOt">
+                                <option value="0"></option>
+                                @foreach (var dept in Model.listOts)
+                                {
+                                    <option value="@dept.Idots">
+                                        @dept.Numero || @dept.Nombre
+                                    </option>
+                                }
+                            </select>
+                            <label id="lbPresupuesto" for="start" style="display:none">* Presupuesto:</label>
+                            <select id="presupuesto" name="strPresupuesto" style="display:none">
+                                <option value="0"></option>
+                                <option value=" ">presupuesto</option>
+
+                            </select>
+                            <label id="lbNivel1" for="start" style="display:none">* Nivel1:</label>
+                            <select id="nivel1" name="strNivel1" style="display:none">
+                                <option value="0"></option>
+
+                            </select>
+                            <label id="lbNivel2" for="start" style="display:none">* Nivel2:</label>
+                            <select id="nivel2" name="strNivel2" style="display:none">
+                                <option value="0"></option>
+
+                            </select>
+                            <label id="lbNivel3" for="start" style="display:none">* Nivel3:</label>
+                            <select id="nivel3" name="strNivel3" style="display:none">
+                                <option value="0"></option>
+
+                            </select>
+                            <label id="lbNivel4" for="start" style="display:none">* Nivel4:</label>
+                            <select id="nivel4" name="strNivel4" style="display:none">
+                                <option value="0"></option>
+
+                            </select>
+                            <label id="lbNivel5" for="start" style="display:none">* Nivel5:</label>
+                            <select id="nivel5" name="strNivel5" style="display:none">
+                                <option value="0"></option>
+
+                            </select>
+                            <label id="lbNivel6" for="start" style="display:none">* Nivel6:</label>
+                            <select id="nivel6" name="strNivel6" style="display:none">
+                                <option value="0"></option>
+
+                            </select>
+                            <label id="lbNivel7" for="start" style="display:none">* Nivel7:</label>
+                            <select id="nivel7" name="strNivel7" style="display:none">
+                                <option value="0"></option>
+
+                            </select>
                             <hr class="major" />
                         </div>
+                        <div id="information1" class="row" style="display:none">
+                            <div class="col-12">
+                                <h1>Datos de parte de trabajo.</h1>
+                                <p>Rellene todos los campos necesarios para completar el parte de trabajo</p>
+                            </div>
+                            <div class="col-12">
+                                <div class="col-12">
+                                    <!--<h3>Seleccione un dia:</h3>-->
+                                    <label for="start">* Seleccione un dia:</label>
 
-                    </div>
-                    <!-- Break -->
-                    <div id="information2" class="col-12" style="display:none">
-                        <label for="start">* Observaciones:</label>
-                        <textarea name="strObservaciones" id="txtObservaciones" placeholder="Enter your message" rows="6" required></textarea>
-                        <hr class="major" />
-                    </div>
-                    <div class="col-12">
-                        <div id="information4" style="display:none">
-                            <span class="button" onclick="viewLblGastos();" style="display: inline-block">Mostrar Gastos</span>
-                            <hr class="major" />
-                            <div class="col-12" id="lblGastos" name="lblGastos" style="display:none">
-                                <input type="hidden" id="idGasto" name="idGasto" value="1" readonly />
-
-                                <label for="start">Cantidad:</label>
-                                <input type="text" id="strCantidad" name="strCantidad" value="0" />
-                                <label for="start">Pagador:</label>
-                                <select id="Pagador" name="Pagador">
-                                    <option value="0"></option>
-                                    <option value="TRABAJADOR">TRABAJADOR</option>
-                                    <option value="ALDAKIN">ALDAKIN</option>
-                                </select>
-                                <label id="lblTipo" for="start">Tipo Gasto:</label>
-                                <select id="Tipo" name="Tipo" disabled>
-                                    <option value="0"></option>
-                                </select>
-                                <label for="start">Observaciones:</label>
-                                <input type="text" id="strObservaciones" name="strObservaciones" value=" " />
-                                <span class="button" onclick="insertText('idGasto','strCantidad','Pagador','Tipo','strGastos','strObservaciones');" style="display: inline-block">Añadir Gasto</span>
-                                <label for="start">Lista de gastos:</label>
-                                <textarea name="strGastos" id="strGastos" value="" rows="6"></textarea>
+                                    <input type="date" id="Calendario" name="strCalendario"
+                                           value=""
+                                           min="@(DateTime.Now.Year-2)-01-01"
+                                           max="@(DateTime.Now.Year+2)-12-31" required>
+                                    <hr class="major" />
+                                </div>
+                                <div id="tablaResumen" class="col-12" style="display:none">
+                                    <label for="start">Resumen Semanal</label>
+                                    <div class="table-wrapper">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>Lunes</th>
+                                                    <th><input type="text" id="strLunes" name="strLunes" value="0" readonly /></th>
+                                                </tr>
+                                                <tr>
+                                                    <th>Martes</th>
+                                                    <th><input type="text" id="strMartes" name="strMartes" value="0" readonly /></th>
+                                                </tr>
+                                                <tr>
+                                                    <th>Miercoles</th>
+                                                    <th><input type="text" id="strMiercoles" name="strMiercoles" value="0" readonly /></th>
+                                                </tr>
+                                                <tr>
+                                                    <th>Jueves</th>
+                                                    <th><input type="text" id="strJueves" name="strJueves" value="0" readonly /></th>
+                                                </tr>
+                                                <tr>
+                                                    <th>Viernes</th>
+                                                    <th><input type="text" id="strViernes" name="strViernes" value="0" readonly /></th>
+                                                </tr>
+                                                <tr>
+                                                    <th>Sabado</th>
+                                                    <th><input type="text" id="strSabado" name="strSabado" value="0" readonly /></th>
+                                                </tr>
+                                                <tr>
+                                                    <th>Domingo</th>
+                                                    <th><input type="text" id="strDomingo" name="strDomingo" value="0" readonly /></th>
+                                                </tr>
+                                            </thead>
+                                        </table>
+                                    </div>
+                                </div>
+                                <hr class="major" />
+                                <div class="col-12">
+                                    <label for="start">* Hora Inicio:</label>
+                                    <table class="egt">
+                                        <tr>
+                                            <td>
+                                                <select id="strHoraInicio" name="strHoraInicio" required>
+                                                    <option value=""></option>
+                                                    <option value="00">00</option>
+                                                    <option value="01">01</option>
+                                                    <option value="02">02</option>
+                                                    <option value="03">03</option>
+                                                    <option value="04">04</option>
+                                                    <option value="05">05</option>
+                                                    <option value="06">06</option>
+                                                    <option value="07">07</option>
+                                                    <option value="08">08</option>
+                                                    <option value="09">09</option>
+                                                    <option value="10">10</option>
+                                                    <option value="11">11</option>
+                                                    <option value="12">12</option>
+                                                    <option value="13">13</option>
+                                                    <option value="14">14</option>
+                                                    <option value="15">15</option>
+                                                    <option value="16">16</option>
+                                                    <option value="17">17</option>
+                                                    <option value="18">18</option>
+                                                    <option value="19">19</option>
+                                                    <option value="20">20</option>
+                                                    <option value="21">21</option>
+                                                    <option value="22">22</option>
+                                                    <option value="23">23</option>
+                                                </select>
+                                            </td>
+                                            <td>:</td>
+                                            <td>
+                                                <select id="strMinutoInicio" name="strMinutoInicio" required>
+                                                    <option value="00" selected="selected">00</option>
+                                                    <option value="15">15</option>
+                                                    <option value="30">30</option>
+                                                    <option value="45">45</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-12">
+                                    <label for="start">* Hora Fin:</label>
+                                    <table class="egt">
+                                        <tr>
+                                            <td>
+                                                <select id="strHoraFin" name="strHoraFin" required>
+                                                    <option value=""></option>
+                                                    <option value="00">00</option>
+                                                    <option value="01">01</option>
+                                                    <option value="02">02</option>
+                                                    <option value="03">03</option>
+                                                    <option value="04">04</option>
+                                                    <option value="05">05</option>
+                                                    <option value="06">06</option>
+                                                    <option value="07">07</option>
+                                                    <option value="08">08</option>
+                                                    <option value="09">09</option>
+                                                    <option value="10">10</option>
+                                                    <option value="11">11</option>
+                                                    <option value="12">12</option>
+                                                    <option value="13">13</option>
+                                                    <option value="14">14</option>
+                                                    <option value="15">15</option>
+                                                    <option value="16">16</option>
+                                                    <option value="17">17</option>
+                                                    <option value="18">18</option>
+                                                    <option value="19">19</option>
+                                                    <option value="20">20</option>
+                                                    <option value="21">21</option>
+                                                    <option value="22">22</option>
+                                                    <option value="23">23</option>
+                                                </select>
+                                            </td>
+                                            <td>:</td>
+                                            <td>
+                                                <select id="strMinutoFin" name="strMinutoFin" required>
+                                                    <option value="00" selected="selected">00</option>
+                                                    <option value="15">15</option>
+                                                    <option value="30">30</option>
+                                                    <option value="45">45</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <!--
+            <p>Nunc lacinia ante nunc ac lobortis. Interdum adipiscing gravida odio porttitor sem non mi integer non faucibus ornare mi ut ante amet placerat aliquet. Volutpat commodo eu sed ante lacinia. Sapien a lorem in integer ornare praesent commodo adipiscing arcu in massa commodo lorem accumsan at odio massa ac ac. Semper adipiscing varius montes viverra nibh in adipiscing blandit tempus accumsan.</p>
+                -->
                                 <hr class="major" />
                             </div>
+                            <div class="col-6 col-12-small">
+                                <input type="checkbox" id="cbox2" value="true" name="bHorasViaje"> <label for="cbox2">Viaje</label>
+                            </div>
+                            <div class="col-6 col-12-small">
+                                <input type="checkbox" id="gastos" value="true" name="bGastos"> <label for="gastos">Solo gastos</label>
+                            </div>
+                            <div class="col-12">
+                                <!--<h3>Magna odio tempus commodo</h3>-->
+                                <!--<label><input type="checkbox" id="cbox1" value="first_checkbox"> Este es mi primer checkbox</label><br>-->
+                                <!--
+            <input type="checkbox" id="checkgastos" name="checkgastos" value="true"><br>
+                -->
+
+                                <label for="start">NºParte:</label>
+                                <input type="text" name="strParte" />
+
+                                <label for="vehicle1">Pernoctación</label>
+                                <select name="strPernoctacion">
+                                    <option value="0" selected>NO</option>
+                                    @foreach (var client in Model.listNight)
+                                    {
+                                        <option value="@client.Tipo">
+                                            @client.Descripcion
+                                        </option>
+                                    }
+                                    <!--<option value="NACIONAL">NACIONAL</option>
+                <option value="INTERNACIONAL">INTERNACIONAL</option>-->
+                                </select>
+                                <!--
+            <p>In arcu accumsan arcu adipiscing accumsan orci ac. Felis id enim aliquet. Accumsan ac integer lobortis commodo ornare aliquet accumsan erat tempus amet porttitor. Ante commodo blandit adipiscing integer semper orci eget. Faucibus commodo adipiscing mi eu nullam accumsan morbi arcu ornare odio mi adipiscing nascetur lacus ac interdum morbi accumsan vis mi accumsan.</p>
+                -->
+                                <hr class="major" />
+                            </div>
+
                         </div>
-                    </div>
-                    <div class="col-12">
+                        <!-- Break -->
+                        <div id="information2" class="col-12" style="display:none">
+                            <label for="start">* Observaciones:</label>
+                            <textarea name="strObservaciones" id="txtObservaciones" placeholder="Enter your message" rows="6" required></textarea>
+                            <hr class="major" />
+                        </div>
                         <div class="col-12">
-                            <label for="start">* => Campos obligatorios</label>
-                            <label for="start">Antes de guardar su parte de trabajo revise que todos los datos son correctos</label>
+                            <div id="information4" style="display:none">
+                                <span class="button" onclick="viewLblGastos();" style="display: inline-block">Mostrar Gastos</span>
+                                <hr class="major" />
+                                <div class="col-12" id="lblGastos" name="lblGastos" style="display:none">
+                                    <input type="hidden" id="idGasto" name="idGasto" value="1" readonly />
+
+                                    <label for="start">Cantidad:</label>
+                                    <input type="text" id="strCantidad" name="strCantidad" value="0" />
+                                    <label for="start">Pagador:</label>
+                                    <select id="Pagador" name="Pagador">
+                                        <option value="0"></option>
+                                        <option value="TRABAJADOR">TRABAJADOR</option>
+                                        <option value="ALDAKIN">ALDAKIN</option>
+                                    </select>
+                                    <label id="lblTipo" for="start">Tipo Gasto:</label>
+                                    <select id="Tipo" name="Tipo" disabled>
+                                        <option value="0"></option>
+                                    </select>
+                                    <label for="start">Observaciones:</label>
+                                    <input type="text" id="strObservaciones" name="strObservaciones" value=" " />
+                                    <span class="button" onclick="insertText('idGasto','strCantidad','Pagador','Tipo','strGastos','strObservaciones');" style="display: inline-block">Añadir Gasto</span>
+                                    <label for="start">Lista de gastos:</label>
+                                    <textarea name="strGastos" id="strGastos" value="" rows="6"></textarea>
+                                    <hr class="major" />
+                                </div>
+                            </div>
                         </div>
-                        <input id="strPreslin" name="strPreslin" type="hidden" value="" style="display:none" />
-                        <div id="information3" class="col-12" style="display:none">
-                            <ul class="actions">
-                                <li><input type="submit" value="Guardar" class="primary" /></li>
-                            </ul>
+                        <div class="col-12">
+                            <div class="col-12">
+                                <label for="start">* => Campos obligatorios</label>
+                                <label for="start">Antes de guardar su parte de trabajo revise que todos los datos son correctos</label>
+                            </div>
+                            <input id="strPreslin" name="strPreslin" type="hidden" value="" style="display:none" />
+                            <div id="information3" class="col-12" style="display:none">
+                                <ul class="actions">
+                                    <li><input type="submit" value="Guardar" class="primary" /></li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </form>

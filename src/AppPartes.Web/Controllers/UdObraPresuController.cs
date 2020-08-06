@@ -34,7 +34,6 @@ namespace AppPartes.Web.Controllers
         public async Task<IActionResult> InsertLine( string strDescription = "", string strRef = "", string strEntidad = "")
         {
             string strReturn = await _IWriteDataBase.WritetUdObrePresuNewAsync(strDescription, strRef, strEntidad);
-
             return RedirectToAction("Index", new { strMessage = strReturn });
         }
         [HttpPost, ValidateAntiForgeryToken]
