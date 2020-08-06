@@ -164,7 +164,7 @@ namespace AppPartes.Logic
             try
             {
                 var lLineas = await aldakinDbContext.Lineas.Where(x => DateTime.Compare(x.Inicio.Date, day.Date) == 0 && x.Idusuario == _iUserId && x.Validado == 0 && x.Registrado == 0).ToListAsync();
-                if (RangeIsUsed(lLineas, dtFin, dtInicio, ref strReturn)) return strReturn;
+                if (RangeIsUsed(lLineas, dtFin, dtInicio, ref strReturn)) return "Rango de horas del parte ya utilizado";
             }
             catch (Exception ex)
             {
@@ -218,25 +218,27 @@ namespace AppPartes.Logic
                                     }
                                     else
                                     {
+                                        var temp = substring[3].Replace('.', ',');
+                                        var gasto= float.Parse(temp);
                                         lGastos.Add(new Gastos
                                         {
                                             Pagador = Convert.ToInt32(substring[1]),
                                             Tipo = pagador.Idtipogastos,
-                                            Cantidad = (float)Convert.ToDouble(substring[3].Replace('.', ',')),
+                                            Cantidad = gasto,//float.Parse(substring[3].Replace('.', ',')) ,//(float)Convert.ToDouble(substring[3].Replace(',', '.')),
                                             Observacion = substring[4]
                                         });
 
                                         if (substring[2] != "KILOMETROS")
                                         {
-                                            dGastos = dGastos + (float)Convert.ToDouble(substring[3].Replace('.', ','));
+                                            dGastos = dGastos + gasto;
                                         }
                                         else
                                         {
-                                            dKilometros = dKilometros + (float)Convert.ToDouble(substring[3].Replace('.', ','));
+                                            dKilometros = dKilometros + gasto;
                                         }
                                     }
                                 }
-                                catch (Exception)
+                                catch (Exception ex)
                                 {
                                     //si hay error no hace nada con la lineapara que siga con la siguiente
                                     //return RedirectToAction("Index", new { strMessage = "Los gastos son erroneos, repita el parte;" });
@@ -1260,6 +1262,8 @@ namespace AppPartes.Logic
                         Horas = l.Horas,
                         Inicio = l.Inicio,
                         Fin = l.Fin,
+                        strInicio = WorkPartInformation.ConvertDateTimeToString(l.Inicio),
+                        strFin = WorkPartInformation.ConvertDateTimeToString(l.Fin),
                         Idusuario = l.Idusuario,
                         strPernocta = strPernocta,
                         Npartefirmado = l.Npartefirmado,
@@ -1297,6 +1301,8 @@ namespace AppPartes.Logic
                         Horas = lineaOriginal.Horas,
                         Inicio = lineaOriginal.Inicio,
                         Fin = lineaOriginal.Fin,
+                        strInicio = WorkPartInformation.ConvertDateTimeToString(lineaOriginal.Inicio),
+                        strFin = WorkPartInformation.ConvertDateTimeToString(lineaOriginal.Fin),
                         Idusuario = lineaOriginal.Idusuario,
                         strPernocta = strPernocta,
                         Npartefirmado = lineaOriginal.Npartefirmado,
@@ -1599,9 +1605,11 @@ namespace AppPartes.Logic
             var iPernoctacion = 0;
             DateTime day, dtInicio, dtFin;
             var oOldLine = new Lineas();
+            var user = new Usuarios();
             try
             {
                 oOldLine = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(lineData.strIdlineaAntigua));
+                user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == oOldLine.Idusuario);
                 if (string.IsNullOrEmpty(lineData.strObservaciones))
                 {
                     lineData.strObservaciones = string.Empty;
@@ -1649,7 +1657,7 @@ namespace AppPartes.Logic
             //Review if range of time is used
             try
             {
-                var lLineas = await aldakinDbContext.Lineas.Where(x => DateTime.Compare(x.Inicio.Date, day.Date) == 0 && x.Idusuario == oOldLine.Idusuario && x.Validado == 0 && x.Registrado == 0 && x.Idlinea != Convert.ToInt32(lineData.strIdlineaAntigua)).ToListAsync();
+                var lLineas = await aldakinDbContext.Lineas.Where(x => DateTime.Compare(x.Inicio.Date, day.Date) == 0 && x.Idusuario == oOldLine.Idusuario && x.CodEnt == user.CodEnt && x.Idlinea != Convert.ToInt32(lineData.strIdlineaAntigua)).ToListAsync();
                 if (lLineas.Count > 0)
                 {
                     if (RangeIsUsed(lLineas, dtFin, dtInicio, ref strReturn)) return strReturn;
@@ -1808,7 +1816,6 @@ namespace AppPartes.Logic
                 }
             }
 
-            var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == oOldLine.Idusuario);
             var otNew = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == Convert.ToInt32(lineData.strOt));
             if (oOldLine.Idlinea > 0)
             {
@@ -2147,16 +2154,40 @@ namespace AppPartes.Logic
             {
                 foreach (var x in lLineas)
                 {
-                    if (DateTime.Compare(dtFin, x.Inicio) > 0 && DateTime.Compare(dtFin, x.Fin) < 0)
+                    //if ((DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) = 0) || (DateTime.Compare(dtInicio, x.Fin) = 0 && DateTime.Compare(dtFin, x.Fin) > 0) || (DateTime.Compare(dtInicio, x.Fin) > 0 && DateTime.Compare(dtFin, x.Fin) > 0) || (DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) < 0))
+
+                    if ((DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) == 0) || (DateTime.Compare(dtInicio, x.Fin) == 0 && DateTime.Compare(dtFin, x.Fin) > 0) || (DateTime.Compare(dtInicio, x.Fin) > 0 && DateTime.Compare(dtFin, x.Fin) > 0) ||  (DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) < 0))
+                    {
+                        bReturn = false;
+                        //rango ok
+                    }
+                    else
                     {
                         bReturn = true;
                         strReturn = "Rango de Horas ya utilizado;";
+                        break;
                     }
-                    if (DateTime.Compare(dtInicio, x.Inicio) > 0 && DateTime.Compare(dtInicio, x.Fin) < 0)
-                    {
-                        bReturn = true;
-                        strReturn = "Rango de Horas ya utilizado;";
-                    }
+
+                    //if (DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) > 0)
+                    //{
+                    //    bReturn = true;
+                    //    strReturn = "Rango de Horas ya utilizado;";
+                    //}
+                    //if (DateTime.Compare(dtFin, x.Inicio) > 0 && DateTime.Compare(dtFin, x.Fin) < 0)
+                    //{
+                    //    bReturn = true;
+                    //    strReturn = "Rango de Horas ya utilizado;";
+                    //}
+                    //if (DateTime.Compare(dtInicio, x.Inicio) > 0 && DateTime.Compare(dtInicio, x.Fin) < 0)
+                    //{
+                    //    bReturn = true;
+                    //    strReturn = "Rango de Horas ya utilizado;";
+                    //}
+                    //if (DateTime.Compare(dtInicio, x.Inicio) == 0 && DateTime.Compare(dtFin, x.Fin) == 0)
+                    //{
+                    //    bReturn = true;
+                    //    strReturn = "Rango de Horas ya utilizado;";
+                    //}
                 }
             }
             return bReturn;

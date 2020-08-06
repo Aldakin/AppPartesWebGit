@@ -34,7 +34,7 @@ namespace AppPartes.Web.Controllers.Api
                 int idAldakinUser = await GetIdUserAldakinAsync();
                 listaSelect = await _IWorkPartInformation.GetWorkerValidationAsnc(idAldakinUser, cantidad);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return null;
             }

@@ -88,6 +88,8 @@ namespace AppPartes.Logic
         public string Observaciones { get; set; }
         public float? Horasviaje { get; set; }
         public float Horas { get; set; }
+        public string strInicio { get; set; }
+        public string strFin { get; set; }
         public DateTime Inicio { get; set; }
         public DateTime Fin { get; set; }
         public int Idusuario { get; set; }

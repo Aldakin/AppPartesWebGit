@@ -88,7 +88,7 @@ namespace AppPartes.Web.Controllers
                 strAction= strAction
             };
             strReturn = await _IWriteDataBase.EditWorkerLineAdminAsync(dataToInsertLine);
-            return RedirectToAction("Index", "Search", new { strMessage = "Parte editado salisfactoriamente", strAction = "StatusResume", strDate1 = strCalendario, strWorker = strIdUser, strEntity= strEntidad, strOt=0 });
+            return RedirectToAction("Index", "Search", new { strMessage = strReturn, strAction = "StatusResume", strDate1 = strCalendario, strWorker = strIdUser, strEntity= strEntidad, strOt=0 });
 
 
 

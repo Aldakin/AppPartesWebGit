@@ -633,8 +633,8 @@ namespace AppPartes.Logic
             var tempPresu = await aldakinDbContext.Presupuestos.FirstOrDefaultAsync(x => x.Idot == lSelect.Idot && x.Idpresupuestos == aldakinDbContext.Preslin.FirstOrDefault(y => y.Idpreslin == lSelect.Idpreslin).Idpresupuesto);
             if (presu.Count <= 1)
             {
-                NombrePresu = tempPresu.Nombre;
-                iPresu = tempPresu.Idpresupuestos;
+                //NombrePresu = tempPresu.Nombre;
+                //iPresu = tempPresu.Idpresupuestos;
                 presu = null;
             }
             else
@@ -799,6 +799,8 @@ namespace AppPartes.Logic
                 Horas = lSelect.Horas,
                 Inicio = lSelect.Inicio,
                 Fin = lSelect.Fin,
+                strInicio = WorkPartInformation.ConvertDateTimeToString(lSelect.Inicio),
+                strFin = WorkPartInformation.ConvertDateTimeToString(lSelect.Fin),
                 Idusuario = lSelect.Idusuario,
                 Facturable = lSelect.Facturable,
                 Npartefirmado = lSelect.Npartefirmado,

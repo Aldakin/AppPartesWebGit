@@ -449,17 +449,20 @@ namespace AppPartes.Logic
         public async Task<List<SelectData>> GetWorkerValidationAsnc(int idAldakinUser, int iEntity)
         {
             List<SelectData> lReturn = new List<SelectData>();
-            List<Usuarios> lValidationUser = new List<Usuarios>();
+            var lValidationUser = new List<Usuarios>();
+            var uTemp = new Usuarios();
             WriteUserDataAsync(idAldakinUser);
-            var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == _iUserId && x.CodEnt == x.CodEntO);
-            lValidationUser = null;
-            if (user.Autorizacion < 5)
+            //var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == _iUserId && x.CodEnt == x.CodEntO);
+            //lValidationUser = null;
+            if (_iUserLevel < 5)
             {
-                var userValidation = await aldakinDbContext.Responsables.FirstOrDefaultAsync(x => x.Name == user.Name);
+                var userValidation = await aldakinDbContext.Responsables.FirstOrDefaultAsync(x => x.Name == _stUserDni);
                 List<string> split = userValidation.PersonasName.Split(new Char[] { '|' }).Distinct().ToList();
                 foreach (string s in split)
                 {
-                    lValidationUser.Add(await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Name == s && x.CodEnt == x.CodEntO && x.Baja == 0));
+                    uTemp = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Name == s && x.CodEnt == x.CodEntO && x.Baja == 0);
+                    lValidationUser.Add(uTemp);
+                    //lValidationUser.Insert(0, uTemp);
                 }
             }
             else
@@ -481,11 +484,11 @@ namespace AppPartes.Logic
             List<SelectData> lReturn = new List<SelectData>();
             List<Ots> lValidationOT = new List<Ots>();
             WriteUserDataAsync(idAldakinUser);
-            var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == _iUserId && x.CodEnt == x.CodEntO);
-            lValidationOT = null;
-            if (user.Autorizacion < 5)
+            //var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == _iUserId && x.CodEnt == x.CodEntO);
+            //lValidationOT = null;
+            if (_iUserLevel < 5)
             {
-                var userValidation = await aldakinDbContext.Responsables.FirstOrDefaultAsync(x => x.Name == user.Name);
+                var userValidation = await aldakinDbContext.Responsables.FirstOrDefaultAsync(x => x.Name == _stUserDni);
                 List<string> split = userValidation.Ots.Split(new Char[] { '|' }).Distinct().ToList();
                 foreach (string s in split)
                 {
@@ -518,10 +521,10 @@ namespace AppPartes.Logic
             dtEnd = new DateTime(dtSelected.Year, dtSelected.Month + 1, 1).AddDays(-1);
             int iEntity = Convert.ToInt32(strEntity);
             WriteUserDataAsync(idAldakinUser);
-            lValidationUser = null;
+            //lValidationUser = null;
             if (_iUserLevel < 5)
             {
-                var userValidation = await aldakinDbContext.Responsables.FirstOrDefaultAsync(x => x.Name == _strUserName);
+                var userValidation = await aldakinDbContext.Responsables.FirstOrDefaultAsync(x => x.Name == _stUserDni);
                 List<string> split = userValidation.PersonasName.Split(new Char[] { '|' }).Distinct().ToList();
                 foreach (string s in split)
                 {
@@ -539,7 +542,7 @@ namespace AppPartes.Logic
                 oTemp.lDay = new List<int>();
                 oTemp.User = "[" + u.Nombrecompleto + "]";
                 oTemp.dayStatus = new List<SearchDay>();
-                var partMonth = await aldakinDbContext.Lineas.Where(x => x.Inicio.Day >= dtIni.Day && x.Inicio.Month >= dtIni.Month && x.Inicio.Year >= dtIni.Year && x.Fin.Day <= dtEnd.Day && x.Fin.Month <= dtEnd.Month && x.Fin.Year <= dtEnd.Year && x.Idusuario == u.Idusuario && x.CodEnt==u.CodEnt).ToListAsync();
+                var partMonth = await aldakinDbContext.Lineas.Where(x => x.Inicio.Day >= dtIni.Day && x.Inicio.Month >= dtIni.Month && x.Inicio.Year >= dtIni.Year && x.Fin.Day <= dtEnd.Day && x.Fin.Month <= dtEnd.Month && x.Fin.Year <= dtEnd.Year && x.Idusuario == u.Idusuario && x.CodEnt == u.CodEnt).ToListAsync();
 
                 for (var date = dtIni; date <= dtEnd; date = date.AddDays(1.0))
                 {
@@ -550,7 +553,8 @@ namespace AppPartes.Logic
                     var partDay = (from p in partMonth
                                    where (p.Inicio.Day == date.Day)
                                    && (p.Inicio.Month == date.Month)
-                                   && (p.Inicio.Year == date.Year)select p).ToList();
+                                   && (p.Inicio.Year == date.Year)
+                                   select p).ToList();
                     foreach (Lineas l in partDay)
                     {
                         dHour = dHour + l.Horas;
@@ -559,13 +563,13 @@ namespace AppPartes.Logic
                     }
                     var status = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Dia.Day == date.Day && x.Dia.Month == date.Month && x.Dia.Year == date.Year && x.Idusuario == u.Idusuario);
                     //bool status = false;
-                    if(status is null)
+                    if (status is null)
                     {
                         iStatus = 0;//no cerrada blanco
                     }
                     else
                     {
-                        if(status.Estado==2)
+                        if (status.Estado == 2)
                         {
                             iStatus = 2;//cerrada amarillo
                         }
@@ -583,9 +587,9 @@ namespace AppPartes.Logic
             }
             return lReturn;
         }
-        public async Task<string>StringWeekResumeAsync(int idAldakinUser, string strDate, string strOt, string strWorker, string strEntity)
+        public async Task<string> StringWeekResumeAsync(int idAldakinUser, string strDate, string strOt, string strWorker, string strEntity)
         {
-            string strReturn =  string.Empty;
+            string strReturn = string.Empty;
             var lTemp = new List<Lineas>();
             DateTime dtIniWeek, dtEndWeek;
             DateTime dtSelected = Convert.ToDateTime(strDate);
@@ -598,7 +602,7 @@ namespace AppPartes.Logic
                 if ((iWorker > 0) && (iOt > 0))
                 {
                     //seleccionado trabajador y ot
-                    lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.Idusuario == iWorker && x.CodEnt == iEntity && x.Idot == iOt && x.Validado==0 &&x.Registrado==0).OrderBy(x => x.Inicio).ToListAsync();
+                    lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.Idusuario == iWorker && x.CodEnt == iEntity && x.Idot == iOt && x.Validado == 0 && x.Registrado == 0).OrderBy(x => x.Inicio).ToListAsync();
                 }
                 else
                 {
@@ -686,7 +690,7 @@ namespace AppPartes.Logic
             }
             return lReturn;
         }
-        private string DayStatusColour(int iNumPart, int iGenerated, int iValidated, DateTime dtDay,int iStatus)
+        private string DayStatusColour(int iNumPart, int iGenerated, int iValidated, DateTime dtDay, int iStatus)
         {
             string strReturn = "#FFFFFF";
             string strAllGenerated = "#0000FF";//
@@ -896,10 +900,49 @@ namespace AppPartes.Logic
                 default:
                     throw new Exception();
             }
-            
+
             DateTime s = dtEndWeek;
             TimeSpan ts = new TimeSpan(23, 59, 0);
             dtEndWeek = s.Date + ts;
+        }
+        public static string ConvertDateTimeToString(DateTime dtInput)
+        {
+            string strReturn = string.Empty;
+            if (dtInput.Day<10)
+            {
+                strReturn = "0"+dtInput.Day;
+            }
+            else
+            {
+                strReturn =  Convert.ToString(dtInput.Day) ;
+            }
+            if (dtInput.Month < 10)
+            {
+                strReturn = strReturn + "/0" + dtInput.Month;
+            }
+            else
+            {
+                strReturn = strReturn + "/" + dtInput.Month ;
+            }
+            strReturn = strReturn + "/" + dtInput.Year;
+            if (dtInput.Hour < 10)
+            {
+                strReturn = strReturn + " 0" + dtInput.Hour ;
+            }
+            else
+            {
+                strReturn = strReturn + " " + dtInput.Hour;
+            }
+            if (dtInput.Minute < 10)
+            {
+                strReturn = strReturn + ":0" + dtInput.Minute;
+            }
+            else
+            {
+                strReturn = strReturn + ":" + dtInput.Minute;
+            }
+
+            return strReturn;
         }
     }
 }

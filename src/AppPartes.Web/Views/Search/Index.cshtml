@@ -27,8 +27,8 @@
     <!-- Content -->
     <section>
         <h2 id="elements">Estado Partes del mes</h2>
-        <p>Seleccione una delgación y una fecha para ver el estado de los partes de trabajo de cada dia de cada trabajador del mes seleccionado.</p>
-        <p>Cuantos mas trabajadores se pueden validar más largo es el tiempo de obtención de datos.</p>
+        <p>Seleccione una delegación y una fecha para ver el estado de los partes de trabajo de cada día de cada trabajador del mes seleccionado.</p>
+        <p>Cuantos más trabajadores se pueden validar más largo es el tiempo de obtención de datos.</p>
         <form asp-controller="Search" asp-action="Index" method="POST">
             <div class="row gtr-uniform">
                 <div class="col-12">
@@ -73,7 +73,7 @@
     </section>
     <section>
         <h2 id="elements">Estado Partes del trabajador</h2>
-        <p>Seleccione dia día de semana,delegación y trabajador para ver los partes de la semana seleccionada.</p>
+        <p>Seleccione un día de semana,delegación y trabajador para ver los partes de la semana del trabajador en la seleccionada.</p>
         <form asp-controller="Search" asp-action="Index" method="POST">
             <div class="row gtr-uniform">
                 <div class="col-12">
@@ -203,62 +203,62 @@
                                     <tbody>
                                         @foreach (var part in dept)
                                         {
-                                            <tr>
-                                                <td>
-                                                    @{
-                                                        switch (part.iStatus)
-                                                        {
-                                                            case 0:
-                                                                <p>Parte no cerrado</p>
-                                                                break;  // Always break each case
-                                                            case 1:
-                                                                <p>Parte Volcado</p>
-                                                                break;
-                                                            case 2:
-                                                                <form asp-controller="SearchEdit" asp-action="Index" method="POST">
-                                                                    <input type="hidden" name="strLineId" value="@part.Idlinea" />
-                                                                    <input type="hidden" name="strAction" value="editLine" />
-                                                                    <input type="submit" value="Editar" />
-                                                                </form>
-                                                                <form asp-controller="Search" asp-action="SearchValidate" method="POST">
-                                                                    <input type="hidden" id="idLinea" name="idLine" value="@part.Idlinea" />
-                                                                    <input type="hidden" id="dtIni" name="dtIni" value="@part.Inicio.Date" />
-                                                                    <input type="hidden" name="strAction" value="validateLine" />
-                                                                    <input type="submit" value="Validar" />
-                                                                </form>
-                                                                break;
+                                        <tr>
+                                            <td>
+                                                @{
+                                                    switch (part.iStatus)
+                                                    {
+                                                        case 0:
+                                                            <p>Parte no cerrado</p>
+                                                            break;  // Always break each case
+                                                        case 1:
+                                                            <p>Parte Volcado</p>
+                                                            break;
+                                                        case 2:
+                                                            <form asp-controller="SearchEdit" asp-action="Index" method="POST">
+                                                                <input type="hidden" name="strLineId" value="@part.Idlinea" />
+                                                                <input type="hidden" name="strAction" value="editLine" />
+                                                                <input type="submit" value="Editar" />
+                                                            </form>
+                                                            <form asp-controller="Search" asp-action="SearchValidate" method="POST">
+                                                                <input type="hidden" id="idLinea" name="idLine" value="@part.Idlinea" />
+                                                                <input type="hidden" id="dtIni" name="dtIni" value="@part.Inicio.Date" />
+                                                                <input type="hidden" name="strAction" value="validateLine" />
+                                                                <input type="submit" value="Validar" />
+                                                            </form>
+                                                            break;
 
-                                                            default:
-                                                                <p>Situacion descontrolada</p>
-                                                                break;
-                                                        }
+                                                        default:
+                                                            <p>Situacion descontrolada</p>
+                                                            break;
                                                     }
-                                                </td>
-                                                <td>@part.NombreUsuario</td>
-                                                <td>@part.Inicio</td>
-                                                <td>@part.Fin</td>
-                                                <td>@part.NombreCliente</td>
-                                                <td>@part.NombreOt</td>
-                                                <!--<td>Nombre OT</td>-->
-                                                <td>@part.NombrePreslin</td>
-                                                <!--<td>Nombre Presupuesto</td>-->
-                                                <!--<td>Nivel1</td>
-                                                <td>Nivel2</td>
-                                                <td>Nivel3</td>
-                                                <td>Nivel4</td>
-                                                <td>Nivel5</td>
-                                                <td>Nivel6</td>
-                                                <td>Nivel7</td>-->
-                                                <td>@part.Horasviaje</td>
-                                                <td>@part.Horas</td>
-                                                <td>@part.Dietas</td>
-                                                <td>@part.Km</td>
-                                                <td>@part.strPernocta</td>
-                                                <td>@part.Observaciones</td>
-                                                <td>@part.Idlinea</td>
-                                                <td>@part.Npartefirmado</td>
-                                                <td>@part.Validado</td>
-                                            </tr>
+                                                }
+                                            </td>
+                                            <td>@part.NombreUsuario</td>
+                                            <td>@part.strInicio</td>
+                                            <td>@part.strFin</td>
+                                            <td>@part.NombreCliente</td>
+                                            <td>@part.NombreOt</td>
+                                            <!--<td>Nombre OT</td>-->
+                                            <td>@part.NombrePreslin</td>
+                                            <!--<td>Nombre Presupuesto</td>-->
+                                            <!--<td>Nivel1</td>
+    <td>Nivel2</td>
+    <td>Nivel3</td>
+    <td>Nivel4</td>
+    <td>Nivel5</td>
+    <td>Nivel6</td>
+    <td>Nivel7</td>-->
+                                            <td>@part.Horasviaje</td>
+                                            <td>@part.Horas</td>
+                                            <td>@part.Dietas</td>
+                                            <td>@part.Km</td>
+                                            <td>@part.strPernocta</td>
+                                            <td>@part.Observaciones</td>
+                                            <td>@part.Idlinea</td>
+                                            <td>@part.Npartefirmado</td>
+                                            <td>@part.Validado</td>
+                                        </tr>
                                         }
                                     </tbody>
                                     @*<tfoot>
@@ -290,11 +290,11 @@
             <table class="alt">
                 <tbody>
                     <tr>
-                        <td style="background-color:#D2691E">Dia generado</td>
-                        <td style="background-color:#B0C4DE">Dia validado</td>
-                        <td style="background-color:#FFFFFF">Dia sin cerrar</td>
+                        <td style="background-color:#0000FF">Día generado</td>
+                        <td style="background-color:#006400">Día validado</td>
+                        <td style="background-color:#FFFFFF">Día sin cerrar</td>
                         <td style="background-color:#D3D3D3">Fin de semana</td>
-                        <td style="background-color:#FF8C00">Validado incompleto</td>
+                        <td style="background-color:#FFFF00">Día Cerrado</td>
                     </tr>
                 </tbody>
             </table>
