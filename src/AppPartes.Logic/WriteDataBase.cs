@@ -84,7 +84,75 @@ namespace AppPartes.Logic
             }
             return lReturn;
         }
-        public async Task<string> InsertWorkerLineAsync(WorkerLineData dataToInsertLine, int idAldakinUser)
+        public async Task<string> InsertUserWorkExpensesAsync(List<Gastos> lGastos, int iIdLine)
+        {
+            string strReturn = string.Empty;
+            var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+            try
+            {
+                await aldakinDbContext.SaveChangesAsync();
+                foreach (var g in lGastos)
+                {
+                    var gasto = new Gastos
+                    {
+                        Pagador = g.Pagador,
+                        Tipo = g.Tipo,
+                        Cantidad = g.Cantidad,
+                        Observacion = g.Observacion.ToUpper(),
+                        Idlinea = iIdLine
+                    };
+                    aldakinDbContext.Gastos.Add(gasto);
+                }
+                await aldakinDbContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                strReturn = "Ha ocurrido un problema durante el proceso de guardar el parte de trabajo.;";
+
+            }
+            return strReturn;
+        }
+        public async Task<int> InsertWorkerLineAsync(Lineas oLinea)
+        {
+            int iReturn = 0;
+            var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+            try
+            {
+                var linea = new Lineas
+                {
+                    Idot = oLinea.Idot,
+                    Idpreslin = oLinea.Idpreslin,
+                    Dietas = oLinea.Dietas,
+                    Km = oLinea.Km,
+                    Observaciones = oLinea.Observaciones,
+                    Horasviaje = oLinea.Horasviaje,
+                    Inicio = oLinea.Inicio,
+                    Fin = oLinea.Fin,
+                    Horas = oLinea.Horas,
+                    Idusuario = oLinea.Idusuario,
+                    Facturable = oLinea.Facturable,
+                    Npartefirmado = oLinea.Npartefirmado,
+                    CodEnt = oLinea.CodEnt,
+                    Idoriginal = oLinea.Idoriginal,
+                    Validador = string.Empty,
+                    Validado = 0
+                };
+                aldakinDbContext.Lineas.Add(linea);
+                await aldakinDbContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+                iReturn = linea.Idlinea;
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                iReturn = 0;
+            }
+            
+            return (iReturn);
+        }
+        public async Task<string> XXXXInsertWorkerLineAsync(WorkerLineData dataToInsertLine, int idAldakinUser)
         {
             WriteUserDataAsync(idAldakinUser);
             string strReturn = string.Empty;
@@ -219,7 +287,7 @@ namespace AppPartes.Logic
                                     else
                                     {
                                         var temp = substring[3].Replace('.', ',');
-                                        var gasto= float.Parse(temp);
+                                        var gasto = (float)(Convert.ToDouble(temp));
                                         lGastos.Add(new Gastos
                                         {
                                             Pagador = Convert.ToInt32(substring[1]),
@@ -477,7 +545,8 @@ namespace AppPartes.Logic
             strReturn = "Parte rellenado satisfactoriamente";
             return (strReturn);
         }
-        public async Task<List<SelectData>> DeleteWorkerLineAsync(int iLine, int idAldakinUser)
+        
+        public async Task<List<SelectData>> DeleteWorkerLineAsync(int iLine, int idAldakinUser,int idAdminUser)
         {
             WriteUserDataAsync(idAldakinUser);
             string strReturn;
@@ -485,33 +554,7 @@ namespace AppPartes.Logic
             {
                 new SelectData { iValue = 0 }
             };
-            //var strReturn = string.Empty;
-            //var iIdLinea = 0;
-            //try
-            //{
-            //    iIdLinea = Convert.ToInt32(iLine);
-            //}
-            //catch (Exception)
-            //{
-            //    return oReturn;
-            //}
-            //if (iIdLinea == 0)
-            //{
-            //    return oReturn;
-            //}
-            //var lSelect = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(iIdLinea));
-            //DateTime day;
-            //if (lSelect is null)
-            //{
-            //    return oReturn;
-            //}
-            //day = lSelect.Inicio;
-            //var lEstadoDia = await aldakinDbContext.Estadodias.Where(x => x.Idusuario == _iUserId && DateTime.Compare(x.Dia, day.Date) == 0).ToListAsync();//
-            //if (lEstadoDia.Count > 0)
-            //{
-            //    return oReturn;
-            //}
-            var lSelect = await ReviewLineData(iLine, _iUserId);
+            var lSelect = await ReviewLineData(iLine, idAldakinUser, idAdminUser);
             if (lSelect is null) return oReturn;
             var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
             try
@@ -663,417 +706,417 @@ namespace AppPartes.Logic
             oReturn.strValue = dtSelected.ToString();
             return oReturn;
         }
-        public async Task<SelectData> EditWorkerLineAsync(WorkerLineData dataToEditLine, int idAldakinUser)
-        {
-            WriteUserDataAsync(idAldakinUser);
-            var oReturn = new SelectData
-            {
-                iValue = 0,
-                strText = string.Empty,
-                strValue = string.Empty
-            };
-            var strReturn = string.Empty;
-            var bHorasViajeTemp = false;
-            var gGastosTemp = false;
-            var iPernoctacion = 0;
-            DateTime day, dtInicio, dtFin;
-            var datosLinea = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(dataToEditLine.strIdLinea));
-            try
-            {
-                if (string.IsNullOrEmpty(dataToEditLine.strObservaciones))
-                {
-                    dataToEditLine.strObservaciones = string.Empty;
-                }
+        //public async Task<SelectData> EditWorkerLineAsync(WorkerLineData dataToEditLine, int idAldakinUser)
+        //{
+        //    WriteUserDataAsync(idAldakinUser);
+        //    var oReturn = new SelectData
+        //    {
+        //        iValue = 0,
+        //        strText = string.Empty,
+        //        strValue = string.Empty
+        //    };
+        //    var strReturn = string.Empty;
+        //    var bHorasViajeTemp = false;
+        //    var gGastosTemp = false;
+        //    var iPernoctacion = 0;
+        //    DateTime day, dtInicio, dtFin;
+        //    var datosLinea = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(dataToEditLine.strIdLinea));
+        //    try
+        //    {
+        //        if (string.IsNullOrEmpty(dataToEditLine.strObservaciones))
+        //        {
+        //            dataToEditLine.strObservaciones = string.Empty;
+        //        }
 
-                if (string.IsNullOrEmpty(dataToEditLine.strParte))
-                {
-                    dataToEditLine.strParte = string.Empty;
-                }
+        //        if (string.IsNullOrEmpty(dataToEditLine.strParte))
+        //        {
+        //            dataToEditLine.strParte = string.Empty;
+        //        }
 
-                if (string.IsNullOrEmpty(dataToEditLine.bHorasViaje))
-                {
-                    bHorasViajeTemp = false;
-                }
-                else
-                {
-                    bHorasViajeTemp = true;
-                }
-                if (string.IsNullOrEmpty(dataToEditLine.bGastos))
-                {
-                    gGastosTemp = false;
-                }
-                else
-                {
-                    gGastosTemp = true;
-                    dataToEditLine.strHoraInicio = "00";
-                    dataToEditLine.strMinutoInicio = "00";
-                    dataToEditLine.strHoraFin = "00";
-                    dataToEditLine.strMinutoFin = "00";
-                }
-                if (string.IsNullOrEmpty(dataToEditLine.strPernoctacion))
-                {
-                    iPernoctacion = 0;
-                }
-                else
-                {
-                    iPernoctacion = Convert.ToInt32(dataToEditLine.strPernoctacion);
-                }
-                day = Convert.ToDateTime(dataToEditLine.strCalendario);
-                dtInicio = Convert.ToDateTime(dataToEditLine.strCalendario + " " + dataToEditLine.strHoraInicio + ":" + dataToEditLine.strMinutoInicio + ":00");
-                dtFin = Convert.ToDateTime(dataToEditLine.strCalendario + " " + dataToEditLine.strHoraFin + ":" + dataToEditLine.strMinutoFin + ":00");
-            }
-            catch (Exception)
-            {
-                oReturn.strText = "Se ha producido un error en el procesamiento de los datos;";
-                oReturn.iValue = 0;
-                return oReturn;
-            }
-            //Estado dia
-            try
-            {
-                day = Convert.ToDateTime(dataToEditLine.strCalendario);
-                dtInicio = Convert.ToDateTime(dataToEditLine.strCalendario + " " + dataToEditLine.strHoraInicio + ":" + dataToEditLine.strMinutoInicio + ":00");
-                dtFin = Convert.ToDateTime(dataToEditLine.strCalendario + " " + dataToEditLine.strHoraFin + ":" + dataToEditLine.strMinutoFin + ":00");
-                var lEstadoDia = await aldakinDbContext.Estadodias.Where(x => x.Idusuario == _iUserId && DateTime.Compare(x.Dia, day) == 0).ToListAsync();//
-                if (lEstadoDia.Count > 0)
-                {
-                    strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
-                    oReturn.strText = "La semana esta cerrada, habla con tu responsable para reabirla;";
-                    oReturn.iValue = 1;
-                    oReturn.strValue = strReturn;
-                    return oReturn;
-                }
-                if (DateTime.Compare(dtInicio, dtFin) > 0)
-                {
-                    strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
-                    oReturn.strText = "Hora de Fin de Parte anterior a la Hora de inicio de Parte;";
-                    oReturn.iValue = 1;
-                    oReturn.strValue = strReturn;
-                    return oReturn;
-                }
-            }
-            catch (Exception)
-            {
-                oReturn.strText = "Se ha producido un error procesando el estado del dia;";
-                oReturn.iValue = 0;
-                return oReturn;
-            }
-            //Rango usado
-            float TiempoViaje = 0;
-            try
-            {
-                var lLineas = await aldakinDbContext.Lineas.Where(x => DateTime.Compare(x.Inicio.Date, day.Date) == 0 && x.Idusuario == _iUserId && x.Validado == 0 && x.Registrado == 0 && x.Idlinea != datosLinea.Idlinea && x.Idoriginal != datosLinea.Idlinea).ToListAsync();
-                if (RangeIsUsed(lLineas, dtFin, dtInicio, ref strReturn))
-                {
-                    strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
-                    oReturn.strText = "Rango de Horas ya utilizado;";
-                    oReturn.iValue = 1;
-                    oReturn.strValue = strReturn;
-                    return oReturn;
-                }
-                //
-                var dHorasTrabajadas = (dtFin - dtInicio).TotalHours;
-                if ((dHorasTrabajadas == 0) && !gGastosTemp)
-                {
-                    strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
-                    oReturn.strText = "error 24h trabajadas y no puesto solo gastos;";
-                    oReturn.iValue = 1;
-                    oReturn.strValue = strReturn;
-                    return oReturn;
-                }
-                //tiempo de viaje
-                if (bHorasViajeTemp)
-                {
-                    TiempoViaje = Convert.ToSingle((dtFin - dtInicio).TotalHours);
-                }
-            }
-            catch (Exception)
-            {
-                oReturn.strText = "Se ha producido un error en el procesamiento horas de viaje, rango de horas;";
-                oReturn.iValue = 0;
-                return oReturn;
-            }
-            //gastos
-            float dGastos = 0;
-            float dKilometros = 0;
-            int iCodEntOt;
-            var lGastos = new List<Gastos>();
-            try
-            {
-                var codEntOt = await aldakinDbContext.Ots.FirstOrDefaultAsync(t => t.Idots == Convert.ToInt32(dataToEditLine.strOt));
-                iCodEntOt = codEntOt.CodEnt;
-                if (!(string.IsNullOrEmpty(dataToEditLine.strGastos)))
-                {
-                    string line;
-                    string[] substring;
-                    var strReader = new StringReader(dataToEditLine.strGastos);
-                    while ((line = strReader.ReadLine()) != null)
-                    {
-                        if (line != null)
-                        {
-                            substring = line.Split('|');
-                            if (substring.Length == 5)
-                            {
-                                if (string.Equals(substring[1], "ALDAKIN"))
-                                {
-                                    substring[1] = "1";
-                                }
-                                else
-                                {
-                                    if (string.Equals(substring[1], "TRABAJADOR"))
-                                    {
-                                        substring[1] = "0";
-                                    }
-                                    else
-                                    {
-                                        continue;
-                                    }
-                                }
-                                try
-                                {
-                                    var pagador = await aldakinDbContext.Tipogastos.FirstOrDefaultAsync(x => x.CodEnt == iCodEntOt && string.Equals(x.Tipo, substring[2]) && x.Pagador == Convert.ToInt32(substring[1]));
-                                    if (pagador is null)
-                                    {
-                                        //si hay error no hace nada con la lineapara que siga con la siguiente
-                                        //strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
-                                        //return RedirectToAction("Index", new { strMessage = "Los gastos son erroneos, repita el parte;", strDate = strReturn, strAction = "loadWeek" });
-                                    }
-                                    else
-                                    {
-                                        lGastos.Add(new Gastos
-                                        {
-                                            Pagador = Convert.ToInt32(substring[1]),
-                                            Tipo = pagador.Idtipogastos,
-                                            Cantidad = (float)Convert.ToDouble(substring[3].Replace('.', ',')),
-                                            Observacion = substring[4]
-                                        });
+        //        if (string.IsNullOrEmpty(dataToEditLine.bHorasViaje))
+        //        {
+        //            bHorasViajeTemp = false;
+        //        }
+        //        else
+        //        {
+        //            bHorasViajeTemp = true;
+        //        }
+        //        if (string.IsNullOrEmpty(dataToEditLine.bGastos))
+        //        {
+        //            gGastosTemp = false;
+        //        }
+        //        else
+        //        {
+        //            gGastosTemp = true;
+        //            dataToEditLine.strHoraInicio = "00";
+        //            dataToEditLine.strMinutoInicio = "00";
+        //            dataToEditLine.strHoraFin = "00";
+        //            dataToEditLine.strMinutoFin = "00";
+        //        }
+        //        if (string.IsNullOrEmpty(dataToEditLine.strPernoctacion))
+        //        {
+        //            iPernoctacion = 0;
+        //        }
+        //        else
+        //        {
+        //            iPernoctacion = Convert.ToInt32(dataToEditLine.strPernoctacion);
+        //        }
+        //        day = Convert.ToDateTime(dataToEditLine.strCalendario);
+        //        dtInicio = Convert.ToDateTime(dataToEditLine.strCalendario + " " + dataToEditLine.strHoraInicio + ":" + dataToEditLine.strMinutoInicio + ":00");
+        //        dtFin = Convert.ToDateTime(dataToEditLine.strCalendario + " " + dataToEditLine.strHoraFin + ":" + dataToEditLine.strMinutoFin + ":00");
+        //    }
+        //    catch (Exception)
+        //    {
+        //        oReturn.strText = "Se ha producido un error en el procesamiento de los datos;";
+        //        oReturn.iValue = 0;
+        //        return oReturn;
+        //    }
+        //    //Estado dia
+        //    try
+        //    {
+        //        day = Convert.ToDateTime(dataToEditLine.strCalendario);
+        //        dtInicio = Convert.ToDateTime(dataToEditLine.strCalendario + " " + dataToEditLine.strHoraInicio + ":" + dataToEditLine.strMinutoInicio + ":00");
+        //        dtFin = Convert.ToDateTime(dataToEditLine.strCalendario + " " + dataToEditLine.strHoraFin + ":" + dataToEditLine.strMinutoFin + ":00");
+        //        var lEstadoDia = await aldakinDbContext.Estadodias.Where(x => x.Idusuario == _iUserId && DateTime.Compare(x.Dia, day) == 0).ToListAsync();//
+        //        if (lEstadoDia.Count > 0)
+        //        {
+        //            strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
+        //            oReturn.strText = "La semana esta cerrada, habla con tu responsable para reabirla;";
+        //            oReturn.iValue = 1;
+        //            oReturn.strValue = strReturn;
+        //            return oReturn;
+        //        }
+        //        if (DateTime.Compare(dtInicio, dtFin) > 0)
+        //        {
+        //            strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
+        //            oReturn.strText = "Hora de Fin de Parte anterior a la Hora de inicio de Parte;";
+        //            oReturn.iValue = 1;
+        //            oReturn.strValue = strReturn;
+        //            return oReturn;
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //        oReturn.strText = "Se ha producido un error procesando el estado del dia;";
+        //        oReturn.iValue = 0;
+        //        return oReturn;
+        //    }
+        //    //Rango usado
+        //    float TiempoViaje = 0;
+        //    try
+        //    {
+        //        var lLineas = await aldakinDbContext.Lineas.Where(x => DateTime.Compare(x.Inicio.Date, day.Date) == 0 && x.Idusuario == _iUserId && x.Validado == 0 && x.Registrado == 0 && x.Idlinea != datosLinea.Idlinea && x.Idoriginal != datosLinea.Idlinea).ToListAsync();
+        //        if (RangeIsUsed(lLineas, dtFin, dtInicio, ref strReturn))
+        //        {
+        //            strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
+        //            oReturn.strText = "Rango de Horas ya utilizado;";
+        //            oReturn.iValue = 1;
+        //            oReturn.strValue = strReturn;
+        //            return oReturn;
+        //        }
+        //        //
+        //        var dHorasTrabajadas = (dtFin - dtInicio).TotalHours;
+        //        if ((dHorasTrabajadas == 0) && !gGastosTemp)
+        //        {
+        //            strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
+        //            oReturn.strText = "error 24h trabajadas y no puesto solo gastos;";
+        //            oReturn.iValue = 1;
+        //            oReturn.strValue = strReturn;
+        //            return oReturn;
+        //        }
+        //        //tiempo de viaje
+        //        if (bHorasViajeTemp)
+        //        {
+        //            TiempoViaje = Convert.ToSingle((dtFin - dtInicio).TotalHours);
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //        oReturn.strText = "Se ha producido un error en el procesamiento horas de viaje, rango de horas;";
+        //        oReturn.iValue = 0;
+        //        return oReturn;
+        //    }
+        //    //gastos
+        //    float dGastos = 0;
+        //    float dKilometros = 0;
+        //    int iCodEntOt;
+        //    var lGastos = new List<Gastos>();
+        //    try
+        //    {
+        //        var codEntOt = await aldakinDbContext.Ots.FirstOrDefaultAsync(t => t.Idots == Convert.ToInt32(dataToEditLine.strOt));
+        //        iCodEntOt = codEntOt.CodEnt;
+        //        if (!(string.IsNullOrEmpty(dataToEditLine.strGastos)))
+        //        {
+        //            string line;
+        //            string[] substring;
+        //            var strReader = new StringReader(dataToEditLine.strGastos);
+        //            while ((line = strReader.ReadLine()) != null)
+        //            {
+        //                if (line != null)
+        //                {
+        //                    substring = line.Split('|');
+        //                    if (substring.Length == 5)
+        //                    {
+        //                        if (string.Equals(substring[1], "ALDAKIN"))
+        //                        {
+        //                            substring[1] = "1";
+        //                        }
+        //                        else
+        //                        {
+        //                            if (string.Equals(substring[1], "TRABAJADOR"))
+        //                            {
+        //                                substring[1] = "0";
+        //                            }
+        //                            else
+        //                            {
+        //                                continue;
+        //                            }
+        //                        }
+        //                        try
+        //                        {
+        //                            var pagador = await aldakinDbContext.Tipogastos.FirstOrDefaultAsync(x => x.CodEnt == iCodEntOt && string.Equals(x.Tipo, substring[2]) && x.Pagador == Convert.ToInt32(substring[1]));
+        //                            if (pagador is null)
+        //                            {
+        //                                //si hay error no hace nada con la lineapara que siga con la siguiente
+        //                                //strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
+        //                                //return RedirectToAction("Index", new { strMessage = "Los gastos son erroneos, repita el parte;", strDate = strReturn, strAction = "loadWeek" });
+        //                            }
+        //                            else
+        //                            {
+        //                                lGastos.Add(new Gastos
+        //                                {
+        //                                    Pagador = Convert.ToInt32(substring[1]),
+        //                                    Tipo = pagador.Idtipogastos,
+        //                                    Cantidad = (float)Convert.ToDouble(substring[3].Replace('.', ',')),
+        //                                    Observacion = substring[4]
+        //                                });
 
-                                        if (substring[2] != "KILOMETROS")
-                                        {
-                                            dGastos = dGastos + (float)Convert.ToDouble(substring[3].Replace('.', ','));
-                                        }
-                                        else
-                                        {
-                                            dKilometros = dKilometros + (float)Convert.ToDouble(substring[3].Replace('.', ','));
-                                        }
-                                    }
-                                }
-                                catch (Exception)
-                                {
-                                    strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
-                                    oReturn.strText = "Los gastos son erroneos, repita el parte;";
-                                    oReturn.iValue = 1;
-                                    oReturn.strValue = strReturn;
-                                    return oReturn;
-                                }
-                            }
-                            else
-                            {
-                                //si hay error no hace nada con la lineapara que siga con la siguiente
-                                //strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
-                                //return RedirectToAction("Index", new { strMessage = "Los gastos son erroneos, repita el parte;", strDate = strReturn, strAction = "loadWeek" });
-                            }
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                oReturn.strText = "Se ha producido un error en el procesamiento los gastos;";
-                oReturn.iValue = 0;
-                return oReturn;
-            }
-            var otSel = new Ots();
-            try
-            {
-                otSel = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == Convert.ToInt32(dataToEditLine.strOt) && x.Codigorefot != "29" && x.Cierre == null);
-                if (otSel is null)
-                {
-                    oReturn.strText = "En la Ot que esta usando se ha encontrado un problema, recargue la pagina;";
-                    oReturn.iValue = 0;
-                    oReturn.strValue = string.Empty;
-                    return oReturn;
-                }
+        //                                if (substring[2] != "KILOMETROS")
+        //                                {
+        //                                    dGastos = dGastos + (float)Convert.ToDouble(substring[3].Replace('.', ','));
+        //                                }
+        //                                else
+        //                                {
+        //                                    dKilometros = dKilometros + (float)Convert.ToDouble(substring[3].Replace('.', ','));
+        //                                }
+        //                            }
+        //                        }
+        //                        catch (Exception)
+        //                        {
+        //                            strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
+        //                            oReturn.strText = "Los gastos son erroneos, repita el parte;";
+        //                            oReturn.iValue = 1;
+        //                            oReturn.strValue = strReturn;
+        //                            return oReturn;
+        //                        }
+        //                    }
+        //                    else
+        //                    {
+        //                        //si hay error no hace nada con la lineapara que siga con la siguiente
+        //                        //strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
+        //                        //return RedirectToAction("Index", new { strMessage = "Los gastos son erroneos, repita el parte;", strDate = strReturn, strAction = "loadWeek" });
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    break;
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //        oReturn.strText = "Se ha producido un error en el procesamiento los gastos;";
+        //        oReturn.iValue = 0;
+        //        return oReturn;
+        //    }
+        //    var otSel = new Ots();
+        //    try
+        //    {
+        //        otSel = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == Convert.ToInt32(dataToEditLine.strOt) && x.Codigorefot != "29" && x.Cierre == null);
+        //        if (otSel is null)
+        //        {
+        //            oReturn.strText = "En la Ot que esta usando se ha encontrado un problema, recargue la pagina;";
+        //            oReturn.iValue = 0;
+        //            oReturn.strValue = string.Empty;
+        //            return oReturn;
+        //        }
 
-                if (otSel.Nombre.Length > 20 && otSel.Nombre.Substring(0, 20) == "TRABAJOS REALIZADOS ")
-                {
-                    try
-                    {
-                        var otoriginal = Convert.ToInt32(dataToEditLine.strObservaciones.Substring(0, 1));
-                    }
-                    catch (Exception)
-                    {
-                        strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
-                        oReturn.strText = "En las OTs de trabajos para otras delegaciones, lo primero que debe aparecer en las observaciones debe ser la OT de la delegacion de origen;";
-                        oReturn.iValue = 1;
-                        oReturn.strValue = strReturn;
-                        return oReturn;
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                oReturn.strText = "Se ha producido un error en el procesamiento los datos de OT;";
-                oReturn.iValue = 0;
-                return oReturn;
-            }
-            if (otSel.CodEnt == _iUserCondEntO)
-            {
-                datosLinea.Dietas = dGastos;
-                datosLinea.Km = dKilometros;
-                datosLinea.Observaciones = dataToEditLine.strObservaciones.ToUpper();
-                datosLinea.Horasviaje = TiempoViaje;
-                datosLinea.Inicio = dtInicio;
-                datosLinea.Fin = dtFin;
-                datosLinea.Horas = Convert.ToSingle((dtFin - dtInicio).TotalHours) - TiempoViaje;
-                datosLinea.Facturable = iPernoctacion;
-                datosLinea.Npartefirmado = dataToEditLine.strParte.ToUpper();
-                datosLinea.Idoriginal = 0;
-                datosLinea.Validador = string.Empty;
-                datosLinea.Validado = 0;
-                var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
-                try
-                {
-                    aldakinDbContext.Lineas.Update(datosLinea);
-                    await aldakinDbContext.SaveChangesAsync();
-                    var gasto = await aldakinDbContext.Gastos.Where(x => x.Idlinea == datosLinea.Idlinea).ToListAsync();
-                    if (!(gasto is null))
-                    {
-                        aldakinDbContext.Gastos.RemoveRange(gasto);
-                    }
+        //        if (otSel.Nombre.Length > 20 && otSel.Nombre.Substring(0, 20) == "TRABAJOS REALIZADOS ")
+        //        {
+        //            try
+        //            {
+        //                var otoriginal = Convert.ToInt32(dataToEditLine.strObservaciones.Substring(0, 1));
+        //            }
+        //            catch (Exception)
+        //            {
+        //                strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
+        //                oReturn.strText = "En las OTs de trabajos para otras delegaciones, lo primero que debe aparecer en las observaciones debe ser la OT de la delegacion de origen;";
+        //                oReturn.iValue = 1;
+        //                oReturn.strValue = strReturn;
+        //                return oReturn;
+        //            }
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //        oReturn.strText = "Se ha producido un error en el procesamiento los datos de OT;";
+        //        oReturn.iValue = 0;
+        //        return oReturn;
+        //    }
+        //    if (otSel.CodEnt == _iUserCondEntO)
+        //    {
+        //        datosLinea.Dietas = dGastos;
+        //        datosLinea.Km = dKilometros;
+        //        datosLinea.Observaciones = dataToEditLine.strObservaciones.ToUpper();
+        //        datosLinea.Horasviaje = TiempoViaje;
+        //        datosLinea.Inicio = dtInicio;
+        //        datosLinea.Fin = dtFin;
+        //        datosLinea.Horas = Convert.ToSingle((dtFin - dtInicio).TotalHours) - TiempoViaje;
+        //        datosLinea.Facturable = iPernoctacion;
+        //        datosLinea.Npartefirmado = dataToEditLine.strParte.ToUpper();
+        //        datosLinea.Idoriginal = 0;
+        //        datosLinea.Validador = string.Empty;
+        //        datosLinea.Validado = 0;
+        //        var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+        //        try
+        //        {
+        //            aldakinDbContext.Lineas.Update(datosLinea);
+        //            await aldakinDbContext.SaveChangesAsync();
+        //            var gasto = await aldakinDbContext.Gastos.Where(x => x.Idlinea == datosLinea.Idlinea).ToListAsync();
+        //            if (!(gasto is null))
+        //            {
+        //                aldakinDbContext.Gastos.RemoveRange(gasto);
+        //            }
 
-                    foreach (var g in lGastos)
-                    {
-                        var gastoNew = new Gastos
-                        {
-                            Pagador = g.Pagador,
-                            Tipo = g.Tipo,
-                            Cantidad = g.Cantidad,
-                            Observacion = g.Observacion.ToUpper(),
-                            Idlinea = datosLinea.Idlinea
-                        };
-                        aldakinDbContext.Gastos.Add(gastoNew);
-                    }
-                    await aldakinDbContext.SaveChangesAsync();
-                    await transaction.CommitAsync();
-                }
-                catch (Exception)
-                {
-                    await transaction.RollbackAsync();
-                    strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
-                    oReturn.strText = "Ha ocurrido un problema durante el proceso de guardar el parte de trabajo.;";
-                    oReturn.iValue = 1;
-                    oReturn.strValue = strReturn;
-                    return oReturn;
-                }
-            }
-            else
-            {
-                var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Name == _stUserDni && x.CodEnt == otSel.CodEnt);
-                if (!(user is null))
-                {
-                    datosLinea.Dietas = dGastos;
-                    datosLinea.Km = dKilometros;
-                    datosLinea.Observaciones = dataToEditLine.strObservaciones.ToUpper();
-                    datosLinea.Horasviaje = TiempoViaje;
-                    datosLinea.Inicio = dtInicio;
-                    datosLinea.Fin = dtFin;
-                    datosLinea.Horas = Convert.ToSingle((dtFin - dtInicio).TotalHours) - TiempoViaje;
-                    datosLinea.Facturable = iPernoctacion;
-                    datosLinea.Npartefirmado = dataToEditLine.strParte.ToUpper();
-                    datosLinea.Idoriginal = 0;
-                    datosLinea.Validador = string.Empty;
-                    datosLinea.Validado = 0;
-                    var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
-                    try
-                    {
-                        aldakinDbContext.Lineas.Update(datosLinea);
-                        await aldakinDbContext.SaveChangesAsync();
-                        var gasto = await aldakinDbContext.Gastos.Where(x => x.Idlinea == datosLinea.Idlinea).ToListAsync();
-                        if (!(gasto is null))
-                        {
-                            aldakinDbContext.Gastos.RemoveRange(gasto);
-                        }
+        //            foreach (var g in lGastos)
+        //            {
+        //                var gastoNew = new Gastos
+        //                {
+        //                    Pagador = g.Pagador,
+        //                    Tipo = g.Tipo,
+        //                    Cantidad = g.Cantidad,
+        //                    Observacion = g.Observacion.ToUpper(),
+        //                    Idlinea = datosLinea.Idlinea
+        //                };
+        //                aldakinDbContext.Gastos.Add(gastoNew);
+        //            }
+        //            await aldakinDbContext.SaveChangesAsync();
+        //            await transaction.CommitAsync();
+        //        }
+        //        catch (Exception)
+        //        {
+        //            await transaction.RollbackAsync();
+        //            strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
+        //            oReturn.strText = "Ha ocurrido un problema durante el proceso de guardar el parte de trabajo.;";
+        //            oReturn.iValue = 1;
+        //            oReturn.strValue = strReturn;
+        //            return oReturn;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Name == _stUserDni && x.CodEnt == otSel.CodEnt);
+        //        if (!(user is null))
+        //        {
+        //            datosLinea.Dietas = dGastos;
+        //            datosLinea.Km = dKilometros;
+        //            datosLinea.Observaciones = dataToEditLine.strObservaciones.ToUpper();
+        //            datosLinea.Horasviaje = TiempoViaje;
+        //            datosLinea.Inicio = dtInicio;
+        //            datosLinea.Fin = dtFin;
+        //            datosLinea.Horas = Convert.ToSingle((dtFin - dtInicio).TotalHours) - TiempoViaje;
+        //            datosLinea.Facturable = iPernoctacion;
+        //            datosLinea.Npartefirmado = dataToEditLine.strParte.ToUpper();
+        //            datosLinea.Idoriginal = 0;
+        //            datosLinea.Validador = string.Empty;
+        //            datosLinea.Validado = 0;
+        //            var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+        //            try
+        //            {
+        //                aldakinDbContext.Lineas.Update(datosLinea);
+        //                await aldakinDbContext.SaveChangesAsync();
+        //                var gasto = await aldakinDbContext.Gastos.Where(x => x.Idlinea == datosLinea.Idlinea).ToListAsync();
+        //                if (!(gasto is null))
+        //                {
+        //                    aldakinDbContext.Gastos.RemoveRange(gasto);
+        //                }
 
-                        foreach (var g in lGastos)
-                        {
-                            var gastoNew = new Gastos
-                            {
-                                Pagador = g.Pagador,
-                                Tipo = g.Tipo,
-                                Cantidad = g.Cantidad,
-                                Observacion = g.Observacion.ToUpper(),
-                                Idlinea = datosLinea.Idlinea
-                            };
-                            aldakinDbContext.Gastos.Add(gastoNew);
-                        }
-                        await aldakinDbContext.SaveChangesAsync();
+        //                foreach (var g in lGastos)
+        //                {
+        //                    var gastoNew = new Gastos
+        //                    {
+        //                        Pagador = g.Pagador,
+        //                        Tipo = g.Tipo,
+        //                        Cantidad = g.Cantidad,
+        //                        Observacion = g.Observacion.ToUpper(),
+        //                        Idlinea = datosLinea.Idlinea
+        //                    };
+        //                    aldakinDbContext.Gastos.Add(gastoNew);
+        //                }
+        //                await aldakinDbContext.SaveChangesAsync();
 
-                        string Salida = otSel.Numero.ToString(), Primerdigito, Resto;
-                        var Cero = Convert.ToChar("0");
-                        Primerdigito = otSel.Numero.ToString().Substring(0, 1);
-                        Resto = otSel.Numero.ToString().Substring(2, otSel.Numero.ToString().Length - 2);
-                        Resto = Resto.TrimStart(Cero);
-                        Salida = string.Format("{0}|{1}", Primerdigito, Resto);
-                        var observaciones = Salida + " " + datosLinea.Observaciones.ToUpper();
+        //                string Salida = otSel.Numero.ToString(), Primerdigito, Resto;
+        //                var Cero = Convert.ToChar("0");
+        //                Primerdigito = otSel.Numero.ToString().Substring(0, 1);
+        //                Resto = otSel.Numero.ToString().Substring(2, otSel.Numero.ToString().Length - 2);
+        //                Resto = Resto.TrimStart(Cero);
+        //                Salida = string.Format("{0}|{1}", Primerdigito, Resto);
+        //                var observaciones = Salida + " " + datosLinea.Observaciones.ToUpper();
 
-                        var secundarioAntigua = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idoriginal == datosLinea.Idlinea);
-                        aldakinDbContext.Lineas.Remove(secundarioAntigua);
-                        //from ots where cierre is null and year(apertura) = year(iinicio) and  cod_ent = icod_ent and cod_ent_d = (select cod_ent from lineas where idlinea = iidoriginal)
-                        var ot = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Cierre == null && x.Apertura.Year == datosLinea.Inicio.Year && x.CodEnt == _iUserCondEntO && x.CodEntD == aldakinDbContext.Lineas.FirstOrDefault(y => y.Idlinea == datosLinea.Idlinea).CodEnt);
-                        var iOt = ot.Idots;
-                        var lineaSecundaria = new Lineas
-                        {
-                            Idot = iOt,
-                            Idpreslin = null,
-                            Dietas = datosLinea.Dietas,
-                            Km = datosLinea.Km,
-                            Observaciones = observaciones.ToUpper(),
-                            Horasviaje = datosLinea.Horasviaje,
-                            Inicio = datosLinea.Inicio,
-                            Fin = datosLinea.Fin,
-                            Horas = datosLinea.Horas,
-                            Idusuario = datosLinea.Idusuario,
-                            Facturable = datosLinea.Facturable,
-                            Npartefirmado = datosLinea.Npartefirmado,
-                            CodEnt = _iUserCondEntO,//codigo entidad del usuario
-                            Idoriginal = datosLinea.Idlinea,
-                            Validador = string.Empty,
-                            Validado = 0
-                        };
-                        aldakinDbContext.Lineas.Add(lineaSecundaria);
-                        await aldakinDbContext.SaveChangesAsync();
-                        await transaction.CommitAsync();
-                    }
-                    catch (Exception)
-                    {
-                        await transaction.RollbackAsync();
-                        strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
-                        oReturn.strText = "Ha ocurrido un problema durante el proceso de guardar el parte de trabajo.;";
-                        oReturn.iValue = 1;
-                        oReturn.strValue = strReturn;
-                        return oReturn;
-                    }
-                }
-                else
-                {
-                    strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
-                    oReturn.strText = "¡¡¡No estas dado de alta en la delegacion para la que quieres registrar el parte!!!Informe a admisntracion de lo ocurrido;";
-                    oReturn.iValue = 1;
-                    oReturn.strValue = strReturn;
-                    return oReturn;
-                }
-            }
-            strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
-            oReturn.strText = "Parte editado Satisfactoriamente;";
-            oReturn.iValue = 1;
-            oReturn.strValue = strReturn;
-            return oReturn;
-        }
+        //                var secundarioAntigua = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idoriginal == datosLinea.Idlinea);
+        //                aldakinDbContext.Lineas.Remove(secundarioAntigua);
+        //                //from ots where cierre is null and year(apertura) = year(iinicio) and  cod_ent = icod_ent and cod_ent_d = (select cod_ent from lineas where idlinea = iidoriginal)
+        //                var ot = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Cierre == null && x.Apertura.Year == datosLinea.Inicio.Year && x.CodEnt == _iUserCondEntO && x.CodEntD == aldakinDbContext.Lineas.FirstOrDefault(y => y.Idlinea == datosLinea.Idlinea).CodEnt);
+        //                var iOt = ot.Idots;
+        //                var lineaSecundaria = new Lineas
+        //                {
+        //                    Idot = iOt,
+        //                    Idpreslin = null,
+        //                    Dietas = datosLinea.Dietas,
+        //                    Km = datosLinea.Km,
+        //                    Observaciones = observaciones.ToUpper(),
+        //                    Horasviaje = datosLinea.Horasviaje,
+        //                    Inicio = datosLinea.Inicio,
+        //                    Fin = datosLinea.Fin,
+        //                    Horas = datosLinea.Horas,
+        //                    Idusuario = datosLinea.Idusuario,
+        //                    Facturable = datosLinea.Facturable,
+        //                    Npartefirmado = datosLinea.Npartefirmado,
+        //                    CodEnt = _iUserCondEntO,//codigo entidad del usuario
+        //                    Idoriginal = datosLinea.Idlinea,
+        //                    Validador = string.Empty,
+        //                    Validado = 0
+        //                };
+        //                aldakinDbContext.Lineas.Add(lineaSecundaria);
+        //                await aldakinDbContext.SaveChangesAsync();
+        //                await transaction.CommitAsync();
+        //            }
+        //            catch (Exception)
+        //            {
+        //                await transaction.RollbackAsync();
+        //                strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
+        //                oReturn.strText = "Ha ocurrido un problema durante el proceso de guardar el parte de trabajo.;";
+        //                oReturn.iValue = 1;
+        //                oReturn.strValue = strReturn;
+        //                return oReturn;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
+        //            oReturn.strText = "¡¡¡No estas dado de alta en la delegacion para la que quieres registrar el parte!!!Informe a admisntracion de lo ocurrido;";
+        //            oReturn.iValue = 1;
+        //            oReturn.strValue = strReturn;
+        //            return oReturn;
+        //        }
+        //    }
+        //    strReturn = datosLinea.Inicio.Year + "-" + datosLinea.Inicio.Month + "-" + datosLinea.Inicio.Day;
+        //    oReturn.strText = "Parte editado Satisfactoriamente;";
+        //    oReturn.iValue = 1;
+        //    oReturn.strValue = strReturn;
+        //    return oReturn;
+        //}
         public async Task<bool> ReadUserMessageAsync(int iIdMessage)
         {
             bool bReturn = false;
@@ -1223,7 +1266,14 @@ namespace AppPartes.Logic
                     }
                     else
                     {
-                        iStatus = 2;//semana cerrada no registrada
+                        if (l.Validado == 1)
+                        {
+                            iStatus = 2;//semana cerrada, validada no registrada
+                        }
+                        else
+                        {
+                            iStatus = 3;//semana cerrada, no validada no registrada
+                        }
                     }
                 }
                 NombreCliente = nombreCliente.Nombre;
@@ -1350,44 +1400,67 @@ namespace AppPartes.Logic
             lReturn.Add(lSaturday);
             return lReturn;
         }
-        public async Task<SelectData> ValidateWorkerLineAsync(string strLine, int idAldakinUser)
+        public async Task<SearchViewLogic> ValidateWorkerLineAsync(string strLine, int idAldakinUser, sbyte? sValue)
         {
-            var oReturn = new SelectData();
+            //SelectData
+            var oReturn = new SearchViewLogic();
             try
             {
+
                 int iLine = Convert.ToInt32(strLine);
                 var line = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == iLine);
-                var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == idAldakinUser);
-                line.Validado = 1;
-                line.Validador = user.Nombrecompleto + "[" + DateTime.Now + "]";
-                var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
-                try
+                if (!(line is null))
                 {
-                    aldakinDbContext.Lineas.Update(line);
-                    await aldakinDbContext.SaveChangesAsync();
-
-                    await transaction.CommitAsync();
-                    oReturn.strValue = line.Inicio.ToString();
-                    oReturn.iValue = line.Idusuario;
-                    oReturn.strText = "Parte validado satisfactorioamente";
+                    oReturn.strWorker = Convert.ToString(line.Idusuario);
+                    oReturn.strDate1 = Convert.ToString(line.Inicio.Date);
+                    oReturn.strEntity = Convert.ToString(line.CodEnt);
+                    var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == idAldakinUser);
+                    line.Validado = sValue;
+                    line.Validador = user.Nombrecompleto + "[" + DateTime.Now + "]";
+                    var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+                    try
+                    {
+                        aldakinDbContext.Lineas.Update(line);
+                        await aldakinDbContext.SaveChangesAsync();
+                        var lineCopy = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idoriginal == line.Idlinea);
+                        if (!(lineCopy is null))
+                        {
+                            lineCopy.Validado = sValue;
+                            lineCopy.Validador = user.Nombrecompleto + "[" + DateTime.Now + "]";
+                            aldakinDbContext.Lineas.Update(lineCopy);
+                            await aldakinDbContext.SaveChangesAsync();
+                        }
+                        await transaction.CommitAsync();
+                        oReturn.strError = line.Inicio.ToString();
+                        if (sValue == 1)
+                        {
+                            oReturn.strError = "Parte validado satisfactorioamente";
+                        }
+                        else
+                        {
+                            oReturn.strError = "Parte Desvalidado satisfactorioamente";
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        await transaction.RollbackAsync();
+                        oReturn.strError = "Ha ocurrido un problema durante el proceso de validar la linea.;";
+                        return oReturn;
+                    }
                 }
-                catch (Exception)
+                else
                 {
-                    await transaction.RollbackAsync();
-                    oReturn.strText = "Ha ocurrido un problema durante el proceso de validar la linea.;";
-                    oReturn.iValue = 0;
-                    return oReturn;
+                    oReturn.strError = "Ha ocurrido un problema durante el proceso de validar la linea.;";
                 }
             }
             catch (Exception ex)
             {
-                oReturn.iValue = 0;
-                oReturn.strText = "Error al cerrar la semana tron";
+                oReturn.strError = "Error al cerrar la semana tron";
             }
 
             return oReturn;
         }
-        public async Task<string> ValidateGlobalLineAsync(int idAldakinUser, string strLine)
+        public async Task<string> ValidateGlobalLineAsync(int idAldakinUser, string strLine, sbyte sValue)
         {
             string strReturn = string.Empty;
             try
@@ -1397,7 +1470,7 @@ namespace AppPartes.Logic
                 {
                     if (!(string.IsNullOrEmpty(s)))
                     {
-                        await ValidateWorkerLineAsync(s, idAldakinUser);
+                        await ValidateWorkerLineAsync(s, idAldakinUser, sValue);
                     }
                 }
                 strReturn = "Validacion de partes sleccionados satisfactoria";
@@ -1406,6 +1479,66 @@ namespace AppPartes.Logic
             {
                 strReturn = "Durante la validacion ha ocurrido algun error Revise el estado de los partes";
             }
+            return strReturn;
+        }
+        public async Task<string> OpenWeek(string strLine)
+        {
+            string strReturn = string.Empty;
+            DateTime dtIni, dtEnd;
+            var lEstado = new List<Estadodias>();
+            try
+            {
+                List<string> split = strLine.Split(new Char[] { '|' }).Distinct().ToList();
+                foreach (string s in split)
+                {
+                    if (!(string.IsNullOrEmpty(s)))
+                    {
+                        var lLine = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(s) && x.Validado == 0 && x.Registrado == 0);
+                        if (lLine.Validado==1)
+                        {
+                            strReturn = "Revise si hay partes validados, deben estar desvalidados para poder abrirlos";
+                            return strReturn;
+                        }
+                        if (lLine.Registrado == 1)
+                        {
+                            strReturn = "Hay partes registrados por lo que no se va a poder abrir la semana";
+                            return strReturn;
+                        }
+                        var oTemp = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Idusuario == lLine.Idusuario && x.Dia == lLine.Inicio.Date);
+                        lEstado.Add(oTemp);
+                    }
+                }
+
+                var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+                try
+                {
+                    aldakinDbContext.RemoveRange(lEstado);
+                    await aldakinDbContext.SaveChangesAsync();
+                    //por siquedan dias sin borrar por ejemplo sabados o domingos  o dias que no tengan horas
+                    var lLineO = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(split[0]) && x.Validado == 0 && x.Registrado == 0);
+                    if (!(lLineO is null))
+                    {
+                        WorkPartInformation.IniEndWeek(lLineO.Inicio.Date, out dtIni, out dtEnd);
+                        var Status = await aldakinDbContext.Estadodias.Where(x => x.Dia >= dtIni && x.Dia <= dtEnd && x.Idusuario == lLineO.Idusuario).ToListAsync();
+                        aldakinDbContext.RemoveRange(Status);
+                        await aldakinDbContext.SaveChangesAsync();
+                    }
+                    await transaction.CommitAsync();
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    strReturn = "Ocurrio un error al abrir la semana";
+                    return strReturn;
+                }
+                
+                
+            }
+            catch (Exception ex)
+            {
+                strReturn = "Durante la validacion ha ocurrido algun error Revise el estado de los partes";
+            }
+            strReturn = "Semana abierta satisfactoriamente;";
             return strReturn;
         }
         public async Task<string> WritetUdObrePresuNewAsync(string strDescription, string strRef, string strEntidad)
@@ -1597,555 +1730,555 @@ namespace AppPartes.Logic
             return strReturn;
         }
 
-        public async Task<string> EditWorkerLineAdminAsync(WorkerLineData lineData)
-        {
-            string strReturn = string.Empty;
-            //datos provisionles
-            var bHorasViajeTemp = false;
-            var iPernoctacion = 0;
-            DateTime day, dtInicio, dtFin;
-            var oOldLine = new Lineas();
-            var user = new Usuarios();
-            try
-            {
-                oOldLine = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(lineData.strIdlineaAntigua));
-                user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == oOldLine.Idusuario);
-                if (string.IsNullOrEmpty(lineData.strObservaciones))
-                {
-                    lineData.strObservaciones = string.Empty;
-                }
-                if (string.IsNullOrEmpty(lineData.strParte))
-                {
-                    lineData.strParte = string.Empty;
-                }
-                if (string.IsNullOrEmpty(lineData.bHorasViaje))
-                {
-                    bHorasViajeTemp = false;
-                }
-                else
-                {
-                    bHorasViajeTemp = true;
-                }
-                if (string.IsNullOrEmpty(lineData.bGastos))
-                {
-                }
-                else
-                {
-                    lineData.strHoraInicio = "00";
-                    lineData.strMinutoInicio = "00";
-                    lineData.strHoraFin = "00";
-                    lineData.strMinutoFin = "00";
-                }
-                if (string.IsNullOrEmpty(lineData.strPernoctacion))
-                {
-                    iPernoctacion = 0;
-                }
-                else
-                {
-                    iPernoctacion = Convert.ToInt32(lineData.strPernoctacion);
-                }
+        //public async Task<string> EditWorkerLineAdminAsync(WorkerLineData lineData)
+        //{
+        //    string strReturn = string.Empty;
+        //    //datos provisionles
+        //    var bHorasViajeTemp = false;
+        //    var iPernoctacion = 0;
+        //    DateTime day, dtInicio, dtFin;
+        //    var oOldLine = new Lineas();
+        //    var user = new Usuarios();
+        //    try
+        //    {
+        //        oOldLine = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(lineData.strIdlineaAntigua));
+        //        user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == oOldLine.Idusuario);
+        //        if (string.IsNullOrEmpty(lineData.strObservaciones))
+        //        {
+        //            lineData.strObservaciones = string.Empty;
+        //        }
+        //        if (string.IsNullOrEmpty(lineData.strParte))
+        //        {
+        //            lineData.strParte = string.Empty;
+        //        }
+        //        if (string.IsNullOrEmpty(lineData.bHorasViaje))
+        //        {
+        //            bHorasViajeTemp = false;
+        //        }
+        //        else
+        //        {
+        //            bHorasViajeTemp = true;
+        //        }
+        //        if (string.IsNullOrEmpty(lineData.bGastos))
+        //        {
+        //        }
+        //        else
+        //        {
+        //            lineData.strHoraInicio = "00";
+        //            lineData.strMinutoInicio = "00";
+        //            lineData.strHoraFin = "00";
+        //            lineData.strMinutoFin = "00";
+        //        }
+        //        if (string.IsNullOrEmpty(lineData.strPernoctacion))
+        //        {
+        //            iPernoctacion = 0;
+        //        }
+        //        else
+        //        {
+        //            iPernoctacion = Convert.ToInt32(lineData.strPernoctacion);
+        //        }
 
-                day = Convert.ToDateTime(lineData.strCalendario);
-                dtInicio = Convert.ToDateTime(lineData.strCalendario + " " + lineData.strHoraInicio + ":" + lineData.strMinutoInicio + ":00");
-                dtFin = Convert.ToDateTime(lineData.strCalendario + " " + lineData.strHoraFin + ":" + lineData.strMinutoFin + ":00");
-            }
-            catch (Exception ex)
-            {
-                strReturn = "Se ha producido un error en el procesamiento de los datos;";
-                return (strReturn);
-            }
-            //Review if range of time is used
-            try
-            {
-                var lLineas = await aldakinDbContext.Lineas.Where(x => DateTime.Compare(x.Inicio.Date, day.Date) == 0 && x.Idusuario == oOldLine.Idusuario && x.CodEnt == user.CodEnt && x.Idlinea != Convert.ToInt32(lineData.strIdlineaAntigua)).ToListAsync();
-                if (lLineas.Count > 0)
-                {
-                    if (RangeIsUsed(lLineas, dtFin, dtInicio, ref strReturn)) return strReturn;
-                }
-            }
-            catch (Exception ex)
-            {
-                strReturn = "Se ha producido un error en el procesamiento si el rango esta usado;";
-                return (strReturn);
-            }
-            //gastos
-            float dGastos = 0;
-            float dKilometros = 0;
-            var lGastos = new List<Gastos>();
-            int iCodEntOt;
-            try
-            {
-                var icodEntOt = await aldakinDbContext.Ots.FirstOrDefaultAsync(t => t.Idots == Convert.ToInt32(lineData.strOt));
-                iCodEntOt = icodEntOt.CodEnt;
+        //        day = Convert.ToDateTime(lineData.strCalendario);
+        //        dtInicio = Convert.ToDateTime(lineData.strCalendario + " " + lineData.strHoraInicio + ":" + lineData.strMinutoInicio + ":00");
+        //        dtFin = Convert.ToDateTime(lineData.strCalendario + " " + lineData.strHoraFin + ":" + lineData.strMinutoFin + ":00");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        strReturn = "Se ha producido un error en el procesamiento de los datos;";
+        //        return (strReturn);
+        //    }
+        //    //Review if range of time is used
+        //    try
+        //    {
+        //        var lLineas = await aldakinDbContext.Lineas.Where(x => DateTime.Compare(x.Inicio.Date, day.Date) == 0 && x.Idusuario == oOldLine.Idusuario && x.CodEnt == user.CodEnt && x.Idlinea != Convert.ToInt32(lineData.strIdlineaAntigua)).ToListAsync();
+        //        if (lLineas.Count > 0)
+        //        {
+        //            if (RangeIsUsed(lLineas, dtFin, dtInicio, ref strReturn)) return strReturn;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        strReturn = "Se ha producido un error en el procesamiento si el rango esta usado;";
+        //        return (strReturn);
+        //    }
+        //    //gastos
+        //    float dGastos = 0;
+        //    float dKilometros = 0;
+        //    var lGastos = new List<Gastos>();
+        //    int iCodEntOt;
+        //    try
+        //    {
+        //        var icodEntOt = await aldakinDbContext.Ots.FirstOrDefaultAsync(t => t.Idots == Convert.ToInt32(lineData.strOt));
+        //        iCodEntOt = icodEntOt.CodEnt;
 
-                if (!(string.IsNullOrEmpty(lineData.strGastos)))
-                {
-                    string line;
-                    string[] substring;
-                    var strReader = new StringReader(lineData.strGastos);
-                    while ((line = strReader.ReadLine()) != null)
-                    {
-                        if (line != null)
-                        {
-                            substring = line.Split('|');
-                            if (substring.Length == 5)
-                            {
-                                if (string.Equals(substring[1], "ALDAKIN"))
-                                {
-                                    substring[1] = "1";
-                                }
-                                else
-                                {
-                                    if (string.Equals(substring[1], "TRABAJADOR"))
-                                    {
-                                        substring[1] = "0";
-                                    }
-                                    else
-                                    {
-                                        continue;
-                                    }
-                                }
-                                try
-                                {
-                                    var pagador = await aldakinDbContext.Tipogastos.FirstOrDefaultAsync(x => x.CodEnt == iCodEntOt && string.Equals(x.Tipo, substring[2]) && x.Pagador == Convert.ToInt32(substring[1]));
-                                    if (pagador is null)
-                                    {
-                                        //si hay error no hace nada con la lineapara que siga con la siguiente
-                                        //return RedirectToAction("Index", new { strMessage = "Los gastos son erroneos, repita el parte;" });
-                                    }
-                                    else
-                                    {
-                                        lGastos.Add(new Gastos
-                                        {
-                                            Pagador = Convert.ToInt32(substring[1]),
-                                            Tipo = pagador.Idtipogastos,
-                                            Cantidad = (float)Convert.ToDouble(substring[3].Replace('.', ',')),
-                                            Observacion = substring[4]
-                                        });
+        //        if (!(string.IsNullOrEmpty(lineData.strGastos)))
+        //        {
+        //            string line;
+        //            string[] substring;
+        //            var strReader = new StringReader(lineData.strGastos);
+        //            while ((line = strReader.ReadLine()) != null)
+        //            {
+        //                if (line != null)
+        //                {
+        //                    substring = line.Split('|');
+        //                    if (substring.Length == 5)
+        //                    {
+        //                        if (string.Equals(substring[1], "ALDAKIN"))
+        //                        {
+        //                            substring[1] = "1";
+        //                        }
+        //                        else
+        //                        {
+        //                            if (string.Equals(substring[1], "TRABAJADOR"))
+        //                            {
+        //                                substring[1] = "0";
+        //                            }
+        //                            else
+        //                            {
+        //                                continue;
+        //                            }
+        //                        }
+        //                        try
+        //                        {
+        //                            var pagador = await aldakinDbContext.Tipogastos.FirstOrDefaultAsync(x => x.CodEnt == iCodEntOt && string.Equals(x.Tipo, substring[2]) && x.Pagador == Convert.ToInt32(substring[1]));
+        //                            if (pagador is null)
+        //                            {
+        //                                //si hay error no hace nada con la lineapara que siga con la siguiente
+        //                                //return RedirectToAction("Index", new { strMessage = "Los gastos son erroneos, repita el parte;" });
+        //                            }
+        //                            else
+        //                            {
+        //                                lGastos.Add(new Gastos
+        //                                {
+        //                                    Pagador = Convert.ToInt32(substring[1]),
+        //                                    Tipo = pagador.Idtipogastos,
+        //                                    Cantidad = (float)Convert.ToDouble(substring[3].Replace('.', ',')),
+        //                                    Observacion = substring[4]
+        //                                });
 
-                                        if (substring[2] != "KILOMETROS")
-                                        {
-                                            dGastos = dGastos + (float)Convert.ToDouble(substring[3].Replace('.', ','));
-                                        }
-                                        else
-                                        {
-                                            dKilometros = dKilometros + (float)Convert.ToDouble(substring[3].Replace('.', ','));
-                                        }
-                                    }
-                                }
-                                catch (Exception)
-                                {
-                                    //si hay error no hace nada con la lineapara que siga con la siguiente
-                                    //return RedirectToAction("Index", new { strMessage = "Los gastos son erroneos, repita el parte;" });
-                                }
-                            }
-                            else
-                            {
-                                //si hay error no hace nada con la lineapara que siga con la siguiente
-                                //return RedirectToAction("Index", new { strMessage = "Los gastos son erroneos, repita el parte;" });
-                            }
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                strReturn = "Se ha producido un error en el procesamiento de gastos;";
-                return (strReturn);
-            }
-            //tiempo de viaje
-            float TiempoViaje = 0;
-            try
-            {
-                if (bHorasViajeTemp)
-                {
-                    TiempoViaje = Convert.ToSingle((dtFin - dtInicio).TotalHours);
-                }
-            }
-            catch (Exception ex)
-            {
-                strReturn = "Se ha producido un error en el procesamiento del tiempo de viaje;";
-                return (strReturn);
-            }
-            //trabajos realizados
-            var otSel = new Ots();
-            try
-            {
-                otSel = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == Convert.ToInt32(lineData.strOt) && x.Codigorefot != "29" && x.Cierre == null);
-                if (otSel is null)
-                {
-                    strReturn = "En la Ot que esta usando se ha encontrado un problema, recargue la pagina;";
-                    return (strReturn);
-                }
+        //                                if (substring[2] != "KILOMETROS")
+        //                                {
+        //                                    dGastos = dGastos + (float)Convert.ToDouble(substring[3].Replace('.', ','));
+        //                                }
+        //                                else
+        //                                {
+        //                                    dKilometros = dKilometros + (float)Convert.ToDouble(substring[3].Replace('.', ','));
+        //                                }
+        //                            }
+        //                        }
+        //                        catch (Exception)
+        //                        {
+        //                            //si hay error no hace nada con la lineapara que siga con la siguiente
+        //                            //return RedirectToAction("Index", new { strMessage = "Los gastos son erroneos, repita el parte;" });
+        //                        }
+        //                    }
+        //                    else
+        //                    {
+        //                        //si hay error no hace nada con la lineapara que siga con la siguiente
+        //                        //return RedirectToAction("Index", new { strMessage = "Los gastos son erroneos, repita el parte;" });
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    break;
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        strReturn = "Se ha producido un error en el procesamiento de gastos;";
+        //        return (strReturn);
+        //    }
+        //    //tiempo de viaje
+        //    float TiempoViaje = 0;
+        //    try
+        //    {
+        //        if (bHorasViajeTemp)
+        //        {
+        //            TiempoViaje = Convert.ToSingle((dtFin - dtInicio).TotalHours);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        strReturn = "Se ha producido un error en el procesamiento del tiempo de viaje;";
+        //        return (strReturn);
+        //    }
+        //    //trabajos realizados
+        //    var otSel = new Ots();
+        //    try
+        //    {
+        //        otSel = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == Convert.ToInt32(lineData.strOt) && x.Codigorefot != "29" && x.Cierre == null);
+        //        if (otSel is null)
+        //        {
+        //            strReturn = "En la Ot que esta usando se ha encontrado un problema, recargue la pagina;";
+        //            return (strReturn);
+        //        }
 
-                if (otSel.Nombre.Length > 20 && otSel.Nombre.Substring(0, 20) == "TRABAJOS REALIZADOS ")
-                {
-                    try
-                    {
-                        var otoriginal = Convert.ToInt32(lineData.strObservaciones.Substring(0, 1));
-                    }
-                    catch (Exception)
-                    {
-                        strReturn = "En las OTs de trabajos para otras delegaciones, lo primero que debe aparecer en las observaciones debe ser la OT de la delegacion de origen;";
-                        return (strReturn);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                strReturn = "Se ha producido un error en el procesamiento Trabajos realezados(PARA);";
-                return (strReturn);
-            }
-            if (string.IsNullOrEmpty(lineData.strPreslin))
-            {
-                oOldLine.Idpreslin = null;
-            }
-            else
-            {
-                if (lineData.strPreslin.Equals("-1"))
-                {
-                    oOldLine.Idpreslin = null;
-                }
-                else
-                {
-                    oOldLine.Idpreslin = Convert.ToInt32(lineData.strPreslin);
-                }
-            }
+        //        if (otSel.Nombre.Length > 20 && otSel.Nombre.Substring(0, 20) == "TRABAJOS REALIZADOS ")
+        //        {
+        //            try
+        //            {
+        //                var otoriginal = Convert.ToInt32(lineData.strObservaciones.Substring(0, 1));
+        //            }
+        //            catch (Exception)
+        //            {
+        //                strReturn = "En las OTs de trabajos para otras delegaciones, lo primero que debe aparecer en las observaciones debe ser la OT de la delegacion de origen;";
+        //                return (strReturn);
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        strReturn = "Se ha producido un error en el procesamiento Trabajos realezados(PARA);";
+        //        return (strReturn);
+        //    }
+        //    if (string.IsNullOrEmpty(lineData.strPreslin))
+        //    {
+        //        oOldLine.Idpreslin = null;
+        //    }
+        //    else
+        //    {
+        //        if (lineData.strPreslin.Equals("-1"))
+        //        {
+        //            oOldLine.Idpreslin = null;
+        //        }
+        //        else
+        //        {
+        //            oOldLine.Idpreslin = Convert.ToInt32(lineData.strPreslin);
+        //        }
+        //    }
 
-            var otNew = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == Convert.ToInt32(lineData.strOt));
-            if (oOldLine.Idlinea > 0)
-            {
-                var oLineCopy = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idoriginal == oOldLine.Idlinea);
-                if (!(oLineCopy is null))
-                {
-                    //linea original tiene trabajos para
-                    if (otNew.CodEnt == user.CodEnt)
-                    {
-                        //codent nueva ot y codent usuario iguales solo modificar parte original y borrar copia
-                        oOldLine.Idpreslin = Convert.ToInt32(lineData.strPreslin);
-                        oOldLine.Observaciones = lineData.strObservaciones;
+        //    var otNew = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == Convert.ToInt32(lineData.strOt));
+        //    if (oOldLine.Idlinea > 0)
+        //    {
+        //        var oLineCopy = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idoriginal == oOldLine.Idlinea);
+        //        if (!(oLineCopy is null))
+        //        {
+        //            //linea original tiene trabajos para
+        //            if (otNew.CodEnt == user.CodEnt)
+        //            {
+        //                //codent nueva ot y codent usuario iguales solo modificar parte original y borrar copia
+        //                oOldLine.Idpreslin = Convert.ToInt32(lineData.strPreslin);
+        //                oOldLine.Observaciones = lineData.strObservaciones;
 
-                        oOldLine.Idot = otNew.Idots;
-                        oOldLine.Dietas = dGastos;
-                        oOldLine.Km = dKilometros;
-                        oOldLine.Observaciones = lineData.strObservaciones.ToUpper();
-                        oOldLine.Horasviaje = TiempoViaje;
-                        oOldLine.Inicio = dtInicio;
-                        oOldLine.Fin = dtFin;
-                        oOldLine.Horas = Convert.ToSingle((dtFin - dtInicio).TotalHours) - TiempoViaje;
-                        oOldLine.Idusuario = user.Idusuario;
-                        oOldLine.Facturable = iPernoctacion;
-                        oOldLine.Npartefirmado = lineData.strParte.ToUpper();
-                        oOldLine.CodEnt = otNew.CodEnt;//codigo entidad de la ot que es el mismo que el operario
-                        oOldLine.Idoriginal = 0;
-                        oOldLine.Validador = string.Empty;
-                        oOldLine.Validado = 0;
-                        var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
-                        try
-                        {
-                            aldakinDbContext.Lineas.Update(oOldLine);
-                            await aldakinDbContext.SaveChangesAsync();
-                            var gastos = await aldakinDbContext.Gastos.Where(x => x.Idlinea == oOldLine.Idlinea).ToListAsync();
-                            aldakinDbContext.Gastos.RemoveRange(gastos);
-                            await aldakinDbContext.SaveChangesAsync();
-                            foreach (var g in lGastos)
-                            {
-                                var gasto = new Gastos
-                                {
-                                    Pagador = g.Pagador,
-                                    Tipo = g.Tipo,
-                                    Cantidad = g.Cantidad,
-                                    Observacion = g.Observacion.ToUpper(),
-                                    Idlinea = oOldLine.Idlinea
-                                };
-                                aldakinDbContext.Gastos.Add(gasto);
-                            }
-                            await aldakinDbContext.SaveChangesAsync();
-                            var estadodia = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Idusuario == oOldLine.Idusuario && x.Dia == dtInicio.Date);
-                            estadodia.Horas = oOldLine.Horas;
-                            aldakinDbContext.Estadodias.Update(estadodia);
-                            await aldakinDbContext.SaveChangesAsync();
-                            var lineCopy = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idoriginal == oOldLine.Idlinea);
-                            aldakinDbContext.Lineas.Remove(lineCopy);
-                            await aldakinDbContext.SaveChangesAsync();
-                            await transaction.CommitAsync();
-                        }
-                        catch (Exception ex)
-                        {
-                            await transaction.RollbackAsync();
-                            strReturn = "Ha ocurrido un problema durante el proceso de editar el parte de trabajo.;";
-                            return (strReturn);
-                        }
-                    }
-                    else
-                    {
-                        //cod ent nueva ot y codent usuario diferentes modficar parte riginal y modificar copia
-                        var userO = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Name == user.Name && x.CodEnt == Convert.ToInt16(lineData.strEntidad));
-                        if (!(userO is null))
-                        {
-                            var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
-                            try
-                            {
-                                oOldLine.Idpreslin = Convert.ToInt32(lineData.strPreslin);
-                                oOldLine.Observaciones = lineData.strObservaciones;
+        //                oOldLine.Idot = otNew.Idots;
+        //                oOldLine.Dietas = dGastos;
+        //                oOldLine.Km = dKilometros;
+        //                oOldLine.Observaciones = lineData.strObservaciones.ToUpper();
+        //                oOldLine.Horasviaje = TiempoViaje;
+        //                oOldLine.Inicio = dtInicio;
+        //                oOldLine.Fin = dtFin;
+        //                oOldLine.Horas = Convert.ToSingle((dtFin - dtInicio).TotalHours) - TiempoViaje;
+        //                oOldLine.Idusuario = user.Idusuario;
+        //                oOldLine.Facturable = iPernoctacion;
+        //                oOldLine.Npartefirmado = lineData.strParte.ToUpper();
+        //                oOldLine.CodEnt = otNew.CodEnt;//codigo entidad de la ot que es el mismo que el operario
+        //                oOldLine.Idoriginal = 0;
+        //                oOldLine.Validador = string.Empty;
+        //                oOldLine.Validado = 0;
+        //                var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+        //                try
+        //                {
+        //                    aldakinDbContext.Lineas.Update(oOldLine);
+        //                    await aldakinDbContext.SaveChangesAsync();
+        //                    var gastos = await aldakinDbContext.Gastos.Where(x => x.Idlinea == oOldLine.Idlinea).ToListAsync();
+        //                    aldakinDbContext.Gastos.RemoveRange(gastos);
+        //                    await aldakinDbContext.SaveChangesAsync();
+        //                    foreach (var g in lGastos)
+        //                    {
+        //                        var gasto = new Gastos
+        //                        {
+        //                            Pagador = g.Pagador,
+        //                            Tipo = g.Tipo,
+        //                            Cantidad = g.Cantidad,
+        //                            Observacion = g.Observacion.ToUpper(),
+        //                            Idlinea = oOldLine.Idlinea
+        //                        };
+        //                        aldakinDbContext.Gastos.Add(gasto);
+        //                    }
+        //                    await aldakinDbContext.SaveChangesAsync();
+        //                    var estadodia = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Idusuario == oOldLine.Idusuario && x.Dia == dtInicio.Date);
+        //                    estadodia.Horas = oOldLine.Horas;
+        //                    aldakinDbContext.Estadodias.Update(estadodia);
+        //                    await aldakinDbContext.SaveChangesAsync();
+        //                    var lineCopy = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idoriginal == oOldLine.Idlinea);
+        //                    aldakinDbContext.Lineas.Remove(lineCopy);
+        //                    await aldakinDbContext.SaveChangesAsync();
+        //                    await transaction.CommitAsync();
+        //                }
+        //                catch (Exception ex)
+        //                {
+        //                    await transaction.RollbackAsync();
+        //                    strReturn = "Ha ocurrido un problema durante el proceso de editar el parte de trabajo.;";
+        //                    return (strReturn);
+        //                }
+        //            }
+        //            else
+        //            {
+        //                //cod ent nueva ot y codent usuario diferentes modficar parte riginal y modificar copia
+        //                var userO = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Name == user.Name && x.CodEnt == Convert.ToInt16(lineData.strEntidad));
+        //                if (!(userO is null))
+        //                {
+        //                    var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+        //                    try
+        //                    {
+        //                        oOldLine.Idpreslin = Convert.ToInt32(lineData.strPreslin);
+        //                        oOldLine.Observaciones = lineData.strObservaciones;
 
-                                oOldLine.Idot = otNew.Idots;
-                                oOldLine.Dietas = dGastos;
-                                oOldLine.Km = dKilometros;
-                                oOldLine.Observaciones = lineData.strObservaciones.ToUpper();
-                                oOldLine.Horasviaje = TiempoViaje;
-                                oOldLine.Inicio = dtInicio;
-                                oOldLine.Fin = dtFin;
-                                oOldLine.Horas = Convert.ToSingle((dtFin - dtInicio).TotalHours) - TiempoViaje;
-                                oOldLine.Idusuario = user.Idusuario;
-                                oOldLine.Facturable = iPernoctacion;
-                                oOldLine.Npartefirmado = lineData.strParte.ToUpper();
-                                oOldLine.CodEnt = otNew.CodEnt;//codigo entidad de la ot
-                                oOldLine.Idoriginal = 0;
-                                oOldLine.Validador = string.Empty;
-                                oOldLine.Validado = 0;
+        //                        oOldLine.Idot = otNew.Idots;
+        //                        oOldLine.Dietas = dGastos;
+        //                        oOldLine.Km = dKilometros;
+        //                        oOldLine.Observaciones = lineData.strObservaciones.ToUpper();
+        //                        oOldLine.Horasviaje = TiempoViaje;
+        //                        oOldLine.Inicio = dtInicio;
+        //                        oOldLine.Fin = dtFin;
+        //                        oOldLine.Horas = Convert.ToSingle((dtFin - dtInicio).TotalHours) - TiempoViaje;
+        //                        oOldLine.Idusuario = user.Idusuario;
+        //                        oOldLine.Facturable = iPernoctacion;
+        //                        oOldLine.Npartefirmado = lineData.strParte.ToUpper();
+        //                        oOldLine.CodEnt = otNew.CodEnt;//codigo entidad de la ot
+        //                        oOldLine.Idoriginal = 0;
+        //                        oOldLine.Validador = string.Empty;
+        //                        oOldLine.Validado = 0;
 
-                                aldakinDbContext.Lineas.Update(oOldLine);
-                                await aldakinDbContext.SaveChangesAsync();
-                                var gastos = await aldakinDbContext.Gastos.Where(x => x.Idlinea == oOldLine.Idlinea).ToListAsync();
-                                aldakinDbContext.Gastos.RemoveRange(gastos);
-                                await aldakinDbContext.SaveChangesAsync();
-                                foreach (var g in lGastos)
-                                {
-                                    var gasto = new Gastos
-                                    {
-                                        Pagador = g.Pagador,
-                                        Tipo = g.Tipo,
-                                        Cantidad = g.Cantidad,
-                                        Observacion = g.Observacion.ToUpper(),
-                                        Idlinea = oOldLine.Idlinea
-                                    };
-                                    aldakinDbContext.Gastos.Add(gasto);
-                                }
-                                await aldakinDbContext.SaveChangesAsync();
+        //                        aldakinDbContext.Lineas.Update(oOldLine);
+        //                        await aldakinDbContext.SaveChangesAsync();
+        //                        var gastos = await aldakinDbContext.Gastos.Where(x => x.Idlinea == oOldLine.Idlinea).ToListAsync();
+        //                        aldakinDbContext.Gastos.RemoveRange(gastos);
+        //                        await aldakinDbContext.SaveChangesAsync();
+        //                        foreach (var g in lGastos)
+        //                        {
+        //                            var gasto = new Gastos
+        //                            {
+        //                                Pagador = g.Pagador,
+        //                                Tipo = g.Tipo,
+        //                                Cantidad = g.Cantidad,
+        //                                Observacion = g.Observacion.ToUpper(),
+        //                                Idlinea = oOldLine.Idlinea
+        //                            };
+        //                            aldakinDbContext.Gastos.Add(gasto);
+        //                        }
+        //                        await aldakinDbContext.SaveChangesAsync();
 
-                                string Salida = otSel.Numero.ToString(), Primerdigito, Resto;
-                                var Cero = Convert.ToChar("0"); ;
-                                Primerdigito = otSel.Numero.ToString().Substring(0, 1);
-                                Resto = otSel.Numero.ToString().Substring(2, otSel.Numero.ToString().Length - 2);
-                                Resto = Resto.TrimStart(Cero);
-                                Salida = string.Format("{0}|{1}", Primerdigito, Resto);
-                                var observaciones = Salida + " " + lineData.strObservaciones.ToUpper();
+        //                        string Salida = otSel.Numero.ToString(), Primerdigito, Resto;
+        //                        var Cero = Convert.ToChar("0"); ;
+        //                        Primerdigito = otSel.Numero.ToString().Substring(0, 1);
+        //                        Resto = otSel.Numero.ToString().Substring(2, otSel.Numero.ToString().Length - 2);
+        //                        Resto = Resto.TrimStart(Cero);
+        //                        Salida = string.Format("{0}|{1}", Primerdigito, Resto);
+        //                        var observaciones = Salida + " " + lineData.strObservaciones.ToUpper();
 
-                                //from ots where cierre is null and year(apertura) = year(iinicio) and  cod_ent = icod_ent and cod_ent_d = (select cod_ent from lineas where idlinea = iidoriginal)
-                                var ot = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Cierre == null && x.Apertura.Year == oOldLine.Inicio.Year && x.CodEnt == userO.CodEnt && x.CodEntD == aldakinDbContext.Lineas.FirstOrDefault(y => y.Idlinea == Convert.ToInt32(lineData.strIdLinea)).CodEnt);
-                                var iOt = ot.Idots;
-                                var lineaSecundaria = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idoriginal == oOldLine.Idlinea);
-                                lineaSecundaria.Idot = iOt;
-                                lineaSecundaria.Idpreslin = null;
-                                lineaSecundaria.Dietas = dGastos;
-                                lineaSecundaria.Km = dKilometros;
-                                lineaSecundaria.Observaciones = observaciones.ToUpper();
-                                lineaSecundaria.Horasviaje = TiempoViaje;
-                                lineaSecundaria.Inicio = dtInicio;
-                                lineaSecundaria.Fin = dtFin;
-                                lineaSecundaria.Horas = Convert.ToSingle((dtFin - dtInicio).TotalHours) - TiempoViaje;
-                                lineaSecundaria.Idusuario = user.Idusuario;
-                                lineaSecundaria.Facturable = iPernoctacion;
-                                lineaSecundaria.Npartefirmado = oOldLine.Npartefirmado.ToUpper();
-                                lineaSecundaria.CodEnt = userO.CodEnt;//codigo entidad del usuario
-                                lineaSecundaria.Idoriginal = oOldLine.Idlinea;
-                                lineaSecundaria.Validador = string.Empty;
-                                lineaSecundaria.Validado = 0;
-                                aldakinDbContext.Lineas.Add(lineaSecundaria);
-                                await aldakinDbContext.SaveChangesAsync();
-                                var estadodia = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Idusuario == oOldLine.Idusuario && x.Dia == dtInicio.Date);
-                                estadodia.Horas = oOldLine.Horas;
-                                aldakinDbContext.Estadodias.Update(estadodia);
-                                await transaction.CommitAsync();
-                            }
-                            catch (Exception ex)
-                            {
-                                await transaction.RollbackAsync();
-                                strReturn = "Ha ocurrido un problema durante el proceso de guardar el parte de trabajo.;";
-                                return (strReturn);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    //linea original no tiene trabajos para
-                    if (otNew.CodEnt == user.CodEnt)
-                    {
-                        //codent nueva ot y codent usuario iguales solo modificar parte
-                        oOldLine.Idpreslin = Convert.ToInt32(lineData.strPreslin);
+        //                        //from ots where cierre is null and year(apertura) = year(iinicio) and  cod_ent = icod_ent and cod_ent_d = (select cod_ent from lineas where idlinea = iidoriginal)
+        //                        var ot = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Cierre == null && x.Apertura.Year == oOldLine.Inicio.Year && x.CodEnt == userO.CodEnt && x.CodEntD == aldakinDbContext.Lineas.FirstOrDefault(y => y.Idlinea == Convert.ToInt32(lineData.strIdLinea)).CodEnt);
+        //                        var iOt = ot.Idots;
+        //                        var lineaSecundaria = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idoriginal == oOldLine.Idlinea);
+        //                        lineaSecundaria.Idot = iOt;
+        //                        lineaSecundaria.Idpreslin = null;
+        //                        lineaSecundaria.Dietas = dGastos;
+        //                        lineaSecundaria.Km = dKilometros;
+        //                        lineaSecundaria.Observaciones = observaciones.ToUpper();
+        //                        lineaSecundaria.Horasviaje = TiempoViaje;
+        //                        lineaSecundaria.Inicio = dtInicio;
+        //                        lineaSecundaria.Fin = dtFin;
+        //                        lineaSecundaria.Horas = Convert.ToSingle((dtFin - dtInicio).TotalHours) - TiempoViaje;
+        //                        lineaSecundaria.Idusuario = user.Idusuario;
+        //                        lineaSecundaria.Facturable = iPernoctacion;
+        //                        lineaSecundaria.Npartefirmado = oOldLine.Npartefirmado.ToUpper();
+        //                        lineaSecundaria.CodEnt = userO.CodEnt;//codigo entidad del usuario
+        //                        lineaSecundaria.Idoriginal = oOldLine.Idlinea;
+        //                        lineaSecundaria.Validador = string.Empty;
+        //                        lineaSecundaria.Validado = 0;
+        //                        aldakinDbContext.Lineas.Add(lineaSecundaria);
+        //                        await aldakinDbContext.SaveChangesAsync();
+        //                        var estadodia = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Idusuario == oOldLine.Idusuario && x.Dia == dtInicio.Date);
+        //                        estadodia.Horas = oOldLine.Horas;
+        //                        aldakinDbContext.Estadodias.Update(estadodia);
+        //                        await transaction.CommitAsync();
+        //                    }
+        //                    catch (Exception ex)
+        //                    {
+        //                        await transaction.RollbackAsync();
+        //                        strReturn = "Ha ocurrido un problema durante el proceso de guardar el parte de trabajo.;";
+        //                        return (strReturn);
+        //                    }
+        //                }
+        //            }
+        //        }
+        //        else
+        //        {
+        //            //linea original no tiene trabajos para
+        //            if (otNew.CodEnt == user.CodEnt)
+        //            {
+        //                //codent nueva ot y codent usuario iguales solo modificar parte
+        //                oOldLine.Idpreslin = Convert.ToInt32(lineData.strPreslin);
 
-                        oOldLine.Idot = otNew.Idots;
-                        oOldLine.Dietas = dGastos;
-                        oOldLine.Km = dKilometros;
-                        oOldLine.Observaciones = lineData.strObservaciones.ToUpper();
-                        oOldLine.Horasviaje = TiempoViaje;
-                        oOldLine.Inicio = dtInicio;
-                        oOldLine.Fin = dtFin;
-                        oOldLine.Horas = Convert.ToSingle((dtFin - dtInicio).TotalHours) - TiempoViaje;
-                        oOldLine.Idusuario = user.Idusuario;
-                        oOldLine.Facturable = iPernoctacion;
-                        oOldLine.Npartefirmado = lineData.strParte.ToUpper();
-                        oOldLine.CodEnt = otNew.CodEnt;//codigo entidad de la ot que es el mismo que el operario
-                        oOldLine.Idoriginal = 0;
-                        oOldLine.Validador = string.Empty;
-                        oOldLine.Validado = 0;
-                        var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
-                        try
-                        {
-                            aldakinDbContext.Lineas.Update(oOldLine);
-                            await aldakinDbContext.SaveChangesAsync();
-                            var gastos = await aldakinDbContext.Gastos.Where(x => x.Idlinea == oOldLine.Idlinea).ToListAsync();
-                            aldakinDbContext.Gastos.RemoveRange(gastos);
-                            await aldakinDbContext.SaveChangesAsync();
-                            foreach (var g in lGastos)
-                            {
-                                var gasto = new Gastos
-                                {
-                                    Pagador = g.Pagador,
-                                    Tipo = g.Tipo,
-                                    Cantidad = g.Cantidad,
-                                    Observacion = g.Observacion.ToUpper(),
-                                    Idlinea = oOldLine.Idlinea
-                                };
-                                aldakinDbContext.Gastos.Add(gasto);
-                            }
-                            await aldakinDbContext.SaveChangesAsync();
-                            var estadodia = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Idusuario == oOldLine.Idusuario && x.Dia == dtInicio.Date);
-                            estadodia.Horas = oOldLine.Horas;
-                            aldakinDbContext.Estadodias.Update(estadodia);
-                            await aldakinDbContext.SaveChangesAsync();
-                            await transaction.CommitAsync();
-                        }
-                        catch (Exception ex)
-                        {
-                            await transaction.RollbackAsync();
-                            strReturn = "Ha ocurrido un problema durante el proceso de editar el parte de trabajo.;";
-                            return (strReturn);
-                        }
-                    }
-                    else
-                    {
-                        //codent nueva y codent usuario distintos modificar parte y generar copia
-                        var userO = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Name == user.Name && x.CodEnt == Convert.ToInt16(lineData.strEntidad));
-                        if (!(userO is null))
-                        {
-                            var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
-                            try
-                            {
-                                oOldLine.Idpreslin = Convert.ToInt32(lineData.strPreslin);
-                                oOldLine.Observaciones = lineData.strObservaciones;
+        //                oOldLine.Idot = otNew.Idots;
+        //                oOldLine.Dietas = dGastos;
+        //                oOldLine.Km = dKilometros;
+        //                oOldLine.Observaciones = lineData.strObservaciones.ToUpper();
+        //                oOldLine.Horasviaje = TiempoViaje;
+        //                oOldLine.Inicio = dtInicio;
+        //                oOldLine.Fin = dtFin;
+        //                oOldLine.Horas = Convert.ToSingle((dtFin - dtInicio).TotalHours) - TiempoViaje;
+        //                oOldLine.Idusuario = user.Idusuario;
+        //                oOldLine.Facturable = iPernoctacion;
+        //                oOldLine.Npartefirmado = lineData.strParte.ToUpper();
+        //                oOldLine.CodEnt = otNew.CodEnt;//codigo entidad de la ot que es el mismo que el operario
+        //                oOldLine.Idoriginal = 0;
+        //                oOldLine.Validador = string.Empty;
+        //                oOldLine.Validado = 0;
+        //                var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+        //                try
+        //                {
+        //                    aldakinDbContext.Lineas.Update(oOldLine);
+        //                    await aldakinDbContext.SaveChangesAsync();
+        //                    var gastos = await aldakinDbContext.Gastos.Where(x => x.Idlinea == oOldLine.Idlinea).ToListAsync();
+        //                    aldakinDbContext.Gastos.RemoveRange(gastos);
+        //                    await aldakinDbContext.SaveChangesAsync();
+        //                    foreach (var g in lGastos)
+        //                    {
+        //                        var gasto = new Gastos
+        //                        {
+        //                            Pagador = g.Pagador,
+        //                            Tipo = g.Tipo,
+        //                            Cantidad = g.Cantidad,
+        //                            Observacion = g.Observacion.ToUpper(),
+        //                            Idlinea = oOldLine.Idlinea
+        //                        };
+        //                        aldakinDbContext.Gastos.Add(gasto);
+        //                    }
+        //                    await aldakinDbContext.SaveChangesAsync();
+        //                    var estadodia = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Idusuario == oOldLine.Idusuario && x.Dia == dtInicio.Date);
+        //                    estadodia.Horas = oOldLine.Horas;
+        //                    aldakinDbContext.Estadodias.Update(estadodia);
+        //                    await aldakinDbContext.SaveChangesAsync();
+        //                    await transaction.CommitAsync();
+        //                }
+        //                catch (Exception ex)
+        //                {
+        //                    await transaction.RollbackAsync();
+        //                    strReturn = "Ha ocurrido un problema durante el proceso de editar el parte de trabajo.;";
+        //                    return (strReturn);
+        //                }
+        //            }
+        //            else
+        //            {
+        //                //codent nueva y codent usuario distintos modificar parte y generar copia
+        //                var userO = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Name == user.Name && x.CodEnt == Convert.ToInt16(lineData.strEntidad));
+        //                if (!(userO is null))
+        //                {
+        //                    var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+        //                    try
+        //                    {
+        //                        oOldLine.Idpreslin = Convert.ToInt32(lineData.strPreslin);
+        //                        oOldLine.Observaciones = lineData.strObservaciones;
 
-                                oOldLine.Idot = otNew.Idots;
-                                oOldLine.Dietas = dGastos;
-                                oOldLine.Km = dKilometros;
-                                oOldLine.Observaciones = lineData.strObservaciones.ToUpper();
-                                oOldLine.Horasviaje = TiempoViaje;
-                                oOldLine.Inicio = dtInicio;
-                                oOldLine.Fin = dtFin;
-                                oOldLine.Horas = Convert.ToSingle((dtFin - dtInicio).TotalHours) - TiempoViaje;
-                                oOldLine.Idusuario = user.Idusuario;
-                                oOldLine.Facturable = iPernoctacion;
-                                oOldLine.Npartefirmado = lineData.strParte.ToUpper();
-                                oOldLine.CodEnt = otNew.CodEnt;//codigo entidad de la ot
-                                oOldLine.Idoriginal = 0;
-                                oOldLine.Validador = string.Empty;
-                                oOldLine.Validado = 0;
+        //                        oOldLine.Idot = otNew.Idots;
+        //                        oOldLine.Dietas = dGastos;
+        //                        oOldLine.Km = dKilometros;
+        //                        oOldLine.Observaciones = lineData.strObservaciones.ToUpper();
+        //                        oOldLine.Horasviaje = TiempoViaje;
+        //                        oOldLine.Inicio = dtInicio;
+        //                        oOldLine.Fin = dtFin;
+        //                        oOldLine.Horas = Convert.ToSingle((dtFin - dtInicio).TotalHours) - TiempoViaje;
+        //                        oOldLine.Idusuario = user.Idusuario;
+        //                        oOldLine.Facturable = iPernoctacion;
+        //                        oOldLine.Npartefirmado = lineData.strParte.ToUpper();
+        //                        oOldLine.CodEnt = otNew.CodEnt;//codigo entidad de la ot
+        //                        oOldLine.Idoriginal = 0;
+        //                        oOldLine.Validador = string.Empty;
+        //                        oOldLine.Validado = 0;
 
-                                aldakinDbContext.Lineas.Update(oOldLine);
-                                await aldakinDbContext.SaveChangesAsync();
-                                var gastos = await aldakinDbContext.Gastos.Where(x => x.Idlinea == oOldLine.Idlinea).ToListAsync();
-                                aldakinDbContext.Gastos.RemoveRange(gastos);
-                                await aldakinDbContext.SaveChangesAsync();
-                                foreach (var g in lGastos)
-                                {
-                                    var gasto = new Gastos
-                                    {
-                                        Pagador = g.Pagador,
-                                        Tipo = g.Tipo,
-                                        Cantidad = g.Cantidad,
-                                        Observacion = g.Observacion.ToUpper(),
-                                        Idlinea = oOldLine.Idlinea
-                                    };
-                                    aldakinDbContext.Gastos.Add(gasto);
-                                }
-                                await aldakinDbContext.SaveChangesAsync();
+        //                        aldakinDbContext.Lineas.Update(oOldLine);
+        //                        await aldakinDbContext.SaveChangesAsync();
+        //                        var gastos = await aldakinDbContext.Gastos.Where(x => x.Idlinea == oOldLine.Idlinea).ToListAsync();
+        //                        aldakinDbContext.Gastos.RemoveRange(gastos);
+        //                        await aldakinDbContext.SaveChangesAsync();
+        //                        foreach (var g in lGastos)
+        //                        {
+        //                            var gasto = new Gastos
+        //                            {
+        //                                Pagador = g.Pagador,
+        //                                Tipo = g.Tipo,
+        //                                Cantidad = g.Cantidad,
+        //                                Observacion = g.Observacion.ToUpper(),
+        //                                Idlinea = oOldLine.Idlinea
+        //                            };
+        //                            aldakinDbContext.Gastos.Add(gasto);
+        //                        }
+        //                        await aldakinDbContext.SaveChangesAsync();
 
-                                string Salida = otSel.Numero.ToString(), Primerdigito, Resto;
-                                var Cero = Convert.ToChar("0"); ;
-                                Primerdigito = otSel.Numero.ToString().Substring(0, 1);
-                                Resto = otSel.Numero.ToString().Substring(2, otSel.Numero.ToString().Length - 2);
-                                Resto = Resto.TrimStart(Cero);
-                                Salida = string.Format("{0}|{1}", Primerdigito, Resto);
-                                var observaciones = Salida + " " + lineData.strObservaciones.ToUpper();
+        //                        string Salida = otSel.Numero.ToString(), Primerdigito, Resto;
+        //                        var Cero = Convert.ToChar("0"); ;
+        //                        Primerdigito = otSel.Numero.ToString().Substring(0, 1);
+        //                        Resto = otSel.Numero.ToString().Substring(2, otSel.Numero.ToString().Length - 2);
+        //                        Resto = Resto.TrimStart(Cero);
+        //                        Salida = string.Format("{0}|{1}", Primerdigito, Resto);
+        //                        var observaciones = Salida + " " + lineData.strObservaciones.ToUpper();
 
-                                //from ots where cierre is null and year(apertura) = year(iinicio) and  cod_ent = icod_ent and cod_ent_d = (select cod_ent from lineas where idlinea = iidoriginal)
-                                var ot = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Cierre == null && x.Apertura.Year == oOldLine.Inicio.Year && x.CodEnt == userO.CodEnt && x.CodEntD == aldakinDbContext.Lineas.FirstOrDefault(y => y.Idlinea == Convert.ToInt32(lineData.strIdLinea)).CodEnt);
-                                var iOt = ot.Idots;
-                                var lineaSecundaria = new Lineas
-                                {
-                                    Idot = iOt,
-                                    Idpreslin = null,
-                                    Dietas = dGastos,
-                                    Km = dKilometros,
-                                    Observaciones = observaciones.ToUpper(),
-                                    Horasviaje = TiempoViaje,
-                                    Inicio = dtInicio,
-                                    Fin = dtFin,
-                                    Horas = Convert.ToSingle((dtFin - dtInicio).TotalHours) - TiempoViaje,
-                                    Idusuario = user.Idusuario,
-                                    Facturable = iPernoctacion,
-                                    Npartefirmado = oOldLine.Npartefirmado.ToUpper(),
-                                    CodEnt = userO.CodEnt,//codigo entidad del usuario
-                                    Idoriginal = oOldLine.Idlinea,
-                                    Validador = string.Empty,
-                                    Validado = 0
-                                };
-                                aldakinDbContext.Lineas.Add(lineaSecundaria);
-                                await aldakinDbContext.SaveChangesAsync();
-                                var estadodia = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Idusuario == oOldLine.Idusuario && x.Dia == dtInicio.Date);
-                                estadodia.Horas = oOldLine.Horas;
-                                aldakinDbContext.Estadodias.Update(estadodia);
-                                await transaction.CommitAsync();
-                            }
-                            catch (Exception ex)
-                            {
-                                await transaction.RollbackAsync();
-                                strReturn = "Ha ocurrido un problema durante el proceso de guardar el parte de trabajo.;";
-                                return (strReturn);
-                            }
-                        }
-                        else
-                        {
+        //                        //from ots where cierre is null and year(apertura) = year(iinicio) and  cod_ent = icod_ent and cod_ent_d = (select cod_ent from lineas where idlinea = iidoriginal)
+        //                        var ot = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Cierre == null && x.Apertura.Year == oOldLine.Inicio.Year && x.CodEnt == userO.CodEnt && x.CodEntD == aldakinDbContext.Lineas.FirstOrDefault(y => y.Idlinea == Convert.ToInt32(lineData.strIdLinea)).CodEnt);
+        //                        var iOt = ot.Idots;
+        //                        var lineaSecundaria = new Lineas
+        //                        {
+        //                            Idot = iOt,
+        //                            Idpreslin = null,
+        //                            Dietas = dGastos,
+        //                            Km = dKilometros,
+        //                            Observaciones = observaciones.ToUpper(),
+        //                            Horasviaje = TiempoViaje,
+        //                            Inicio = dtInicio,
+        //                            Fin = dtFin,
+        //                            Horas = Convert.ToSingle((dtFin - dtInicio).TotalHours) - TiempoViaje,
+        //                            Idusuario = user.Idusuario,
+        //                            Facturable = iPernoctacion,
+        //                            Npartefirmado = oOldLine.Npartefirmado.ToUpper(),
+        //                            CodEnt = userO.CodEnt,//codigo entidad del usuario
+        //                            Idoriginal = oOldLine.Idlinea,
+        //                            Validador = string.Empty,
+        //                            Validado = 0
+        //                        };
+        //                        aldakinDbContext.Lineas.Add(lineaSecundaria);
+        //                        await aldakinDbContext.SaveChangesAsync();
+        //                        var estadodia = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Idusuario == oOldLine.Idusuario && x.Dia == dtInicio.Date);
+        //                        estadodia.Horas = oOldLine.Horas;
+        //                        aldakinDbContext.Estadodias.Update(estadodia);
+        //                        await transaction.CommitAsync();
+        //                    }
+        //                    catch (Exception ex)
+        //                    {
+        //                        await transaction.RollbackAsync();
+        //                        strReturn = "Ha ocurrido un problema durante el proceso de guardar el parte de trabajo.;";
+        //                        return (strReturn);
+        //                    }
+        //                }
+        //                else
+        //                {
 
-                            strReturn = "¡¡¡No estas dado de alta en la delegacion para la que quieres registrar el parte!!!Informe a admisntracion de lo ocurrido;";
-                            return (strReturn);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                strReturn = "No se ha encontrado el parte para modificar, hable con administración";
-            }
+        //                    strReturn = "¡¡¡No estas dado de alta en la delegacion para la que quieres registrar el parte!!!Informe a admisntracion de lo ocurrido;";
+        //                    return (strReturn);
+        //                }
+        //            }
+        //        }
+        //    }
+        //    else
+        //    {
+        //        strReturn = "No se ha encontrado el parte para modificar, hable con administración";
+        //    }
 
-            var message = new LineMessage
-            {
-                Asunto = "AVISO: MODIFICACION DE PARTE",
-                Mensaje = lineData.strMensaje,
-                Idlinea = Convert.ToInt32(lineData.strIdlineaAntigua),
-                Inicial = 0
-            };
+        //    var message = new LineMessage
+        //    {
+        //        Asunto = "AVISO: MODIFICACION DE PARTE",
+        //        Mensaje = lineData.strMensaje,
+        //        Idlinea = Convert.ToInt32(lineData.strIdlineaAntigua),
+        //        Inicial = 0
+        //    };
 
-            await AnswerMessageAsync(message);
-            return strReturn;
-        }
-        private bool RangeIsUsed(List<Lineas> lLineas, DateTime dtFin, DateTime dtInicio, ref string strReturn)
+        //    await AnswerMessageAsync(message);
+        //    return strReturn;
+        //}
+        public static bool RangeIsUsed(List<Lineas> lLineas, DateTime dtFin, DateTime dtInicio, ref string strReturn)
         {
             bool bReturn;
             strReturn = string.Empty;
@@ -2156,7 +2289,7 @@ namespace AppPartes.Logic
                 {
                     //if ((DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) = 0) || (DateTime.Compare(dtInicio, x.Fin) = 0 && DateTime.Compare(dtFin, x.Fin) > 0) || (DateTime.Compare(dtInicio, x.Fin) > 0 && DateTime.Compare(dtFin, x.Fin) > 0) || (DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) < 0))
 
-                    if ((DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) == 0) || (DateTime.Compare(dtInicio, x.Fin) == 0 && DateTime.Compare(dtFin, x.Fin) > 0) || (DateTime.Compare(dtInicio, x.Fin) > 0 && DateTime.Compare(dtFin, x.Fin) > 0) ||  (DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) < 0))
+                    if ((DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) == 0) || (DateTime.Compare(dtInicio, x.Fin) == 0 && DateTime.Compare(dtFin, x.Fin) > 0) || (DateTime.Compare(dtInicio, x.Fin) > 0 && DateTime.Compare(dtFin, x.Fin) > 0) || (DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) < 0))
                     {
                         bReturn = false;
                         //rango ok
@@ -2192,7 +2325,7 @@ namespace AppPartes.Logic
             }
             return bReturn;
         }
-        private async Task<Lineas> ReviewLineData(int iLine, int idAldakinUser)
+        private async Task<Lineas> ReviewLineData(int iLine, int idAldakinUser,int idAdminUser)
         {
             var oReturn = new Lineas();
             var strReturn = string.Empty;
@@ -2219,11 +2352,23 @@ namespace AppPartes.Logic
                 return oReturn;
             }
             day = oReturn.Inicio;
-            var lEstadoDia = await aldakinDbContext.Estadodias.Where(x => x.Idusuario == _iUserId && DateTime.Compare(x.Dia, day.Date) == 0).ToListAsync();//
-            if (lEstadoDia.Count > 0)
+            var lEstadoDia = await aldakinDbContext.Estadodias.Where(x => x.Idusuario == idAldakinUser && DateTime.Compare(x.Dia, day.Date) == 0).ToListAsync();//
+            if (idAdminUser > 0)
             {
-                oReturn = null;
-                return oReturn;
+                //si hay administardor la semana tiene que estar cerrada, 
+                if (lEstadoDia.Count == 0)
+                {
+                    oReturn = null;
+                    return oReturn;
+                }
+            }
+            else
+            {
+                if (lEstadoDia.Count > 0)
+                {
+                    oReturn = null;
+                    return oReturn;
+                }
             }
             return oReturn;
         }

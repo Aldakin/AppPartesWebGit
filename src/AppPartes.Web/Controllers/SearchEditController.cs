@@ -12,30 +12,31 @@ namespace AppPartes.Web.Controllers
 {
     public class SearchEditController : Controller
     {
-        private readonly ILoadIndexController _ILoadIndexController;
-        private readonly IApplicationUserAldakin _IApplicationUserAldakin;
-        private readonly IWorkPartInformation _IWorkPartInformation;
-        private readonly IWriteDataBase _IWriteDataBase;
+        private readonly ILoadIndexController _iLoadIndexController;
+        private readonly IApplicationUserAldakin _iApplicationUserAldakin;
+        private readonly IWorkPartInformation _iWorkPartInformation;
+        //private readonly IWriteDataBase _IWriteDataBase;
         int _idAldakinUser;
-        public SearchEditController(IApplicationUserAldakin iApplicationUserAldakin, ILoadIndexController iLoadIndexController, IWorkPartInformation iWorkPartInformation, IWriteDataBase iWriteDataBase)
+        public SearchEditController(IApplicationUserAldakin iApplicationUserAldakin, ILoadIndexController iLoadIndexController, IWorkPartInformation iWorkPartInformation/*, IWriteDataBase iWriteDataBase*/)
         {
-            _IApplicationUserAldakin = iApplicationUserAldakin;
-            _ILoadIndexController = iLoadIndexController;
-            _IWriteDataBase = iWriteDataBase;
+            _iApplicationUserAldakin = iApplicationUserAldakin;
+            _iLoadIndexController = iLoadIndexController;
+            _iWorkPartInformation = iWorkPartInformation;
+            //_IWriteDataBase = iWriteDataBase;
         }
         public async Task<IActionResult> Index(string strMessage = "", string strLineId = "", string strAction = "")
         {
             ViewBag.Message = strMessage;
-            _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
-            var oView = await _ILoadIndexController.LoadSearchEditControllerAsync(_idAldakinUser, strLineId, strAction);
+            _idAldakinUser = await _iApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
+            var oView = await _iLoadIndexController.LoadSearchEditControllerAsync(_idAldakinUser, strLineId, strAction);
             return View(oView);
         }
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditLine(string strEntidad, string strOt, string strPresupuesto, string strNivel1, string strNivel2, string strNivel3, string strNivel4, string strNivel5, string strNivel6, string strNivel7, string strCalendario, string strHoraInicio, string strMinutoInicio, string strHoraFin, string strMinutoFin, string bHorasViaje, string bGastos, string strParte, string strPernoctacion, string strObservaciones, string strPreslin, string strGastos, string strMessage, string strIdLinea,string strIdUser,string SaveAndValidate,string Save,string Validate)
+        public async Task<IActionResult> EditLine(string strEntidad, string strOt, string strPresupuesto, string strNivel1, string strNivel2, string strNivel3, string strNivel4, string strNivel5, string strNivel6, string strNivel7, string strCalendario, string strHoraInicio, string strMinutoInicio, string strHoraFin, string strMinutoFin, string bHorasViaje, string bGastos, string strParte, string strPernoctacion, string strObservaciones, string strPreslin, string strGastos, string strMessage, string strIdLinea, string strIdUser, string SaveAndValidate, string Save, string Validate)
         {
             var strReturn = string.Empty;
-            string strAction;
-            _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
+            _idAldakinUser = await _iApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
+            string strAction = string.Empty;
             // SaveAndValidate,string Save,string Validate
             if (!(string.IsNullOrEmpty(SaveAndValidate)))
             {
@@ -59,8 +60,9 @@ namespace AppPartes.Web.Controllers
                     }
                 }
             }
-            var dataToInsertLine = new WorkerLineData
+            var dataEditLine = new WorkerLineData
             {
+                iIdUsuario = Convert.ToInt32(strIdUser),
                 strEntidad = strEntidad,
                 strOt = strOt,
                 strPresupuesto = strPresupuesto,
@@ -85,10 +87,13 @@ namespace AppPartes.Web.Controllers
                 strGastos = strGastos,
                 strMensaje = strMessage,
                 strIdlineaAntigua = strIdLinea,
-                strAction= strAction
+                strAction = strAction
             };
-            strReturn = await _IWriteDataBase.EditWorkerLineAdminAsync(dataToInsertLine);
-            return RedirectToAction("Index", "Search", new { strMessage = strReturn, strAction = "StatusResume", strDate1 = strCalendario, strWorker = strIdUser, strEntity= strEntidad, strOt=0 });
+            //var oReturn = await _IWriteDataBase.EditWorkerLineAsync(dataEditLine, _idAldakinUser);
+
+            strReturn = await _iWorkPartInformation.PrepareWorkLineAsync(dataEditLine, Convert.ToInt32(strIdUser), _idAldakinUser, "edit");
+            // strReturn = await _IWriteDataBase.EditWorkerLineAdminAsync(dataToInsertLine);
+            return RedirectToAction("Index", "Search", new { strMessage = strReturn, strAction = "StatusResume", strDate1 = strCalendario, strWorker = strIdUser, strEntity = strEntidad, strOt = 0 });
 
 
 

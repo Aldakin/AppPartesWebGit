@@ -180,7 +180,6 @@ namespace AppPartes.Logic
                                     }
                                 }
                                 oReturn.listPartes = await GetWeekWorkerPartsAsync(dtIniWeek, dtEndWeek);
-
                                 //var weekStatus = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Dia == dtSelected.Date && x.Idusuario == _iUserId);
                                 //if (weekStatus is null)
                                 //{
@@ -216,6 +215,15 @@ namespace AppPartes.Logic
                             }
                             oReturn.listSelect = await GetDayWorkerPartAsync(lSelect);
                             oReturn.listPernocta = await GetAldakinNightAsync(lSelect);
+
+                            oReturn.Gastos = await GetWorkExpenses(lSelect.Idlinea, lSelect.CodEnt);
+
+                            oReturn.listOts = await GetOtsAsync();
+                            oReturn.listCompany = await GetAldakinCompaniesAsync();
+                            oReturn.listClient = await GetAldakinClientsAsync();
+
+
+
                             oReturn.DateSelected = lSelect.Inicio.Date.ToString("yyyy-MM-dd"); // dtSelected.Date;
                             break;
                         default:
@@ -302,13 +310,23 @@ namespace AppPartes.Logic
                             oReturn.listResume = null;
                             oReturn.listWeekResume = await _iWorkPartInformation.StatusWeekResumeAsync(idAldakinUser, strDate1, strOt, strWorker, strEntity);
                             oReturn.strGlobalValidation = await _iWorkPartInformation.StringWeekResumeAsync(idAldakinUser, strDate1, strOt, strWorker, strEntity);
+                            oReturn.strDate = strDate;
+                            oReturn.strDate1 = strDate1;
+                            oReturn.strEntity = strEntity;
+                            oReturn.strWorker = strWorker;
                             break;
                         case "globalValidation":
+                            //no eciste
                             oReturn.listResume = null;
                             oReturn.listWeekResume = null;
                             oReturn.strGlobalValidation = null;
-
-                            oReturn.strError = await _iWriteDataBase.ValidateGlobalLineAsync(idAldakinUser, strListValidation);
+                            oReturn.strDate = strDate;
+                            oReturn.strDate1 = strDate1;
+                            oReturn.strEntity = strEntity;
+                            oReturn.strWorker = strWorker;
+                            oReturn.strAction = "StatusResume";
+                            oReturn.strError = await _iWriteDataBase.ValidateGlobalLineAsync(idAldakinUser, strListValidation,1);
+                            
                             break;
                         default:
                             oReturn.strError = "Error en la accion seleccionada, avise a Administracion";
@@ -342,7 +360,7 @@ namespace AppPartes.Logic
                             var lSelect = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(strLineId));
                             oReturn.listSelect = await GetDayWorkerPartAsync(lSelect);
                             oReturn.listPernocta = await GetAldakinNightAsync(lSelect);
-
+                            oReturn.Gastos = await GetWorkExpenses(lSelect.Idlinea,lSelect.CodEnt);
                             oReturn.listOts = await GetOtsAsync();
                             oReturn.listCompany = await GetAldakinCompaniesAsync();
                             oReturn.listClient = await GetAldakinClientsAsync();
@@ -511,6 +529,29 @@ namespace AppPartes.Logic
             lReturn = await totalType1Ots.Concat(totalType2Ots).Distinct().OrderBy(x => x.Numero).ToListAsync();
             return lReturn;
         }
+        private async Task<string> GetWorkExpenses(int iIdLinea,int iCodEnt)
+        {
+            string strReturn = string.Empty;
+            var lGastos = await aldakinDbContext.Gastos.Where(x => x.Idlinea == iIdLinea).ToListAsync();
+            int iCont = 0;
+            foreach(Gastos g in lGastos)
+            {
+                var strPagador = "";
+                //strGastos = strGastos + iCont + "|" + strPagador + "|" + strTipo + "|" + g.Cantidad + "|" + g.Observacion + "\r\n";
+                iCont++;
+                if(g.Pagador==0)
+                {
+                    strPagador = "TRABAJADOR";
+                }
+                else
+                {
+                    strPagador = "ALDAKIN";
+                }
+                var tipo = await aldakinDbContext.Tipogastos.FirstOrDefaultAsync(x => x.CodEnt == iCodEnt && x.Idtipogastos == g.Tipo);
+                strReturn = strReturn + iCont + "|" + strPagador + "|" + tipo.Tipo + "|" + g.Cantidad + "|" + g.Observacion + "\r\n";
+            }
+            return strReturn;
+        }
         private async Task<List<Entidad>> GetAldakinCompaniesAsync()
         {
             var lReturn = new List<Entidad>();
@@ -611,7 +652,7 @@ namespace AppPartes.Logic
             string strNivel7 = string.Empty;
 
             var strPreslin = string.Empty;
-            int iOt = 0, iPresu=0;
+            int iOt = 0, iPresu = 0;
             var nombreCliente = await aldakinDbContext.Clientes.FirstOrDefaultAsync(x => x.Idclientes == aldakinDbContext.Ots.FirstOrDefault(o => o.Idots == lSelect.Idot).Cliente);
             NombreCliente = nombreCliente.Nombre;
             var lGastos = await aldakinDbContext.Gastos.Where(x => x.Idlinea == lSelect.Idlinea).ToListAsync();
@@ -644,6 +685,8 @@ namespace AppPartes.Logic
             }
 
             var tempPreslin = await aldakinDbContext.Preslin.FirstOrDefaultAsync(x => x.Idpreslin == lSelect.Idpreslin);
+            if (!(tempPreslin is null))
+            { 
             iNivel = tempPreslin.Nivel ?? default(int);//oPreslin.nivel es nuleable
             var lPreslin = await aldakinDbContext.Preslin.Where(x => x.Idpresupuesto == tempPreslin.Idpresupuesto && x.CodpPes == tempPreslin.CodpPes && x.Nivel == tempPreslin.Nivel).ToListAsync();
             switch (iNivel)
@@ -736,7 +779,7 @@ namespace AppPartes.Logic
                 }
             }
 
-
+        }
 
 
 

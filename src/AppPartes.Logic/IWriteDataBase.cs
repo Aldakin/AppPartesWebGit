@@ -8,12 +8,14 @@ namespace AppPartes.Logic
     public interface IWriteDataBase
     {
         Task<UserData> GetUserDataAsync(int idAldakinUser);
-        Task<string> InsertWorkerLineAsync(WorkerLineData dataToInsertLine, int idAldakinUser);
-        Task<List<SelectData>> DeleteWorkerLineAsync(int iLine, int idAldakinUser);
-        Task<SelectData> EditWorkerLineAsync(WorkerLineData dataToEditLine, int idAldakinUser);
+        Task<int> InsertWorkerLineAsync(Lineas oLinea);
+        Task<string> InsertUserWorkExpensesAsync(List<Gastos> lGastos, int iIdLine);
+        //Task<string> InsertWorkerLineAsync(WorkerLineData dataToInsertLine, int idAldakinUser);
+        Task<List<SelectData>> DeleteWorkerLineAsync(int iLine, int idAldakinUser, int idAdminUser);
+        //Task<SelectData> EditWorkerLineAsync(WorkerLineData dataToEditLine, int idAldakinUser);
         Task<SelectData> CloseWorkerWeekAsync(string strDataSelected, int idAldakinUser);
-        Task<SelectData> ValidateWorkerLineAsync(string strLine, int idAldakinUser);
-        Task<string> ValidateGlobalLineAsync(int idAldakinUser,string strLine);
+        Task<SearchViewLogic> ValidateWorkerLineAsync(string strLine, int idAldakinUser,sbyte? sValue);
+        Task<string> ValidateGlobalLineAsync(int idAldakinUser,string strLine,sbyte sValue);
         Task<bool> ReadUserMessageAsync(int iIdMessage);
         Task<string> AnswerMessageAsync(LineMessage line);
         Task<string> UpdateEntityDataOrCsvAsync(int iIdEntity, int idAldakinUser, string strAction = "AC");
@@ -24,6 +26,7 @@ namespace AppPartes.Logic
         Task<string> InsertHoliDayAsync(string strCalendario, string strEntidad, string strJornada, string strAction);
         Task<string> DeleteHoliDayAsync(string strId);
         Task<string> WriteAllHolidaysAsync(string strAllHoliDays);
-        Task<string> EditWorkerLineAdminAsync(WorkerLineData lineData);
+        Task<string> OpenWeek(string strLine);
+        //Task<string> EditWorkerLineAdminAsync(WorkerLineData lineData);
     }
 }

@@ -9,17 +9,17 @@ namespace AppPartes.Web.Controllers
     [Authorize]
     public class MainController : Controller
     {
-        private readonly IWriteDataBase _IWriteDataBase;
-        //private readonly IWorkPartInformation _IWorkPartInformation;
+        //private readonly IWriteDataBase _IWriteDataBase;
+        private readonly IWorkPartInformation _IWorkPartInformation;
         private readonly ILoadIndexController _ILoadIndexController;
         private readonly IApplicationUserAldakin _IApplicationUserAldakin;
         private int _idAldakinUser;
-        public MainController(/*IWorkPartInformation iWorkPartInformation,*/ IWriteDataBase iWriteDataBase, ILoadIndexController iLoadIndexController, IApplicationUserAldakin iApplicationUserAldakin)
+        public MainController(IWorkPartInformation iWorkPartInformation, /*IWriteDataBase iWriteDataBase*/ ILoadIndexController iLoadIndexController, IApplicationUserAldakin iApplicationUserAldakin)
         {
-            _IWriteDataBase = iWriteDataBase;
+            //_IWriteDataBase = iWriteDataBase;
             _IApplicationUserAldakin = iApplicationUserAldakin;
             _ILoadIndexController = iLoadIndexController;
-            //_IWorkPartInformation = iWorkPartInformation;
+            _IWorkPartInformation = iWorkPartInformation;
         }
         public async Task<IActionResult> Index(string strMessage = "")
         {
@@ -39,9 +39,11 @@ namespace AppPartes.Web.Controllers
             _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
             var dataToInsertLine = new WorkerLineData
             {
+                strIdLinea="0",
                 strEntidad = strEntidad,
                 strOt = strOt,
                 strPresupuesto = strPresupuesto,
+                iIdUsuario= _idAldakinUser,
                 strNivel1 = strNivel1,
                 strNivel2 = strNivel2,
                 strNivel3 = strNivel3,
@@ -60,16 +62,13 @@ namespace AppPartes.Web.Controllers
                 strPernoctacion = strPernoctacion,
                 strObservaciones = strObservaciones,
                 strPreslin = strPreslin,
+                strIdlineaAntigua = "0",
                 strGastos = strGastos
             };
             //strReturn = await MainDataApi.InsertLine(dataToInsertLine);
-            strReturn = await _IWriteDataBase.InsertWorkerLineAsync(dataToInsertLine, _idAldakinUser);
+            strReturn = await _IWorkPartInformation.PrepareWorkLineAsync(dataToInsertLine, _idAldakinUser, 0, "insert");
+            //strReturn = await _IWriteDataBase.InsertWorkerLineAsync(dataToInsertLine, _idAldakinUser);
             return RedirectToAction("Index", new { strMessage = strReturn });
-        }
-        public void Test()
-        {
-            int i = 0;
-            i = i + 1;
         }
     }
     //.Replace(',', '.')

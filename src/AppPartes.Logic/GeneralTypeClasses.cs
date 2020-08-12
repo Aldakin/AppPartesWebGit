@@ -19,6 +19,7 @@ namespace AppPartes.Logic
         public string strIdLinea { set; get; }
         public string strEntidad { set; get; }
         public string strOt { set; get; }
+        public int iIdUsuario { set; get; }
         public string strPresupuesto { set; get; }
         public string strNivel1 { set; get; }
         public string strNivel2 { set; get; }
@@ -151,11 +152,15 @@ namespace AppPartes.Logic
         public List<List<LineaVisual>> listPartes { get; set; }
         public List<LineaVisual> listSelect { get; set; }
         public List<Pernoctaciones> listPernocta { get; set; }
+        public List<Entidad> listCompany { get; set; }
+        public List<Clientes> listClient { get; set; }
+        public List<Ots> listOts { set; get; }
         public List<double> listSemana { get; set; }
         public bool SemanaCerrada { get; set; }
         public string DateSelected { get; set; }
         public string Mensaje { get; set; }
         public bool bMessage { set; get; }
+        public string Gastos { set; get; }
         public string strError { set; get; }
     }
     public class LoginDataViewLogic
@@ -181,6 +186,9 @@ namespace AppPartes.Logic
         public string strGlobalValidation { get; set; }
         public string strDate { get; set; }
         public string strDate1 { get; set; }
+        public string strEntity { get; set; }
+        public string strWorker { get; set; }
+        public string strAction{set;get;}
     }
     public class SearchEditViewLogic
     {
@@ -192,6 +200,7 @@ namespace AppPartes.Logic
         public List<Clientes> listClient { get; set; }
         public List<Ots> listOts { set; get; }
         public string DateSelected { set; get; }
+        public string Gastos { set; get; }
     }
     public class SearchPendingViewLogic
     {

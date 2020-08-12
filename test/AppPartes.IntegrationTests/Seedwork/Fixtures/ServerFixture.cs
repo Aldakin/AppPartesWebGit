@@ -78,9 +78,9 @@ namespace AppPartes.IntegrationTests.Seedwork.Fixtures
                     var writeMock = Mock.Of<IWriteDataBase>();
                     Mock.Get(writeMock).Setup(x => x.UpdateEntityDataOrCsvAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>()))
                         .ReturnsAsync("Hola mundo :)");//It.IsAny<string>()
-                    Mock.Get(writeMock).Setup(x => x.DeleteWorkerLineAsync(0, It.IsAny<int>()))
+                    Mock.Get(writeMock).Setup(x => x.DeleteWorkerLineAsync(0, It.IsAny<int>(),0))
                         .ReturnsAsync(default(List<SelectData>));
-                    Mock.Get(writeMock).Setup(x => x.DeleteWorkerLineAsync(It.IsAny<int>(), It.IsAny<int>()))
+                    Mock.Get(writeMock).Setup(x => x.DeleteWorkerLineAsync(It.IsAny<int>(), It.IsAny<int>(),0))
                         .ReturnsAsync(new List<SelectData>());
                     Mock.Get(writeMock).Setup(x => x.CloseWorkerWeekAsync(It.IsAny<string>(), It.IsAny<int>()))
                         .ReturnsAsync(new SelectData());

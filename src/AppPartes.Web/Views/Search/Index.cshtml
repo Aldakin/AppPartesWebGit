@@ -38,9 +38,9 @@
                         </option>
                         @foreach (var dept in Model.listCompany)
                         {
-                                <option value="@dept.CodEnt">
-                                    @dept.Nombre
-                                </option>
+                            <option value="@dept.CodEnt">
+                                @dept.Nombre
+                            </option>
                         }
                     </select>
                 </div>
@@ -103,9 +103,9 @@
                         </option>
                         @foreach (var dept in Model.listCompany)
                         {
-                                <option value="@dept.CodEnt">
-                                    @dept.Nombre
-                                </option>
+                            <option value="@dept.CodEnt">
+                                @dept.Nombre
+                            </option>
                         }
                     </select>
                 </div>
@@ -117,12 +117,12 @@
                     </select>
                 </div>
                 @*<div class="col-12">
-                    <label id="lblOt" for="start">* Ot:</label>
-                    <select id="ot" name="strOt">
+                        <label id="lblOt" for="start">* Ot:</label>
+                        <select id="ot" name="strOt">
 
-                        <option value="0"></option>
-                    </select>
-                </div>*@
+                            <option value="0"></option>
+                        </select>
+                    </div>*@
                 <!-- de momento se comenta la ot y se fuerza a o -->
                 <input type="hidden" name="strOt" value="0" />
 
@@ -145,19 +145,39 @@
             {
                 if (Model.strGlobalValidation != null)
                 {
-                <form asp-controller="Search" asp-action="Index" method="POST">
-                            <div class="row gtr-uniform">
+                    <div class="row gtr-uniform">
+                                <div class="col-12">
+                                    <label id="lblWorker" for="start">La validación masiva valida todos los partes que se listan a continuación</label>
+                                    <form asp-controller="Search" asp-action="GlobalValidation" method="POST">
+                                        <input type="hidden" id="strEntity" name="strEntity" value="@Model.strEntity" />
+                                        <input type="hidden" id="strWorker" name="strWorker" value="@Model.strWorker" />
+                                        <input type="hidden" id="strDate1" name="strDate1" value="@Model.strDate1" />
+                                        <input type="hidden" id="strOt" name="strOt" value="0" />
+
+                                        <input type="hidden" id="strListValidation" name="strListValidation" value="@Model.strGlobalValidation" />
+                                        <input type="hidden" name="strAction" value="globalValidation" />
                                         <div class="col-12">
-                                            <input type="hidden" id="strListValidation" name="strListValidation" value="@Model.strGlobalValidation" />
-                                            <input type="hidden" name="strAction" value="globalValidation" />
-                                            <div class="col-12">
-                                                <ul class="actions">
-                                                    <li><input type="submit" name="strStatus" value="validation masiva" class="primary" /></li>
-                                                </ul>
-                                            </div>
+                                            <ul class="actions">
+                                                <li><input type="submit" name="strStatus" value="Validación Masiva" class="primary" /></li>
+                                            </ul>
                                         </div>
-                            </div>
-                </form>
+                                    </form>
+                                    <form asp-controller="Search" asp-action="OpenWeek" method="POST">
+                                        <label id="lblWorker" for="start">Si hay partes validado o registrados no se podra abrir la semana</label>
+                                        <input type="hidden" id="strEntity" name="strEntity" value="@Model.strEntity" />
+                                        <input type="hidden" id="strWorker" name="strWorker" value="@Model.strWorker" />
+                                        <input type="hidden" id="strDate1" name="strDate1" value="@Model.strDate1" />
+                                        <input type="hidden" id="strOt" name="strOt" value="0" />
+
+                                        <input type="hidden" id="strListValidation" name="strListValidation" value="@Model.strGlobalValidation" />
+                                        <div class="col-12">
+                                            <ul class="actions">
+                                                <li><input type="submit" name="strStatus" value="Abrir Semana" class="primary" /></li>
+                                            </ul>
+                                        </div>
+                                    </form>
+                                </div>
+                    </div>
                 }
 
                 @foreach (var dept in Model.listWeekResume)
@@ -203,62 +223,70 @@
                                     <tbody>
                                         @foreach (var part in dept)
                                         {
-                                        <tr>
-                                            <td>
-                                                @{
-                                                    switch (part.iStatus)
-                                                    {
-                                                        case 0:
-                                                            <p>Parte no cerrado</p>
-                                                            break;  // Always break each case
-                                                        case 1:
-                                                            <p>Parte Volcado</p>
-                                                            break;
-                                                        case 2:
-                                                            <form asp-controller="SearchEdit" asp-action="Index" method="POST">
-                                                                <input type="hidden" name="strLineId" value="@part.Idlinea" />
-                                                                <input type="hidden" name="strAction" value="editLine" />
-                                                                <input type="submit" value="Editar" />
-                                                            </form>
-                                                            <form asp-controller="Search" asp-action="SearchValidate" method="POST">
-                                                                <input type="hidden" id="idLinea" name="idLine" value="@part.Idlinea" />
-                                                                <input type="hidden" id="dtIni" name="dtIni" value="@part.Inicio.Date" />
-                                                                <input type="hidden" name="strAction" value="validateLine" />
-                                                                <input type="submit" value="Validar" />
-                                                            </form>
-                                                            break;
+                                            <tr>
+                                                <td>
+                                                    @{
+                                                        switch (part.iStatus)
+                                                        {
+                                                            case 0:
+                                                                <p>Parte no cerrado</p>
+                                                                break;  // Always break each case
+                                                            case 1:
+                                                                <p>Parte Volcado</p>
+                                                                break;
+                                                            case 2:
+                                                                <form asp-controller="Search" asp-action="SearchUnValidate" method="POST">
+                                                                    <input type="hidden" id="idLinea" name="idLine" value="@part.Idlinea" />
+                                                                    <input type="hidden" id="dtIni" name="dtIni" value="@part.Inicio.Date" />
+                                                                    <input type="hidden" name="strAction" value="validateLine" />
+                                                                    <input type="submit" value="Desvalidar" />
+                                                                </form>
+                                                                break;
+                                                            case 3:
+                                                                <form asp-controller="SearchEdit" asp-action="Index" method="POST">
+                                                                    <input type="hidden" name="strLineId" value="@part.Idlinea" />
+                                                                    <input type="hidden" name="strAction" value="editLine" />
+                                                                    <input type="submit" value="Editar" />
+                                                                </form>
+                                                                <form asp-controller="Search" asp-action="SearchValidate" method="POST">
+                                                                    <input type="hidden" id="idLinea" name="idLine" value="@part.Idlinea" />
+                                                                    <input type="hidden" id="dtIni" name="dtIni" value="@part.Inicio.Date" />
+                                                                    <input type="hidden" name="strAction" value="validateLine" />
+                                                                    <input type="submit" value="Validar" />
+                                                                </form>
+                                                                break;
 
-                                                        default:
-                                                            <p>Situacion descontrolada</p>
-                                                            break;
+                                                            default:
+                                                                <p>Situacion descontrolada</p>
+                                                                break;
+                                                        }
                                                     }
-                                                }
-                                            </td>
-                                            <td>@part.NombreUsuario</td>
-                                            <td>@part.strInicio</td>
-                                            <td>@part.strFin</td>
-                                            <td>@part.NombreCliente</td>
-                                            <td>@part.NombreOt</td>
-                                            <!--<td>Nombre OT</td>-->
-                                            <td>@part.NombrePreslin</td>
-                                            <!--<td>Nombre Presupuesto</td>-->
-                                            <!--<td>Nivel1</td>
-    <td>Nivel2</td>
-    <td>Nivel3</td>
-    <td>Nivel4</td>
-    <td>Nivel5</td>
-    <td>Nivel6</td>
-    <td>Nivel7</td>-->
-                                            <td>@part.Horasviaje</td>
-                                            <td>@part.Horas</td>
-                                            <td>@part.Dietas</td>
-                                            <td>@part.Km</td>
-                                            <td>@part.strPernocta</td>
-                                            <td>@part.Observaciones</td>
-                                            <td>@part.Idlinea</td>
-                                            <td>@part.Npartefirmado</td>
-                                            <td>@part.Validado</td>
-                                        </tr>
+                                                </td>
+                                                <td>@part.NombreUsuario</td>
+                                                <td>@part.strInicio</td>
+                                                <td>@part.strFin</td>
+                                                <td>@part.NombreCliente</td>
+                                                <td>@part.NombreOt</td>
+                                                <!--<td>Nombre OT</td>-->
+                                                <td>@part.NombrePreslin</td>
+                                                <!--<td>Nombre Presupuesto</td>-->
+                                                <!--<td>Nivel1</td>
+                                                <td>Nivel2</td>
+                                                <td>Nivel3</td>
+                                                <td>Nivel4</td>
+                                                <td>Nivel5</td>
+                                                <td>Nivel6</td>
+                                                <td>Nivel7</td>-->
+                                                <td>@part.Horasviaje</td>
+                                                <td>@part.Horas</td>
+                                                <td>@part.Dietas</td>
+                                                <td>@part.Km</td>
+                                                <td>@part.strPernocta</td>
+                                                <td>@part.Observaciones</td>
+                                                <td>@part.Idlinea</td>
+                                                <td>@part.Npartefirmado</td>
+                                                <td>@part.Validado</td>
+                                            </tr>
                                         }
                                     </tbody>
                                     @*<tfoot>

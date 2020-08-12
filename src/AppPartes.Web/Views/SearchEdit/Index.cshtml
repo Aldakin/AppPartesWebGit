@@ -541,7 +541,7 @@
                                                     <option value="0"></option>
                                                 </select>
                                                 <label for="start">Observaciones:</label>
-                                                <input type="text" id="strObservaciones" name="strObservaciones" value=" " />
+                                                <input type="text" id="strObservaciones" name="strObservaciones" value="" />
                                                 <span class="button" onclick="insertText('idGasto','strCantidad','Pagador','Tipo','strGastos','strObservaciones');" style="display: inline-block">Añadir Gasto</span>
                                                 <label for="start">Lista de gastos:</label>
                                                 <textarea name="strGastos" id="strGastos" value="@dept.Gastos" rows="6">@dept.Gastos</textarea>
@@ -798,6 +798,7 @@
             document.getElementById('nivel5').style.display = 'none';
             document.getElementById('nivel6').style.display = 'none';
             document.getElementById('nivel7').style.display = 'none';
+            document.getElementById("strPreslin").value = 0;
                 for (let i = $presupuesto.options.length; i >= 0; i--) {
                     $presupuesto.remove(i);
                 }

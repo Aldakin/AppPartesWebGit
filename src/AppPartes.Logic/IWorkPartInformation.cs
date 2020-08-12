@@ -21,6 +21,7 @@ namespace AppPartes.Logic
         Task<List<List<LineaVisual>>> StatusWeekResumeAsync(int idAldakinUser, string strDate, string strOt, string strWorker, string strEntity);
         Task<List<SelectData>> GetWorkerValidationAsnc(int idAldakinUser, int iEntity);
         Task<List<SelectData>> GetOtValidationAsync(int idAldakinUser, int iEntity);
+        Task<string> PrepareWorkLineAsync(WorkerLineData dataToInsertLine, int idAldakinUser, int idAdminUser, string strAction);
     }
 }
 

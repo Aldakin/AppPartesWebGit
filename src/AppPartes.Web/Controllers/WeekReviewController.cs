@@ -20,24 +20,24 @@ namespace AppPartes.Web.Controllers
         //private readonly AldakinDbContext aldakinDbContext;
 
 
-        private readonly IWriteDataBase _IWriteDataBase;
-        private readonly IWorkPartInformation _IWorkPartInformation;
-        private readonly ILoadIndexController _ILoadIndexController;
-        private readonly IApplicationUserAldakin _IApplicationUserAldakin;
+        //private readonly IWriteDataBase _iWriteDataBase;
+        private readonly IWorkPartInformation _iWorkPartInformation;
+        private readonly ILoadIndexController _iILoadIndexController;
+        private readonly IApplicationUserAldakin _iApplicationUserAldakin;
         private int _idAldakinUser;
 
-        public WeekReviewController(IWriteDataBase iWriteDataBase, IWorkPartInformation iWorkPartInformation, ILoadIndexController iLoadIndexController, IApplicationUserAldakin iApplicationUserAldakin)
+        public WeekReviewController(/*IWriteDataBase iWriteDataBase,*/ IWorkPartInformation iWorkPartInformation, ILoadIndexController iLoadIndexController, IApplicationUserAldakin iApplicationUserAldakin)
         {
-            _IWriteDataBase = iWriteDataBase;
-            _IWorkPartInformation = iWorkPartInformation;
-            _ILoadIndexController = iLoadIndexController;
-            _IApplicationUserAldakin = iApplicationUserAldakin;
+            //_iWriteDataBase = iWriteDataBase;
+            _iWorkPartInformation = iWorkPartInformation;
+            _iILoadIndexController = iLoadIndexController;
+            _iApplicationUserAldakin = iApplicationUserAldakin;
         }
         public async Task<IActionResult> Index(string strMessage = "", string strDate = "", string strAction = "", string strId = "")
         {
             ViewBag.Message = strMessage;
-            _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
-            var oView = await _ILoadIndexController.LoadWeekControllerAsync(_idAldakinUser, strDate, strAction, strId);
+            _idAldakinUser = await _iApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
+            var oView = await _iILoadIndexController.LoadWeekControllerAsync(_idAldakinUser, strDate, strAction, strId);
             if (!(string.IsNullOrEmpty(oView.strError)))
             {
                 ViewBag.Message = oView.strError;
@@ -50,12 +50,24 @@ namespace AppPartes.Web.Controllers
             return View(oView);
         }
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditLine(string strIdLinea, string ot, string strCalendario, string strHoraInicio, string strMinutoInicio, string strHoraFin, string strMinutoFin, string bHorasViaje, string bGastos, string strParte, string strPernoctacion, string strObservaciones, string strGastos)
+        public async Task<IActionResult> EditLine(string strEntidad, string strOt, string strPresupuesto, string strNivel1, string strNivel2, string strNivel3, string strNivel4, string strNivel5, string strNivel6, string strNivel7, string strCalendario, string strHoraInicio, string strMinutoInicio, string strHoraFin, string strMinutoFin, string bHorasViaje, string bGastos, string strParte, string strPernoctacion, string strObservaciones, string strPreslin, string strGastos, string strMessage, string strIdLinea, string strIdUser, string SaveAndValidate, string Save, string Validate)
         {
+
+            _idAldakinUser = await _iApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
+            string strAction=string.Empty;
             var dataEditLine = new WorkerLineData
             {
-                strIdLinea = strIdLinea,
-                strOt = ot,
+                iIdUsuario = _idAldakinUser,
+                strEntidad = strEntidad,
+                strOt = strOt,
+                strPresupuesto = strPresupuesto,
+                strNivel1 = strNivel1,
+                strNivel2 = strNivel2,
+                strNivel3 = strNivel3,
+                strNivel4 = strNivel4,
+                strNivel5 = strNivel5,
+                strNivel6 = strNivel6,
+                strNivel7 = strNivel7,
                 strCalendario = strCalendario,
                 strHoraInicio = strHoraInicio,
                 strMinutoInicio = strMinutoInicio,
@@ -66,17 +78,25 @@ namespace AppPartes.Web.Controllers
                 strParte = strParte,
                 strPernoctacion = strPernoctacion,
                 strObservaciones = strObservaciones,
-                strGastos = strGastos
+                strPreslin = strPreslin,
+                strGastos = strGastos,
+                strMensaje = strMessage,
+                strIdlineaAntigua = strIdLinea,
+                strAction = strAction
             };
-            _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
-            var oReturn = await _IWriteDataBase.EditWorkerLineAsync(dataEditLine, _idAldakinUser);
-            if (oReturn.iValue == 0)
+            //var oReturn = await _IWriteDataBase.EditWorkerLineAsync(dataEditLine, _idAldakinUser);
+
+            var strReturn = await _iWorkPartInformation.PrepareWorkLineAsync(dataEditLine, _idAldakinUser, _idAldakinUser, "edit");
+
+
+
+            if (string.IsNullOrEmpty(strReturn))
             {
-                return RedirectToAction("Index", new { strMessage = oReturn.strText, strDate = oReturn.strValue, strAction = "" });
+                return RedirectToAction("Index", new { strMessage = strReturn, strDate = strCalendario, strAction = "" });
             }
             else
             {
-                return RedirectToAction("Index", new { strMessage = oReturn.strText, strDate = oReturn.strValue, strAction = "loadWeek" });
+                return RedirectToAction("Index", new { strMessage = strReturn, strDate = strCalendario, strAction = "loadWeek" });
             }
         }
     }
