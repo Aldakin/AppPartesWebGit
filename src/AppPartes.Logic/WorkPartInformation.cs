@@ -387,20 +387,13 @@ namespace AppPartes.Logic
                 var user = await _iWriteDataBase.GetAllUsersAsync(iEntity);
                 foreach (Usuarios u in user)
                 {
-                    var temp = await PendingMonthWorkPartAsync(u.Idusuario, dtCalendario);
-                    foreach (string s in temp)
-                    {
-                        lReturn.Add(s);
-                    }
+                    lReturn = await PendingMonthWorkPartAsync(u.Idusuario, dtCalendario);
+                    
                 }
             }
             else
             {
-                var temp1 = await PendingMonthWorkPartAsync(iUser, dtCalendario);
-                foreach (string s in temp1)
-                {
-                    lReturn.Add(s);
-                }
+                lReturn= await PendingMonthWorkPartAsync(iUser, dtCalendario);
             }
             return lReturn;
         }
@@ -497,7 +490,7 @@ namespace AppPartes.Logic
             {
                 ViewMounthResume oTemp = new ViewMounthResume();
                 //oTemp.lHour = new List<double>();
-                oTemp.lDay = new List<int>();
+                oTemp.lDay = new List<string>();
                 oTemp.User = "[" + u.Nombrecompleto + "]";
                 oTemp.dayStatus = new List<SearchDay>();
                 var partMonth = await aldakinDbContext.Lineas.Where(x => x.Inicio.Day >= dtIni.Day && x.Inicio.Month >= dtIni.Month && x.Inicio.Year >= dtIni.Year && x.Fin.Day <= dtEnd.Day && x.Fin.Month <= dtEnd.Month && x.Fin.Year <= dtEnd.Year && x.Idusuario == u.Idusuario && x.CodEnt == u.CodEnt).ToListAsync();
@@ -540,8 +533,33 @@ namespace AppPartes.Logic
                         }
                     }
                     oSeach.hour = dHour;
-                    oSeach.colour = DayStatusColour(partDay.Count, iGenerated, iValidated, date, iStatus);
-                    oTemp.lDay.Add(date.Day);
+                    oSeach.colour =await DayStatusColour(partDay.Count, iGenerated, iValidated, date, iStatus, u.CodEnt);
+                    var strDay = string.Empty;
+                    switch(date.DayOfWeek)
+                    {
+                        case System.DayOfWeek.Sunday:
+                            strDay = "D:" + date.Day;
+                            break;
+                        case System.DayOfWeek.Monday:
+                            strDay = "L:" + date.Day;
+                            break;
+                        case System.DayOfWeek.Tuesday:
+                            strDay = "M:" + date.Day;
+                            break;
+                        case System.DayOfWeek.Wednesday:
+                            strDay = "X:" + date.Day;
+                            break;
+                        case System.DayOfWeek.Thursday:
+                            strDay = "J:" + date.Day;
+                            break;
+                        case System.DayOfWeek.Friday:
+                            strDay = "V:" + date.Day;
+                            break;
+                        case System.DayOfWeek.Saturday:
+                            strDay = "S:" + date.Day;
+                            break;
+                    }
+                    oTemp.lDay.Add(strDay);
                     oTemp.dayStatus.Add(oSeach);
                 }
                 lReturn.Add(oTemp);
@@ -783,7 +801,10 @@ namespace AppPartes.Logic
                     oLinea.Idoriginal = 0;
                     //horas del parte
                     oLinea.Horas = Convert.ToSingle((dtFin - dtInicio).TotalHours) - oLinea.Horasviaje ?? 0;
-
+                    if(string.Equals(dataToInsertLine.strAction, "SaveAndValidate"))
+                    {
+                        oLinea.Validado = 1;
+                    }
 
                     if ((!(string.IsNullOrEmpty(strAction))) && (string.Equals(strAction, "edit")))
                     {
@@ -836,6 +857,7 @@ namespace AppPartes.Logic
                             oLineaSecundaria.Observaciones = observaciones.ToUpper();
                             oLineaSecundaria.CodEnt = iUserCodEnt;
                             oLineaSecundaria.Idoriginal = oLinea.Idlinea;
+                            oLineaSecundaria.Validado = oLinea.Validado;
                             var iCopy = await _iWriteDataBase.InsertWorkerLineAsync(oLineaSecundaria);
                             if (iCopy == 0)
                             {
@@ -1083,6 +1105,18 @@ namespace AppPartes.Logic
                 for (var date = dtIniMonth; date <= dtSelected; date = date.AddDays(1.0))
                 {
                     IniEndWeek(date, out dtIniWeek, out dtEndWeek);
+                    var estadoSemana = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Idusuario == iIdUser && x.Dia == date);
+                    if(!(estadoSemana is null))
+                    {
+                        //semana cerrada
+                    }
+                    var lineTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio >= dtIniWeek && x.Fin <= dtEndWeek && x.Idusuario == iIdUser).ToListAsync();
+
+                    double dHour = lineTemp.Sum(x => x.Horas);
+
+                    //aqui
+
+
                     if (date.Day == 1)
                     {
                         dtIniWeek = date;
@@ -1090,7 +1124,7 @@ namespace AppPartes.Logic
                     double dHourWork = 0;
                     double dHourTravel = 0;
                     bool bClose = false;
-                    var lineTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio >= dtIniWeek && x.Fin <= dtEndWeek && x.Idusuario == iIdUser).ToListAsync();
+                    lineTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio >= dtIniWeek && x.Fin <= dtEndWeek && x.Idusuario == iIdUser).ToListAsync();
                     foreach (Lineas l in lineTemp)
                     {
                         dHourWork = dHourWork + l.Horas;
@@ -1108,6 +1142,7 @@ namespace AppPartes.Logic
                     lReturn.Add(userTemp.Nombrecompleto + "(" + dtIniWeek.Day + "/" + dtIniWeek.Month + "/" + dtIniWeek.Year + ") Cerrada: " + bClose + " Horas: " + dHourWork + " Horas viaje: " + dHourTravel);
                     date = dtEndWeek.AddDays(1);
                 }
+
             }
             else
             {
@@ -1318,8 +1353,15 @@ namespace AppPartes.Logic
             iOtOriginalOut = iOtOriginal;
             return strReturn;
         }
-        private string DayStatusColour(int iNumPart, int iGenerated, int iValidated, DateTime dtDay, int iStatus)
+        private async Task<string> DayStatusColour(int iNumPart, int iGenerated, int iValidated, DateTime dtDay, int iStatus,int iCodEnt)
         {
+            //inumpart: cantidad de partes
+            //igenerated: cantidad de partes generados
+            //ivalidated: cantidad e partes validados
+            //iStatus = 0;//no cerrada blanco
+            //iStatus = 2;//cerrada amarillo
+            //iStatus = 4;//generada azul
+
             string strReturn = "#FFFFFF";
             string strAllGenerated = "#0000FF";//
             string strAllValidated = "#006400";//
@@ -1327,9 +1369,6 @@ namespace AppPartes.Logic
             string strEmpty = "#FFFFFF";
             string strWeekend = "#D3D3D3";//
             string strHalfValidated = "#FF8C00";
-            //iStatus = 0;//no cerrada blanco
-            //iStatus = 2;//cerrada amarillo
-            //iStatus = 4;//generada azul
             if (iNumPart == 0)
             {
                 if (((Convert.ToInt32(dtDay.DayOfWeek) == 0)) || ((Convert.ToInt32(dtDay.DayOfWeek) == 6)))
@@ -1338,7 +1377,15 @@ namespace AppPartes.Logic
                 }
                 else
                 {
-                    strReturn = strEmpty;
+                    var holiDay = await aldakinDbContext.Diasfestivos.FirstOrDefaultAsync(x => x.Dia == dtDay.Date && x.Calendario == iCodEnt);
+                    if (!(holiDay is null))
+                    {
+                        strReturn = strWeekend;
+                    }
+                    else
+                    {
+                        strReturn = strEmpty;
+                    }
                 }
             }
             else
@@ -1374,7 +1421,15 @@ namespace AppPartes.Logic
                                 }
                                 else
                                 {
-                                    strReturn = strEmpty;
+                                    var holiDay = await aldakinDbContext.Diasfestivos.FirstOrDefaultAsync(x => x.Dia == dtDay.Date && x.Calendario == iCodEnt);
+                                    if(!(holiDay is null))
+                                    {
+                                        strReturn = strWeekend;
+                                    }
+                                    else
+                                    {
+                                        strReturn = strEmpty;
+                                    }
                                 }
                             }
                         }

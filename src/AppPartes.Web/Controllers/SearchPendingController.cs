@@ -31,8 +31,7 @@ namespace AppPartes.Web.Controllers
         {
             ViewBag.Message = strMessage;
             _idAldakinUser = await _IApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
-            var oView = new SearchPendingViewLogic();
-            oView = await _ILoadIndexController.SearchPendingControllerAsync(_idAldakinUser);
+            var oView = await _ILoadIndexController.SearchPendingControllerAsync(_idAldakinUser);
             if (lSummary.Count == 0)
             {
                 oView.lSummary = null;

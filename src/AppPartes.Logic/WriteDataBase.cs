@@ -1240,10 +1240,6 @@ namespace AppPartes.Logic
                 var oTemp = new LineaVisual();
                 oTemp = null;
                 var worker = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == l.Idusuario);
-
-                var nombre = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == l.Idot);
-                NombreOt = "[" + nombre.Numero + "] " + nombre.Nombre;
-                var nombreCliente = await aldakinDbContext.Clientes.FirstOrDefaultAsync(x => x.Idclientes == aldakinDbContext.Ots.FirstOrDefault(o => o.Idots == l.Idot).Cliente);
                 var NombreNivel = await aldakinDbContext.Preslin.FirstOrDefaultAsync(x => x.Idpreslin == l.Idpreslin);
                 if (NombreNivel is null)
                 {
@@ -1276,18 +1272,21 @@ namespace AppPartes.Logic
                         }
                     }
                 }
-                NombreCliente = nombreCliente.Nombre;
                 if (l.Facturable == 0)
                 {
                     strPernocta = "NO";
                 }
                 else
                 {
-                    var pernocta = await aldakinDbContext.Pernoctaciones.FirstOrDefaultAsync(x => x.Tipo == l.Facturable && x.CodEnt == _iUserCondEntO);
+                    var pernocta = await aldakinDbContext.Pernoctaciones.FirstOrDefaultAsync(x => x.Tipo == l.Facturable && x.CodEnt == l.CodEnt);
                     strPernocta = pernocta.Descripcion;
                 }
                 if (l.Idoriginal == 0)
                 {
+                    var nombre = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == l.Idot);
+                    NombreOt = "[" + nombre.Numero + "]" + nombre.Nombre;
+                    var nombreCliente = await aldakinDbContext.Clientes.FirstOrDefaultAsync(x => x.Idclientes == aldakinDbContext.Ots.FirstOrDefault(o => o.Idots == l.Idot).Cliente);
+                    NombreCliente = nombreCliente.Nombre;
                     if (l.Observaciones.Length > 50)
                     {
                         strObservaciones = l.Observaciones.Substring(0, 45) + "...";
@@ -1335,6 +1334,10 @@ namespace AppPartes.Logic
                     {
                         strObservaciones = lineaOriginal.Observaciones;
                     }
+                    var ootOrigen = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == lineaOriginal.Idot);
+                    NombreOt = "[" + ootOrigen.Numero + "]" + ootOrigen.Nombre;
+                    var nombreCliente = await aldakinDbContext.Clientes.FirstOrDefaultAsync(x => x.Idclientes == aldakinDbContext.Ots.FirstOrDefault(o => o.Idots == lineaOriginal.Idot).Cliente);
+                    NombreCliente = nombreCliente.Nombre;
                     oTemp = (new LineaVisual
                     {
                         iStatus = iStatus,
@@ -1391,13 +1394,13 @@ namespace AppPartes.Logic
                         break;
                 }
             }
-            lReturn.Add(lSunday);
             lReturn.Add(lMonday);
             lReturn.Add(lTuesday);
             lReturn.Add(lWednesday);
             lReturn.Add(lThursday);
             lReturn.Add(lFriday);
             lReturn.Add(lSaturday);
+            lReturn.Add(lSunday);
             return lReturn;
         }
         public async Task<SearchViewLogic> ValidateWorkerLineAsync(string strLine, int idAldakinUser, sbyte? sValue)
