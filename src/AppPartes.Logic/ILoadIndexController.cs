@@ -14,6 +14,7 @@ namespace AppPartes.Logic
         Task<SearchPendingViewLogic> SearchPendingControllerAsync(int idAldakinUser);
         Task<UdObraPresuViewLogic> LoadUdObraPresuAsync(int idAldakinUser);
         Task<HoliDaysViewLogic> LoadHoliDaysAsync(string strCalendarioIni = "", string strCalendarioFin = "", string strEntidad = "", string strAction = "");
+        Task<PermisosViewLogic> PermisosMainControllerAsync(string strUsuario, string strEntidad, string strFiltro);
     }
 }
 

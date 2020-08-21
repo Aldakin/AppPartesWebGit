@@ -236,4 +236,11 @@ namespace AppPartes.Logic
         public double hour { set; get; }
         public string colour { set; get; }
     }
+    public class PermisosViewLogic
+    {
+        public List<Usuarios> lUser { set; get; }
+        public List<Entidad> lEnt { set; get; }
+        public List<Usuarios> lUserSelected { set; get; }
+        public List<Ots> lOtsSelected { set; get; }
+    }
 }

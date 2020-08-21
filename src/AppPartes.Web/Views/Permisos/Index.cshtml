@@ -1,0 +1,105 @@
+﻿@model AppPartes.Logic.PermisosViewLogic
+@{
+    ViewData["Title"] = "Index";
+}
+
+<body class="is-preload">
+    <div id="main">
+        <!--<div class="inner">-->
+        <!-- Header -->
+        <header id="header">
+            <a href="#" class="logo"><strong>Grupo Aldakin</strong></a>
+        </header>
+        <!-- Content -->
+        <section>
+            @{
+                if (!string.IsNullOrEmpty(ViewBag.Message))
+                {
+                <div class="alert alert-warning">@ViewBag.Message</div>
+                }
+            }
+            <header class="main">
+                <h1>aaaaaa</h1>
+            </header>
+
+
+            <form asp-action="Index" asp-controller="Permisos" method="POST">
+                <div class="row gtr-uniform">
+                    <div class="col-12">
+                        <p>Seleccione la orden de trabajo para su parte de trabajo .</p>
+                        <div class="col-12">
+                            <label for="start">Usuarios:</label>
+                            <select id="usuario" name="strUsuario" required>
+                                <option value=""></option>
+                                @foreach (var dept in Model.lUser)
+                        {
+                                <option value="@dept.Idusuario">
+                                    @dept.Nombrecompleto
+                                </option>
+                        }
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label for="start">Entidad:</label>
+                            <select id="entidad" name="strEntidad" required>
+                                <option value=""></option>
+                                @foreach (var ent in Model.lEnt)
+                        {
+                                <option value="@ent.CodEnt">
+                                    @ent.Nombre
+                                </option>
+                        }
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label for="start">Selecciones filtro:</label>
+                            <select id="filtro" name="strFiltro" required>
+                                <option value=""></option>
+                                <option value="trabajador">Trabajador</option>
+                                <option value="ot">Ot</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <ul class="actions">
+                                <li><input type="submit" value="Mostrar" class="primary" /></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </section>
+        @{
+            if(Model.lUserSelected != null)
+            {
+            <section>
+                <div class="col-12 col-6">
+                    <table>
+                        <tbody>
+                            @foreach (var dept in Model.lUserSelected)
+                            {
+                            <tr>
+                                <td>@dept.Nombrecompleto</td>
+                                <td><span class="button" onclick="insertUser(@dept.Idusuario);" style="display: inline-block">Añadir</span></td>
+
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-12 col-6">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td></td>
+                                <td></td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            }
+        }
+    </div>
+</body>
+

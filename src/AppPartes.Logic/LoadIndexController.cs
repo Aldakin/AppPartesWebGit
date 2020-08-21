@@ -113,6 +113,7 @@ namespace AppPartes.Logic
             try
             {
                 WriteUserDataAsync(idAldakinUser);
+
                 oReturn.listOts = await GetOtsAsync();
                 oReturn.listCompany = await GetAldakinCompaniesAsync();
                 oReturn.listClient = await GetAldakinClientsAsync();
@@ -132,6 +133,11 @@ namespace AppPartes.Logic
             try
             {
                 WriteUserDataAsync(idAldakinUser);
+                if (_iUserLevel < 3)
+                {
+                    oReturn.strError = "Error durnate la carga de la pagina";
+                    return oReturn;
+                }
                 oReturn.listCompany = await GetAldakinCompaniesAsync();
                 oReturn.strError = string.Empty;
             }
@@ -445,6 +451,36 @@ namespace AppPartes.Logic
             }
             return oReturn;
         }
+
+        public async Task<PermisosViewLogic> PermisosMainControllerAsync(string strUsuario = "", string strEntidad = "", string strFiltro="")
+        {
+            var oReturn = new PermisosViewLogic();
+            oReturn.lUser = await aldakinDbContext.Usuarios.Where(x => x.Baja == 0 && x.CodEnt == x.CodEntO).OrderBy(x=>x.Nombrecompleto).ToListAsync();
+            oReturn.lEnt = await aldakinDbContext.Entidad.ToListAsync();
+            if (!(string.IsNullOrEmpty(strFiltro)))
+            {
+                switch (strFiltro)
+                    {
+                    case "ot":
+                        oReturn.lUserSelected = null;
+                        oReturn.lOtsSelected = await GetOtsAsync(Convert.ToInt32(strEntidad)); 
+                        break;
+                    case "trabajador":
+                        oReturn.lOtsSelected = null;
+                        oReturn.lUserSelected = await aldakinDbContext.Usuarios.Where(x => x.Baja == 0 && x.CodEnt == x.CodEntO && x.CodEnt== Convert.ToInt32(strEntidad)).OrderBy(x => x.Nombrecompleto).ToListAsync();
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                oReturn.lUserSelected = null;
+                oReturn.lOtsSelected = null;
+            }
+            return oReturn;
+        }
+
         private async Task<bool> PendingMessageAsync()
         {
             bool bReturn = true;
@@ -526,6 +562,15 @@ namespace AppPartes.Logic
             var totalOts = aldakinDbContext.Ots.Where(x => x.CodEnt == _iUserCondEntO && x.CodEntD == 0 && x.Codigorefot != "29" && x.Cierre == null);
             var totalType1Ots = totalOts.Where(x => x.Tipoot == 1);
             var totalType2Ots = totalOts.Join(aldakinDbContext.Presupuestos.Where(x => x.CodEnt == _iUserCondEntO), o => o.Idots, i => i.Idot, (o, p) => o);//original
+            lReturn = await totalType1Ots.Concat(totalType2Ots).Distinct().OrderBy(x => x.Numero).ToListAsync();
+            return lReturn;
+        }
+        private async Task<List<Ots>> GetOtsAsync(int iOt)
+        {
+            var lReturn = new List<Ots>();
+            var totalOts = aldakinDbContext.Ots.Where(x => x.CodEnt == iOt && x.CodEntD == 0 && x.Codigorefot != "29" && x.Cierre == null);
+            var totalType1Ots = totalOts.Where(x => x.Tipoot == 1);
+            var totalType2Ots = totalOts.Join(aldakinDbContext.Presupuestos.Where(x => x.CodEnt == iOt), o => o.Idots, i => i.Idot, (o, p) => o);//original
             lReturn = await totalType1Ots.Concat(totalType2Ots).Distinct().OrderBy(x => x.Numero).ToListAsync();
             return lReturn;
         }
