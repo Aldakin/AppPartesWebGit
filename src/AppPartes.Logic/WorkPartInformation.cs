@@ -816,7 +816,7 @@ namespace AppPartes.Logic
                             if (oReturn.Count!=2)//if (oReturn.First().iValue==1)
                             {
                                 //si devuelve string es que algo ha ido mal
-                                strReturn = "Haocurrido un error al borrar las lineas del parte original";
+                                strReturn = "Ha ocurrido un error al borrar las lineas del parte original";
                                 return strReturn;
                             }
                         }
@@ -1369,6 +1369,7 @@ namespace AppPartes.Logic
             string strEmpty = "#FFFFFF";
             string strWeekend = "#D3D3D3";//
             string strHalfValidated = "#FF8C00";
+            string strHalfJouney="#F0FFF0";
             if (iNumPart == 0)
             {
                 if (((Convert.ToInt32(dtDay.DayOfWeek) == 0)) || ((Convert.ToInt32(dtDay.DayOfWeek) == 6)))
@@ -1380,7 +1381,14 @@ namespace AppPartes.Logic
                     var holiDay = await aldakinDbContext.Diasfestivos.FirstOrDefaultAsync(x => x.Dia == dtDay.Date && x.Calendario == iCodEnt);
                     if (!(holiDay is null))
                     {
-                        strReturn = strWeekend;
+                        if (holiDay.Jornadareducida == true)
+                        {
+                            strReturn = strHalfJouney;
+                        }
+                        else
+                        {
+                            strReturn = strWeekend;
+                        }
                     }
                     else
                     {
@@ -1424,7 +1432,14 @@ namespace AppPartes.Logic
                                     var holiDay = await aldakinDbContext.Diasfestivos.FirstOrDefaultAsync(x => x.Dia == dtDay.Date && x.Calendario == iCodEnt);
                                     if(!(holiDay is null))
                                     {
-                                        strReturn = strWeekend;
+                                        if (holiDay.Jornadareducida == true)
+                                        {
+                                            strReturn = strHalfJouney;
+                                        }
+                                        else
+                                        {
+                                            strReturn = strWeekend;
+                                        }
                                     }
                                     else
                                     {

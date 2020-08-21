@@ -44,7 +44,7 @@ namespace AppPartes.Web.Controllers.Api
         {
             var lReturn = new List<SelectData>();
             int idAldakin = await GetIdUserAldakinAsync();
-            lReturn = await _IWriteDataBase.DeleteWorkerLineAsync(cantidad, idAldakin,0);
+            lReturn = await _IWriteDataBase.DeleteWorkerLineAsync(cantidad, idAldakin, idAldakin);
             return lReturn;
         }
         public async Task<SelectData> CloseFunction(string strDataSelected)

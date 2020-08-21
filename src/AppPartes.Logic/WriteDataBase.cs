@@ -2356,7 +2356,7 @@ namespace AppPartes.Logic
             }
             day = oReturn.Inicio;
             var lEstadoDia = await aldakinDbContext.Estadodias.Where(x => x.Idusuario == idAldakinUser && DateTime.Compare(x.Dia, day.Date) == 0).ToListAsync();//
-            if (idAdminUser > 0)
+            if (idAdminUser != idAldakinUser)
             {
                 //si hay administardor la semana tiene que estar cerrada, 
                 if (lEstadoDia.Count == 0)
