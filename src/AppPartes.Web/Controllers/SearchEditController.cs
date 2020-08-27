@@ -29,6 +29,7 @@ namespace AppPartes.Web.Controllers
             ViewBag.Message = strMessage;
             _idAldakinUser = await _iApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
             var oView = await _iLoadIndexController.LoadSearchEditControllerAsync(_idAldakinUser, strLineId, strAction);
+            if (oView.bLevelError) return RedirectToAction("Index", "Home", new { strMessage = "No tiene permiso de acceso a la página" });
             return View(oView);
         }
         [HttpPost, ValidateAntiForgeryToken]

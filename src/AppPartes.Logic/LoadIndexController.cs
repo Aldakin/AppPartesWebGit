@@ -103,7 +103,7 @@ namespace AppPartes.Logic
             }
             catch (Exception ex)
             {
-                oReturn.strError = "Error durnate la carga de la pagina";
+                oReturn.strError = "Error durante la carga de la pagina";
             }
             return oReturn;
         }
@@ -123,7 +123,7 @@ namespace AppPartes.Logic
             }
             catch (Exception ex)
             {
-                oReturn.strError = "Error durnate la carga de la pagina";
+                oReturn.strError = "Error durante la carga de la pagina";
             }
             return oReturn;
         }
@@ -135,7 +135,7 @@ namespace AppPartes.Logic
                 WriteUserDataAsync(idAldakinUser);
                 if (_iUserLevel < 3)
                 {
-                    oReturn.strError = "Error durnate la carga de la pagina";
+                    oReturn.strError = "No tiene permiso de acceso";
                     return oReturn;
                 }
                 oReturn.listCompany = await GetAldakinCompaniesAsync();
@@ -296,48 +296,55 @@ namespace AppPartes.Logic
             try
             {
                 WriteUserDataAsync(idAldakinUser);
-                oReturn.listCompany = await GetAldakinCompaniesAsync();
-                oReturn.strError = string.Empty;
-                if (!(string.IsNullOrEmpty(action)))
+                if (_iUserLevel > 3)
                 {
-                    switch (action)
+                    oReturn.listCompany = await GetAldakinCompaniesAsync();
+                    oReturn.strError = string.Empty;
+                    if (!(string.IsNullOrEmpty(action)))
                     {
-                        case "Index":
-                            oReturn.listResume = null;
-                            oReturn.listWeekResume = null;
-                            oReturn.strGlobalValidation = null;
-                            break;
-                        case "MounthResume":
-                            oReturn.listWeekResume = null;
-                            oReturn.strGlobalValidation = null;
-                            oReturn.listResume = await _iWorkPartInformation.StatusEntityResumeAsync(idAldakinUser, strDate, strEntity);
-                            break;
-                        case "StatusResume":
-                            oReturn.listResume = null;
-                            oReturn.listWeekResume = await _iWorkPartInformation.StatusWeekResumeAsync(idAldakinUser, strDate1, strOt, strWorker, strEntity);
-                            oReturn.strGlobalValidation = await _iWorkPartInformation.StringWeekResumeAsync(idAldakinUser, strDate1, strOt, strWorker, strEntity);
-                            oReturn.strDate = strDate;
-                            oReturn.strDate1 = strDate1;
-                            oReturn.strEntity = strEntity;
-                            oReturn.strWorker = strWorker;
-                            break;
-                        case "globalValidation":
-                            //no eciste
-                            oReturn.listResume = null;
-                            oReturn.listWeekResume = null;
-                            oReturn.strGlobalValidation = null;
-                            oReturn.strDate = strDate;
-                            oReturn.strDate1 = strDate1;
-                            oReturn.strEntity = strEntity;
-                            oReturn.strWorker = strWorker;
-                            oReturn.strAction = "StatusResume";
-                            oReturn.strError = await _iWriteDataBase.ValidateGlobalLineAsync(idAldakinUser, strListValidation,1);
-                            
-                            break;
-                        default:
-                            oReturn.strError = "Error en la accion seleccionada, avise a Administracion";
-                            break;
+                        switch (action)
+                        {
+                            case "Index":
+                                oReturn.listResume = null;
+                                oReturn.listWeekResume = null;
+                                oReturn.strGlobalValidation = null;
+                                break;
+                            case "MounthResume":
+                                oReturn.listWeekResume = null;
+                                oReturn.strGlobalValidation = null;
+                                oReturn.listResume = await _iWorkPartInformation.StatusEntityResumeAsync(idAldakinUser, strDate, strEntity);
+                                break;
+                            case "StatusResume":
+                                oReturn.listResume = null;
+                                oReturn.listWeekResume = await _iWorkPartInformation.StatusWeekResumeAsync(idAldakinUser, strDate1, strOt, strWorker, strEntity);
+                                oReturn.strGlobalValidation = await _iWorkPartInformation.StringWeekResumeAsync(idAldakinUser, strDate1, strOt, strWorker, strEntity);
+                                oReturn.strDate = strDate;
+                                oReturn.strDate1 = strDate1;
+                                oReturn.strEntity = strEntity;
+                                oReturn.strWorker = strWorker;
+                                break;
+                            case "globalValidation":
+                                //no eciste
+                                oReturn.listResume = null;
+                                oReturn.listWeekResume = null;
+                                oReturn.strGlobalValidation = null;
+                                oReturn.strDate = strDate;
+                                oReturn.strDate1 = strDate1;
+                                oReturn.strEntity = strEntity;
+                                oReturn.strWorker = strWorker;
+                                oReturn.strAction = "StatusResume";
+                                oReturn.strError = await _iWriteDataBase.ValidateGlobalLineAsync(idAldakinUser, strListValidation, 1);
+
+                                break;
+                            default:
+                                oReturn.strError = "Error en la accion seleccionada, avise a Administracion";
+                                break;
+                        }
                     }
+                }
+                else
+                {
+                    oReturn.bLevelError = true;
                 }
             }
             catch (Exception ex)
@@ -352,38 +359,46 @@ namespace AppPartes.Logic
             try
             {
                 WriteUserDataAsync(idAldakinUser);
-                //oReturn.listCompany = await GetAldakinCompaniesAsync();
-                oReturn.strError = string.Empty;
-                if (!(string.IsNullOrEmpty(strAction)))
+                if (_iUserLevel > 3)
                 {
-                    switch (strAction)
+                    //oReturn.listCompany = await GetAldakinCompaniesAsync();
+                    oReturn.strError = string.Empty;
+                    if (!(string.IsNullOrEmpty(strAction)))
                     {
-                        case "Index":
-                            oReturn.listSelect = null;
-                            oReturn.listPernocta = null;
-                            break;
-                        case "editLine":
-                            var lSelect = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(strLineId));
-                            oReturn.listSelect = await GetDayWorkerPartAsync(lSelect);
-                            oReturn.listPernocta = await GetAldakinNightAsync(lSelect);
-                            oReturn.Gastos = await GetWorkExpenses(lSelect.Idlinea,lSelect.CodEnt);
-                            oReturn.listOts = await GetOtsAsync();
-                            oReturn.listCompany = await GetAldakinCompaniesAsync();
-                            oReturn.listClient = await GetAldakinClientsAsync();
-                            oReturn.DateSelected = lSelect.Inicio.Date.ToString("yyyy-MM-dd"); // dtSelected.Date;
-                            break;
-                        case "validateLine":
-                            oReturn.listSelect = null;
-                            oReturn.listPernocta = null;
-                            break;
-                        case "globalValidation":
-                            oReturn.listSelect = null;
-                            oReturn.listPernocta = null;
-                            break;
-                        default:
-                            oReturn.strError = "Error en la accion seleccionada, avise a Administracion";
-                            break;
+                        switch (strAction)
+                        {
+                            case "Index":
+                                oReturn.listSelect = null;
+                                oReturn.listPernocta = null;
+                                break;
+                            case "editLine":
+                                var lSelect = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(strLineId));
+                                oReturn.listSelect = await GetDayWorkerPartAsync(lSelect);
+                                oReturn.listPernocta = await GetAldakinNightAsync(lSelect);
+                                oReturn.Gastos = await GetWorkExpenses(lSelect.Idlinea, lSelect.CodEnt);
+                                oReturn.listOts = await GetOtsAsync();
+                                oReturn.listCompany = await GetAldakinCompaniesAsync();
+                                oReturn.listClient = await GetAldakinClientsAsync();
+                                oReturn.DateSelected = lSelect.Inicio.Date.ToString("yyyy-MM-dd"); // dtSelected.Date;
+                                break;
+                            case "validateLine":
+                                oReturn.listSelect = null;
+                                oReturn.listPernocta = null;
+                                break;
+                            case "globalValidation":
+                                oReturn.listSelect = null;
+                                oReturn.listPernocta = null;
+                                break;
+                            default:
+                                oReturn.strError = "Error en la accion seleccionada, avise a Administracion";
+                                break;
+                        }
                     }
+                }
+                else
+                {
+                    oReturn = new SearchEditViewLogic();
+                    oReturn.strError = "No tiene permiso para acceder a esta pagina";
                 }
             }
             catch (Exception ex)
@@ -395,53 +410,71 @@ namespace AppPartes.Logic
         public async Task<UdObraPresuViewLogic> LoadUdObraPresuAsync(int idAldakinUser)
         {
             UdObraPresuViewLogic oReturn = new UdObraPresuViewLogic();
-            try
+            WriteUserDataAsync(idAldakinUser);
+            if (_iUserLevel > 3)
             {
-                oReturn.lUdObra = await aldakinDbContext.Udobrapresu.ToListAsync();
-                oReturn.lEntidad = await aldakinDbContext.Entidad.ToListAsync();
+                try
+                {
+                    oReturn.lUdObra = await aldakinDbContext.Udobrapresu.ToListAsync();
+                    oReturn.lEntidad = await aldakinDbContext.Entidad.ToListAsync();
+                }
+                catch (Exception ex)
+                {
+                    oReturn.lUdObra = new List<Udobrapresu>();
+                    oReturn.lEntidad = new List<Entidad>();
+                    oReturn.strMensaje = "Ocurrio un error al cargar la página recargue y avisa a administración";
+                }
             }
-            catch (Exception ex)
+            else
             {
-                oReturn.lUdObra = null;
-                oReturn.lEntidad = null;
-                oReturn.strMensaje = "Ocurrio un error al cargar la página recargue y avisa a administración";
+                oReturn = new UdObraPresuViewLogic();
+                oReturn.bLevelError = true;
             }
             return oReturn;
         }
-        public async Task<HoliDaysViewLogic> LoadHoliDaysAsync(string strCalendarioIni = "", string strCalendarioFin = "", string strEntidad = "", string strAction = "")
+        public async Task<HoliDaysViewLogic> LoadHoliDaysAsync(int idAldakinUser,string strCalendarioIni = "", string strCalendarioFin = "", string strEntidad = "", string strAction = "")
         {
             HoliDaysViewLogic oReturn = new HoliDaysViewLogic();
             try
             {
-                if(!(string.IsNullOrEmpty(strAction)))
+                WriteUserDataAsync(idAldakinUser);
+                if (_iUserLevel > 3)
                 {
-                    switch (strAction)
+                    if (!(string.IsNullOrEmpty(strAction)))
                     {
-                        case "Index":
-                            oReturn.lDiasFestivos = null;
-                            break;
-                        case "list":
-                            //
-                            try
-                            {
-                                DateTime dtIni = Convert.ToDateTime(strCalendarioIni);
-                                DateTime dtFin = Convert.ToDateTime(strCalendarioFin);
-                                int iEntidad = Convert.ToInt32(strEntidad);
-                                oReturn.lDiasFestivos = await aldakinDbContext.Diasfestivos.Where(x => x.Calendario == iEntidad && x.Dia >= dtIni.Date && x.Dia <= dtFin.Date).OrderBy(x=>x.Dia).ToListAsync();
-                            }
-                            catch(Exception ex)
-                            {
+                        switch (strAction)
+                        {
+                            case "Index":
                                 oReturn.lDiasFestivos = null;
-                                oReturn.strMensaje = "Error al mostar datos seleccionados";
-                            }
-                            break;
-                        default:
-                            oReturn.lDiasFestivos = null;
-                            break;
+                                break;
+                            case "list":
+                                //
+                                try
+                                {
+                                    DateTime dtIni = Convert.ToDateTime(strCalendarioIni);
+                                    DateTime dtFin = Convert.ToDateTime(strCalendarioFin);
+                                    int iEntidad = Convert.ToInt32(strEntidad);
+                                    oReturn.lDiasFestivos = await aldakinDbContext.Diasfestivos.Where(x => x.Calendario == iEntidad && x.Dia >= dtIni.Date && x.Dia <= dtFin.Date).OrderBy(x => x.Dia).ToListAsync();
+                                }
+                                catch (Exception ex)
+                                {
+                                    oReturn.lDiasFestivos = null;
+                                    oReturn.strMensaje = "Error al mostar datos seleccionados";
+                                }
+                                break;
+                            default:
+                                oReturn.lDiasFestivos = null;
+                                break;
+                        }
+                    }
+                    else
+                    {
                     }
                 }
                 else
                 {
+                    oReturn = new HoliDaysViewLogic();
+                    oReturn.bLevelError = true;
                 }
                 oReturn.lEntidad = await aldakinDbContext.Entidad.ToListAsync();
             }
@@ -452,31 +485,48 @@ namespace AppPartes.Logic
             return oReturn;
         }
 
-        public async Task<PermisosViewLogic> PermisosMainControllerAsync(string strUsuario = "", string strEntidad = "", string strFiltro="")
+        public async Task<PermisosViewLogic> PermisosMainControllerAsync(int iAldakinUser,string strUsuario = "", string strEntidad = "", string strFiltro="")
         {
             var oReturn = new PermisosViewLogic();
-            oReturn.lUser = await aldakinDbContext.Usuarios.Where(x => x.Baja == 0 && x.CodEnt == x.CodEntO).OrderBy(x=>x.Nombrecompleto).ToListAsync();
-            oReturn.lEnt = await aldakinDbContext.Entidad.ToListAsync();
-            if (!(string.IsNullOrEmpty(strFiltro)))
+            WriteUserDataAsync(iAldakinUser);
+            if (_iUserLevel > 3)
             {
-                switch (strFiltro)
+                oReturn.lUser = await aldakinDbContext.Usuarios.Where(x => x.Baja == 0 && x.CodEnt == x.CodEntO).OrderBy(x => x.Nombrecompleto).ToListAsync();
+                oReturn.lEnt = await aldakinDbContext.Entidad.ToListAsync();
+                if (!(string.IsNullOrEmpty(strFiltro)))
+                {
+                    switch (strFiltro)
                     {
-                    case "ot":
-                        oReturn.lUserSelected = null;
-                        oReturn.lOtsSelected = await GetOtsAsync(Convert.ToInt32(strEntidad)); 
-                        break;
-                    case "trabajador":
-                        oReturn.lOtsSelected = null;
-                        oReturn.lUserSelected = await aldakinDbContext.Usuarios.Where(x => x.Baja == 0 && x.CodEnt == x.CodEntO && x.CodEnt== Convert.ToInt32(strEntidad)).OrderBy(x => x.Nombrecompleto).ToListAsync();
-                        break;
-                    default:
-                        break;
+                        case "ot":
+                            oReturn.lUserAllUser = null;
+                            oReturn.lUserSelected = null;
+                            var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == Convert.ToInt32(strUsuario));
+                            oReturn.strUserSelected = user.Nombrecompleto;
+                            oReturn.lAllOts = await GetOtsAsync(Convert.ToInt32(strEntidad));
+                            oReturn.lOtsSelected = await _iWorkPartInformation.ListValidationOtsAsync(Convert.ToInt32(strUsuario), 0);
+                            break;
+                        case "trabajador":
+                            oReturn.lOtsSelected = null;
+                            var user1 = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == Convert.ToInt32(strUsuario));
+                            oReturn.strUserSelected = user1.Nombrecompleto;
+                            oReturn.lUserSelected = await _iWorkPartInformation.ListValidationUsersAsync(Convert.ToInt32(strUsuario), 0);
+                            oReturn.lUserAllUser = await aldakinDbContext.Usuarios.Where(x => x.Baja == 0 && x.CodEnt == x.CodEntO && x.CodEnt == Convert.ToInt32(strEntidad)).OrderBy(x => x.Nombrecompleto).ToListAsync();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                else
+                {
+                    oReturn.lUserSelected = null;
+                    oReturn.lUserAllUser = null;
+                    oReturn.lOtsSelected = null;
                 }
             }
             else
             {
-                oReturn.lUserSelected = null;
-                oReturn.lOtsSelected = null;
+                oReturn = new PermisosViewLogic();
+                oReturn.bLevelError = true;
             }
             return oReturn;
         }
@@ -663,7 +713,7 @@ namespace AppPartes.Logic
         {
             var lReturn = new List<List<LineaVisual>>();
             var NombreOt = string.Empty;
-            var lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio > dtIniWeek && x.Fin < dtEndWeek && x.Idusuario == _iUserId && x.CodEnt == _iUserCondEntO).OrderBy(x => x.Inicio).ToListAsync();
+            var lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio.Date >= dtIniWeek.Date && x.Fin.Date <= dtEndWeek.Date && x.Idusuario == _iUserId && x.CodEnt == _iUserCondEntO).OrderBy(x => x.Inicio).ToListAsync();
             lReturn = await _iWriteDataBase.CreateVisualWorkerPartAsync(lTemp); // ver si es linea original y obteniendo nombres de ots y empresas            
             return lReturn;
         }

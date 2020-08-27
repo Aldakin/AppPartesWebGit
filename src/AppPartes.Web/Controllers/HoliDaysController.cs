@@ -24,10 +24,13 @@ namespace AppPartes.Web.Controllers
         {
             ViewBag.Message = strMessage;
             var oReturn = new HoliDaysViewLogic();
-            oReturn = await _iLoadIndexController.LoadHoliDaysAsync(strCalendarioIni, strCalendarioFin, strEntidad, strAction);
+            _idAldakinUser = await _iApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
+            oReturn = await _iLoadIndexController.LoadHoliDaysAsync(_idAldakinUser,strCalendarioIni, strCalendarioFin, strEntidad, strAction);
             oReturn.dtSelectedIni = strCalendarioIni;
             oReturn.dtSelectedFin = strCalendarioFin;
             oReturn.strEntidadSelec = strEntidad;
+
+            if (oReturn.bLevelError) return RedirectToAction("Index", "Home", new { strMessage = "No tiene permiso de acceso a la página" });
             return View(oReturn);
         }
         [HttpPost, ValidateAntiForgeryToken]

@@ -33,6 +33,7 @@ namespace AppPartes.Web.Controllers
             {
                 ViewBag.Message = oView.strError;
             }
+            if(oView.bLevelError) return RedirectToAction("Index", "Home", new { strMessage = "No tiene permiso de acceso a la página" });
             return View(oView);
         }
         [HttpPost, ValidateAntiForgeryToken]

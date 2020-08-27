@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AppPartes.Data.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -22,6 +23,10 @@ namespace AppPartes.Logic
         Task<List<SelectData>> GetWorkerValidationAsnc(int idAldakinUser, int iEntity);
         Task<List<SelectData>> GetOtValidationAsync(int idAldakinUser, int iEntity);
         Task<string> PrepareWorkLineAsync(WorkerLineData dataToInsertLine, int idAldakinUser, int idAdminUser, string strAction);
+        Task<List<Usuarios>> ListValidationUsersAsync(int idAldakinUser, int iEntity = 0);
+        Task<List<Ots>> ListValidationOtsAsync(int idAldakinUser, int iEntity = 0);
+        Task<string> NewValidationUsersAsync(int idAldakinUser, string strUsers, string strWorker);
+        Task<string> NewValidationOtAsync(int idAldakinUser, string strOts, string strWorker);
     }
 }
 

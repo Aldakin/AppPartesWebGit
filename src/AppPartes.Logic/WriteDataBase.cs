@@ -37,7 +37,7 @@ namespace AppPartes.Logic
             try
             {
                 //var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == idAldakinUser && x.CodEnt == x.CodEntO);
-                var user = aldakinDbContext.Usuarios.FirstOrDefault(x => x.Idusuario == idAldakinUser && x.CodEnt == x.CodEntO);
+                var user = aldakinDbContext.Usuarios.FirstOrDefault(x => x.Idusuario == idAldakinUser && x.CodEnt == x.CodEntO && x.Baja==0);
                 var admin = aldakinDbContext.Administracion.FirstOrDefault(x => x.Idusuario == idAldakinUser);//select * from administracion where idusuario = {0}
                 if (!(admin is null))
                 {
@@ -137,7 +137,7 @@ namespace AppPartes.Logic
                     CodEnt = oLinea.CodEnt,
                     Idoriginal = oLinea.Idoriginal,
                     Validador = string.Empty,
-                    Validado = 0
+                    Validado = oLinea.Validado
                 };
                 aldakinDbContext.Lineas.Add(linea);
                 await aldakinDbContext.SaveChangesAsync();
@@ -706,6 +706,794 @@ namespace AppPartes.Logic
             oReturn.strValue = dtSelected.ToString();
             return oReturn;
         }
+        public async Task<bool> ReadUserMessageAsync(int iIdMessage)
+        {
+            bool bReturn = false;
+            var message = await aldakinDbContext.Mensajes.FirstOrDefaultAsync(x => x.Idmensajes == iIdMessage);
+            var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+            try
+            {
+                message.Estado = false;
+                message.Vistodestino = DateTime.Now;
+                aldakinDbContext.Mensajes.Update(message);
+                await aldakinDbContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+                bReturn = true;
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                bReturn = true;
+            }
+            return bReturn;
+        }
+        public async Task<string> AnswerMessageAsync(LineMessage line)
+        {
+            string strReturn;
+            try
+            {
+                var message = new Mensajes
+                {
+                    De = line.De,
+                    A = line.A,
+                    Fecha = DateTime.Now,
+                    Asunto = line.Asunto,
+                    Mensaje = line.Mensaje,
+                    Vistoremite = DateTime.Now,
+                    Idlinea = line.Idlinea,
+                    Inicial = line.Inicial,
+                    Estado = true
+                };
+                var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+                try
+                {
+                    aldakinDbContext.Mensajes.Add(message);
+                    await aldakinDbContext.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    strReturn = "Ocurrio un Error al enviar el mensaje";
+                }
+                strReturn = "Mensaje enviado correctamente";
+            }
+            catch (Exception ex)
+            {
+                strReturn = "Ocurrio un Error con los datos del mensaje";
+            }
+            return strReturn;
+        }
+        public async Task<string> UpdateEntityDataOrCsvAsync(int iIdEntity, int idAldakinUser, string strAction = "AC")
+        {
+            string strReturn = string.Empty;
+            WriteUserDataAsync(idAldakinUser);
+            string strTemp = strAction + iIdEntity;
+            try
+            {
+                if (_iUserLevel >= 3)
+                {
+                    var temp = await aldakinDbContext.Servicios.FirstOrDefaultAsync(x => x.CodEnt == iIdEntity && x.Condicion == strTemp);
+                    if (!(temp is null))
+                    {
+                        temp.Ejecutar = 1;
+                        var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+                        try
+                        {
+                            aldakinDbContext.Servicios.Update(temp);
+                            await aldakinDbContext.SaveChangesAsync();
+                            await transaction.CommitAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            await transaction.RollbackAsync();
+                            strReturn = "Ha ocurrido un error al mandar actualizar los datos de la delegación";
+                        }
+                        strReturn = "La actualización/generación durara aproximadamente 15 minutos.";
+                    }
+                    else
+                    {
+                        strReturn = "Ha ocurrido un error al mandar actualizar los datos de la delegación";
+                    }
+                }
+                else
+                {
+                    strReturn = "No tiene permiso para ejecutar esta accion.";
+                }
+            }
+            catch (Exception ex)
+            {
+                strReturn = "Ha ocurrido un error al mandar actualizar los datos de la delegación";
+            }
+            return strReturn;
+        }
+        public async Task<List<List<LineaVisual>>> CreateVisualWorkerPartAsync(List<Lineas> lTemp)
+        {
+            var lReturn = new List<List<LineaVisual>>();
+            var lSunday = new List<LineaVisual>();
+            var lMonday = new List<LineaVisual>();
+            var lTuesday = new List<LineaVisual>();
+            var lWednesday = new List<LineaVisual>();
+            var lThursday = new List<LineaVisual>();
+            var lFriday = new List<LineaVisual>();
+            var lSaturday = new List<LineaVisual>();            
+            foreach (var l in lTemp)
+            {
+                int iStatus = 0;
+                string strObservaciones;
+                var NombreOt = string.Empty;
+                var NombreCliente = string.Empty;
+                //var NombreNivel = string.Empty;
+                var strPernocta = string.Empty;
+                var strPreslin = string.Empty;
+                var oTemp = new LineaVisual();
+                var worker = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == l.Idusuario);
+                var NombreNivel = await aldakinDbContext.Preslin.FirstOrDefaultAsync(x => x.Idpreslin == l.Idpreslin);
+                if (NombreNivel is null)
+                {
+                    strPreslin = string.Empty;
+                }
+                else
+                {
+                    strPreslin = NombreNivel.Nombre;
+                }
+                var statusDay = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Idusuario == l.Idusuario && x.Dia == Convert.ToDateTime(l.Inicio.ToString("yyyy-MM-dd")));
+                if (statusDay is null)
+                {
+                    iStatus = 0;//no hay estadodia no esta cerrado el dia
+                }
+                else
+                {
+                    if (l.Registrado == 1)
+                    {
+                        iStatus = 1;////hay estadodia por lo que esta cerrada y volcada
+                    }
+                    else
+                    {
+                        if (l.Validado == 1)
+                        {
+                            iStatus = 2;//semana cerrada, validada no registrada
+                        }
+                        else
+                        {
+                            iStatus = 3;//semana cerrada, no validada no registrada
+                        }
+                    }
+                }
+                if (l.Facturable == 0)
+                {
+                    strPernocta = "NO";
+                }
+                else
+                {
+                    var pernocta = await aldakinDbContext.Pernoctaciones.FirstOrDefaultAsync(x => x.Tipo == l.Facturable && x.CodEnt == l.CodEnt);
+                    strPernocta = pernocta.Descripcion;
+                }
+                if (l.Idoriginal == 0)
+                {
+                    var nombre = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == l.Idot);
+                    NombreOt = "[" + nombre.Numero + "]" + nombre.Nombre;
+                    var nombreCliente = await aldakinDbContext.Clientes.FirstOrDefaultAsync(x => x.Idclientes == aldakinDbContext.Ots.FirstOrDefault(o => o.Idots == l.Idot).Cliente);
+                    NombreCliente = nombreCliente.Nombre;
+                    if (l.Observaciones.Length > 50)
+                    {
+                        strObservaciones = l.Observaciones.Substring(0, 45) + "...";
+                    }
+                    else
+                    {
+                        strObservaciones = l.Observaciones;
+                    }
+                    oTemp = (new LineaVisual
+                    {
+                        iStatus = iStatus,
+                        NombreUsuario = worker.Nombrecompleto,
+                        Idlinea = l.Idlinea,
+                        Idot = l.Idot,
+                        NombreOt = NombreOt,
+                        NombreCliente = NombreCliente,
+                        NombrePreslin = strPreslin,
+                        Dietas = l.Dietas,
+                        Km = l.Km,
+                        Observaciones = strObservaciones,
+                        ObservacionesCompleta = l.Observaciones,
+                        Horasviaje = l.Horasviaje,
+                        Horas = l.Horas,
+                        Inicio = l.Inicio,
+                        Fin = l.Fin,
+                        strInicio = WorkPartInformation.ConvertDateTimeToString(l.Inicio),
+                        strFin = WorkPartInformation.ConvertDateTimeToString(l.Fin),
+                        Idusuario = l.Idusuario,
+                        strPernocta = strPernocta,
+                        Npartefirmado = l.Npartefirmado,
+                        Idoriginal = l.Idoriginal,
+                        Registrado = l.Registrado,
+                        CodEnt = l.CodEnt,
+                        Validado = l.Validado,
+                        Validador = l.Validador
+                    });
+                }
+                else
+                {
+                    var lineaOriginal = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == l.Idoriginal);
+                    if (lineaOriginal.Observaciones.Length > 50)
+                    {
+                        strObservaciones = lineaOriginal.Observaciones.Substring(0, 45) + "...";
+                    }
+                    else
+                    {
+                        strObservaciones = lineaOriginal.Observaciones;
+                    }
+                    var ootOrigen = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == lineaOriginal.Idot);
+                    NombreOt = "[" + ootOrigen.Numero + "]" + ootOrigen.Nombre;
+                    var nombreCliente = await aldakinDbContext.Clientes.FirstOrDefaultAsync(x => x.Idclientes == aldakinDbContext.Ots.FirstOrDefault(o => o.Idots == lineaOriginal.Idot).Cliente);
+                    NombreCliente = nombreCliente.Nombre;
+                    oTemp = (new LineaVisual
+                    {
+                        iStatus = iStatus,
+                        NombreUsuario = worker.Nombrecompleto,
+                        Idlinea = lineaOriginal.Idlinea,
+                        Idot = lineaOriginal.Idot,
+                        NombreOt = NombreOt,
+                        NombreCliente = NombreCliente,
+                        NombrePreslin = strPreslin,
+                        Dietas = lineaOriginal.Dietas,
+                        Km = lineaOriginal.Km,
+                        Observaciones = strObservaciones,
+                        ObservacionesCompleta = l.Observaciones,
+                        Horasviaje = lineaOriginal.Horasviaje,
+                        Horas = lineaOriginal.Horas,
+                        Inicio = lineaOriginal.Inicio,
+                        Fin = lineaOriginal.Fin,
+                        strInicio = WorkPartInformation.ConvertDateTimeToString(lineaOriginal.Inicio),
+                        strFin = WorkPartInformation.ConvertDateTimeToString(lineaOriginal.Fin),
+                        Idusuario = lineaOriginal.Idusuario,
+                        strPernocta = strPernocta,
+                        Npartefirmado = lineaOriginal.Npartefirmado,
+                        Idoriginal = lineaOriginal.Idoriginal,
+                        Registrado = lineaOriginal.Registrado,
+                        CodEnt = lineaOriginal.CodEnt,
+                        Validado = lineaOriginal.Validado,
+                        Validador = lineaOriginal.Validador
+                    });
+                }
+                var i = Convert.ToInt32(l.Inicio.DayOfWeek);
+                switch (i)
+                {
+                    case 0:
+                        lSunday.Add(oTemp);
+                        break;
+                    case 1:
+                        lMonday.Add(oTemp);
+                        break;
+                    case 2:
+                        lTuesday.Add(oTemp);
+                        break;
+                    case 3:
+                        lWednesday.Add(oTemp);
+                        break;
+                    case 4:
+                        lThursday.Add(oTemp);
+                        break;
+                    case 5:
+                        lFriday.Add(oTemp);
+                        break;
+                    case 6:
+                        lSaturday.Add(oTemp);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            lReturn.Add(lMonday);
+            lReturn.Add(lTuesday);
+            lReturn.Add(lWednesday);
+            lReturn.Add(lThursday);
+            lReturn.Add(lFriday);
+            lReturn.Add(lSaturday);
+            lReturn.Add(lSunday);
+            return lReturn;
+        }
+        public async Task<SearchViewLogic> ValidateWorkerLineAsync(string strLine, int idAldakinUser, sbyte? sValue)
+        {
+            //SelectData
+            var oReturn = new SearchViewLogic();
+            try
+            {
+
+                int iLine = Convert.ToInt32(strLine);
+                var line = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == iLine);
+                if (!(line is null))
+                {
+                    oReturn.strWorker = Convert.ToString(line.Idusuario);
+                    oReturn.strDate1 = Convert.ToString(line.Inicio.Date);
+                    oReturn.strEntity = Convert.ToString(line.CodEnt);
+                    var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == idAldakinUser);
+                    line.Validado = sValue;
+                    line.Validador = user.Nombrecompleto + "[" + DateTime.Now + "]";
+                    var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+                    try
+                    {
+                        aldakinDbContext.Lineas.Update(line);
+                        await aldakinDbContext.SaveChangesAsync();
+                        var lineCopy = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idoriginal == line.Idlinea);
+                        if (!(lineCopy is null))
+                        {
+                            lineCopy.Validado = sValue;
+                            lineCopy.Validador = user.Nombrecompleto + "[" + DateTime.Now + "]";
+                            aldakinDbContext.Lineas.Update(lineCopy);
+                            await aldakinDbContext.SaveChangesAsync();
+                        }
+                        await transaction.CommitAsync();
+                        oReturn.strError = line.Inicio.ToString();
+                        if (sValue == 1)
+                        {
+                            oReturn.strError = "Parte validado satisfactorioamente";
+                        }
+                        else
+                        {
+                            oReturn.strError = "Parte Desvalidado satisfactorioamente";
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        await transaction.RollbackAsync();
+                        oReturn.strError = "Ha ocurrido un problema durante el proceso de validar la linea.;";
+                        return oReturn;
+                    }
+                }
+                else
+                {
+                    oReturn.strError = "Ha ocurrido un problema durante el proceso de validar la linea.;";
+                }
+            }
+            catch (Exception ex)
+            {
+                oReturn.strError = "Error al cerrar la semana tron";
+            }
+
+            return oReturn;
+        }
+        public async Task<string> ValidateGlobalLineAsync(int idAldakinUser, string strLine, sbyte sValue)
+        {
+            string strReturn = string.Empty;
+            try
+            {
+                List<string> split = strLine.Split(new Char[] { '|' }).Distinct().ToList();
+                foreach (string s in split)
+                {
+                    if (!(string.IsNullOrEmpty(s)))
+                    {
+                        await ValidateWorkerLineAsync(s, idAldakinUser, sValue);
+                    }
+                }
+                strReturn = "Validacion de partes sleccionados satisfactoria";
+            }
+            catch (Exception ex)
+            {
+                strReturn = "Durante la validacion ha ocurrido algun error Revise el estado de los partes";
+            }
+            return strReturn;
+        }
+        public async Task<string> OpenWeek(string strLine)
+        {
+            string strReturn = string.Empty;
+            DateTime dtIni, dtEnd;
+            var lEstado = new List<Estadodias>();
+            try
+            {
+                List<string> split = strLine.Split(new Char[] { '|' }).Distinct().ToList();
+                foreach (string s in split)
+                {
+                    if (!(string.IsNullOrEmpty(s)))
+                    {
+                        var lLine = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(s) && x.Validado == 0 && x.Registrado == 0);
+                        if (lLine.Validado==1)
+                        {
+                            strReturn = "Revise si hay partes validados, deben estar desvalidados para poder abrirlos";
+                            return strReturn;
+                        }
+                        if (lLine.Registrado == 1)
+                        {
+                            strReturn = "Hay partes registrados por lo que no se va a poder abrir la semana";
+                            return strReturn;
+                        }
+                        var oTemp = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Idusuario == lLine.Idusuario && x.Dia == lLine.Inicio.Date);
+                        lEstado.Add(oTemp);
+                    }
+                }
+
+                var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+                try
+                {
+                    aldakinDbContext.RemoveRange(lEstado);
+                    await aldakinDbContext.SaveChangesAsync();
+                    //por siquedan dias sin borrar por ejemplo sabados o domingos  o dias que no tengan horas
+                    var lLineO = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(split[0]) && x.Validado == 0 && x.Registrado == 0);
+                    if (!(lLineO is null))
+                    {
+                        WorkPartInformation.IniEndWeek(lLineO.Inicio.Date, out dtIni, out dtEnd);
+                        var Status = await aldakinDbContext.Estadodias.Where(x => x.Dia >= dtIni && x.Dia <= dtEnd && x.Idusuario == lLineO.Idusuario).ToListAsync();
+                        aldakinDbContext.RemoveRange(Status);
+                        await aldakinDbContext.SaveChangesAsync();
+                    }
+                    await transaction.CommitAsync();
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    strReturn = "Ocurrio un error al abrir la semana";
+                    return strReturn;
+                }
+                
+                
+            }
+            catch (Exception ex)
+            {
+                strReturn = "Durante la validacion ha ocurrido algun error Revise el estado de los partes";
+            }
+            strReturn = "Semana abierta satisfactoriamente;";
+            return strReturn;
+        }
+        public async Task<string> WritetUdObrePresuNewAsync(string strDescription, string strRef, string strEntidad)
+        {
+            string strReturn = string.Empty;
+            try
+            {
+                int iCodEnt = Convert.ToInt32(strEntidad);
+                int iRef = Convert.ToInt32(strRef);
+                var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+                try
+                {
+                    var line = new Udobrapresu
+                    {
+                        Descripcion = strDescription,
+                        RefiPes = iRef,
+                        CodEnt = iCodEnt
+                    };
+                    aldakinDbContext.Udobrapresu.Add(line);
+                    await aldakinDbContext.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    strReturn = "Datos guardados satisfactoriamente";
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    strReturn = "Recargue la páguina error al guardar los datos";
+                }
+            }
+            catch (Exception ex)
+            {
+                strReturn = "Recargue la páguina y revise los datos a insertar";
+            }
+            return strReturn;
+        }
+        public async Task<string> DeletetUdObrePresuNewAsync(string strId)
+        {
+            string strReturn = string.Empty;
+            try
+            {
+                int iId = Convert.ToInt32(strId);
+                var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+                try
+                {
+                    var line = await aldakinDbContext.Udobrapresu.FirstOrDefaultAsync(x => x.IdudObraPresu == iId);
+                    if (!(line is null))
+                    {
+                        aldakinDbContext.Udobrapresu.RemoveRange(line);
+                        await aldakinDbContext.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    strReturn = "Recargue la páguina error al borrar los datos";
+                }
+            }
+            catch (Exception ex)
+            {
+                strReturn = "Error en el borrado avise a Administración";
+            }
+            return strReturn;
+        }
+        public async Task<string> InsertHoliDayAsync(string strCalendario, string strEntidad, string strJornada, string strAction)
+        {
+            string strReturn = string.Empty;
+            try
+            {
+                DateTime dtSelected = Convert.ToDateTime(strCalendario);
+                int iEntidad = Convert.ToInt32(strEntidad);
+                bool bJornada = Convert.ToBoolean(strJornada);
+                var oTemp = new Diasfestivos
+                {
+                    Dia = dtSelected,
+                    Calendario = iEntidad,
+                    Jornadareducida = bJornada
+                };
+                var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+                try
+                {
+                    aldakinDbContext.Diasfestivos.Add(oTemp);
+                    await aldakinDbContext.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    strReturn = "Fecha " + dtSelected + " añadida correctamente al calendario " + iEntidad;
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    strReturn = "Error en el proceso de insercion de dias festivos, avise a admin";
+                    return (strReturn);
+                }
+            }
+            catch (Exception ex)
+            {
+                strReturn = "Error con los datos de insercion de dias festivos, avise a admin";
+            }
+
+            return strReturn;
+        }
+        public async Task<string> DeleteHoliDayAsync(string strId)
+        {
+            string strReturn = string.Empty;
+            try
+            {
+                int iId = Convert.ToInt32(strId);
+                var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+                try
+                {
+                    var line = await aldakinDbContext.Diasfestivos.FirstOrDefaultAsync(x => x.Idfestivos == iId);
+                    if (!(line is null))
+                    {
+                        aldakinDbContext.Diasfestivos.RemoveRange(line);
+                        await aldakinDbContext.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                        strReturn = "Dato Borrado satisfactoriamente";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    strReturn = "Recargue la páguina error al borrar los datos";
+                }
+            }
+            catch (Exception ex)
+            {
+                strReturn = "Error en el borrado avise a Administración";
+            }
+            return strReturn;
+        }
+        public async Task<string> WriteAllHolidaysAsync(string strAllHoliDays)
+        {
+            var list = new List<Diasfestivos>();
+            string strReturn = string.Empty;
+            try
+            {
+                if (!(string.IsNullOrEmpty(strAllHoliDays)))
+                {
+                    string line;
+                    string[] substring;
+                    var strReader = new StringReader(strAllHoliDays);
+                    while ((line = strReader.ReadLine()) != null)
+                    {
+                        if (line != null)
+                        {
+                            substring = line.Split('|');
+
+                            if (substring.Length == 3)
+                            {
+                                var oTemp = new Diasfestivos
+                                {
+                                    Dia = Convert.ToDateTime(substring[0]),
+                                    Calendario = Convert.ToInt32(substring[1]),
+                                    Jornadareducida = Convert.ToBoolean(substring[2])
+                                };
+                                list.Add(oTemp);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    strReturn = "Lista de días vacia";
+                }
+            }
+            catch (Exception ex)
+            {
+                strReturn = "Error en el Procesamiento de los datos";
+                list = null;
+            }
+            if (!(list is null))
+            {
+                var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+                try
+                {
+                    await aldakinDbContext.Diasfestivos.AddRangeAsync(list);
+                    await aldakinDbContext.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    strReturn = "Datos añadidos satisfactoriamente";
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    strReturn = "Error durente el proceso de guardar los datos";
+                }
+
+
+
+
+
+            }
+            return strReturn;
+        }
+
+        public async Task<string> WritePermissionAsync(string strAldakinUser, string strUsers,string strAutor,string strData)
+        {
+            string strReturn=string.Empty;
+            try
+            {
+                var permission = await aldakinDbContext.Responsables.FirstOrDefaultAsync(x => x.Name == strAldakinUser);
+                if(!(permission is null))
+                {
+                    var transaction =await aldakinDbContext.Database.BeginTransactionAsync();
+                    try
+                    {
+                        if (string.Equals(strData,"ot"))
+                        {
+                            permission.Ots = strUsers;
+                        }
+                        else {
+                            permission.PersonasName = strUsers;
+                        }
+                        aldakinDbContext.Responsables.AsNoTracking();
+                        aldakinDbContext.Responsables.Update(permission);
+                        await aldakinDbContext.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                        strReturn = "Permisos actualizados correctamente";
+                    }
+                    catch (Exception ex)
+                    {
+                        await transaction.RollbackAsync();
+                        strReturn = "Ha ocurrido un error al actualizar los permisos";
+                    }
+                }
+                else
+                {
+                    string usuarios, ots;
+                    if (string.Equals(strData, "ot"))
+                    {
+                        ots = strUsers;
+                        usuarios = string.Empty;
+                    }
+                    else
+                    {
+                        usuarios = strUsers;
+                        ots = string.Empty;
+                    }
+                    var oNew = new Responsables
+                    {
+                        Name=strAldakinUser,
+                        PersonasName=usuarios,
+                        Ots=ots,
+                        Autor= strAutor
+                    };
+                    var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+                    try
+                    {
+                        aldakinDbContext.Responsables.AsNoTracking();
+                        aldakinDbContext.Responsables.Add(oNew);
+                        await aldakinDbContext.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                        strReturn = "Permisos creados correctamente";
+                    }
+                    catch (Exception ex)
+                    {
+                        await transaction.RollbackAsync();
+                        strReturn = "Ha ocurrido un error al insertar nuevos los permisos";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                strReturn = "Ha ocurrido un error al trabajar en los permisos";
+            }
+            return strReturn;
+        }
+        public static bool RangeIsUsed(List<Lineas> lLineas, DateTime dtFin, DateTime dtInicio, ref string strReturn)
+        {
+            bool bReturn;
+            strReturn = string.Empty;
+            bReturn = false;//true==error
+            if (lLineas != null)
+            {
+                foreach (var x in lLineas)
+                {
+                    //if ((DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) = 0) || (DateTime.Compare(dtInicio, x.Fin) = 0 && DateTime.Compare(dtFin, x.Fin) > 0) || (DateTime.Compare(dtInicio, x.Fin) > 0 && DateTime.Compare(dtFin, x.Fin) > 0) || (DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) < 0))
+
+                    if ((DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) == 0) || (DateTime.Compare(dtInicio, x.Fin) == 0 && DateTime.Compare(dtFin, x.Fin) > 0) || (DateTime.Compare(dtInicio, x.Fin) > 0 && DateTime.Compare(dtFin, x.Fin) > 0) || (DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) < 0))
+                    {
+                        bReturn = false;
+                        //rango ok
+                    }
+                    else
+                    {
+                        bReturn = true;
+                        strReturn = "Rango de Horas ya utilizado;";
+                        break;
+                    }
+
+                    //if (DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) > 0)
+                    //{
+                    //    bReturn = true;
+                    //    strReturn = "Rango de Horas ya utilizado;";
+                    //}
+                    //if (DateTime.Compare(dtFin, x.Inicio) > 0 && DateTime.Compare(dtFin, x.Fin) < 0)
+                    //{
+                    //    bReturn = true;
+                    //    strReturn = "Rango de Horas ya utilizado;";
+                    //}
+                    //if (DateTime.Compare(dtInicio, x.Inicio) > 0 && DateTime.Compare(dtInicio, x.Fin) < 0)
+                    //{
+                    //    bReturn = true;
+                    //    strReturn = "Rango de Horas ya utilizado;";
+                    //}
+                    //if (DateTime.Compare(dtInicio, x.Inicio) == 0 && DateTime.Compare(dtFin, x.Fin) == 0)
+                    //{
+                    //    bReturn = true;
+                    //    strReturn = "Rango de Horas ya utilizado;";
+                    //}
+                }
+            }
+            return bReturn;
+        }
+        private async Task<Lineas> ReviewLineData(int iLine, int idAldakinUser,int idAdminUser)
+        {
+            var oReturn = new Lineas();
+            var strReturn = string.Empty;
+            var iIdLinea = 0;
+            try
+            {
+                iIdLinea = Convert.ToInt32(iLine);
+            }
+            catch (Exception)
+            {
+                oReturn = null;
+                return oReturn;
+            }
+            if (iIdLinea == 0)
+            {
+                oReturn = null;
+                return oReturn;
+            }
+            oReturn = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(iIdLinea));
+            DateTime day;
+            if (oReturn is null)
+            {
+                oReturn = null;
+                return oReturn;
+            }
+            day = oReturn.Inicio;
+            var lEstadoDia = await aldakinDbContext.Estadodias.Where(x => x.Idusuario == idAldakinUser && DateTime.Compare(x.Dia, day.Date) == 0).ToListAsync();//
+            if (idAdminUser != idAldakinUser)
+            {
+                //si hay administardor la semana tiene que estar cerrada, 
+                if (lEstadoDia.Count == 0)
+                {
+                    oReturn = null;
+                    return oReturn;
+                }
+            }
+            else
+            {
+                if (lEstadoDia.Count > 0)
+                {
+                    oReturn = null;
+                    return oReturn;
+                }
+            }
+            return oReturn;
+        }
+
+
         //public async Task<SelectData> EditWorkerLineAsync(WorkerLineData dataToEditLine, int idAldakinUser)
         //{
         //    WriteUserDataAsync(idAldakinUser);
@@ -1117,621 +1905,6 @@ namespace AppPartes.Logic
         //    oReturn.strValue = strReturn;
         //    return oReturn;
         //}
-        public async Task<bool> ReadUserMessageAsync(int iIdMessage)
-        {
-            bool bReturn = false;
-            var message = await aldakinDbContext.Mensajes.FirstOrDefaultAsync(x => x.Idmensajes == iIdMessage);
-            var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
-            try
-            {
-                message.Estado = false;
-                message.Vistodestino = DateTime.Now;
-                aldakinDbContext.Mensajes.Update(message);
-                await aldakinDbContext.SaveChangesAsync();
-                await transaction.CommitAsync();
-                bReturn = true;
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                bReturn = true;
-            }
-            return bReturn;
-        }
-        public async Task<string> AnswerMessageAsync(LineMessage line)
-        {
-            string strReturn;
-            try
-            {
-                var message = new Mensajes
-                {
-                    De = line.De,
-                    A = line.A,
-                    Fecha = DateTime.Now,
-                    Asunto = line.Asunto,
-                    Mensaje = line.Mensaje,
-                    Vistoremite = DateTime.Now,
-                    Idlinea = line.Idlinea,
-                    Inicial = line.Inicial,
-                    Estado = true
-                };
-                var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
-                try
-                {
-                    aldakinDbContext.Mensajes.Add(message);
-                    await aldakinDbContext.SaveChangesAsync();
-                    await transaction.CommitAsync();
-                }
-                catch (Exception ex)
-                {
-                    await transaction.RollbackAsync();
-                    strReturn = "Ocurrio un Error al enviar el mensaje";
-                }
-                strReturn = "Mensaje enviado correctamente";
-            }
-            catch (Exception ex)
-            {
-                strReturn = "Ocurrio un Error con los datos del mensaje";
-            }
-            return strReturn;
-        }
-        public async Task<string> UpdateEntityDataOrCsvAsync(int iIdEntity, int idAldakinUser, string strAction = "AC")
-        {
-            string strReturn = string.Empty;
-            WriteUserDataAsync(idAldakinUser);
-            string strTemp = strAction + iIdEntity;
-            try
-            {
-                if (_iUserLevel >= 3)
-                {
-                    var temp = await aldakinDbContext.Servicios.FirstOrDefaultAsync(x => x.CodEnt == iIdEntity && x.Condicion == strTemp);
-                    if (!(temp is null))
-                    {
-                        temp.Ejecutar = 1;
-                        var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
-                        try
-                        {
-                            aldakinDbContext.Servicios.Update(temp);
-                            await aldakinDbContext.SaveChangesAsync();
-                            await transaction.CommitAsync();
-                        }
-                        catch (Exception ex)
-                        {
-                            await transaction.RollbackAsync();
-                            strReturn = "Ha ocurrido un error al mandar actualizar los datos de la delegación";
-                        }
-                        strReturn = "La actualización/generación durara aproximadamente 15 minutos.";
-                    }
-                    else
-                    {
-                        strReturn = "Ha ocurrido un error al mandar actualizar los datos de la delegación";
-                    }
-                }
-                else
-                {
-                    strReturn = "No tiene permiso para ejecutar esta accion.";
-                }
-            }
-            catch (Exception ex)
-            {
-                strReturn = "Ha ocurrido un error al mandar actualizar los datos de la delegación";
-            }
-            return strReturn;
-        }
-        public async Task<List<List<LineaVisual>>> CreateVisualWorkerPartAsync(List<Lineas> lTemp)
-        {
-            var lReturn = new List<List<LineaVisual>>();
-            var lSunday = new List<LineaVisual>();
-            var lMonday = new List<LineaVisual>();
-            var lTuesday = new List<LineaVisual>();
-            var lWednesday = new List<LineaVisual>();
-            var lThursday = new List<LineaVisual>();
-            var lFriday = new List<LineaVisual>();
-            var lSaturday = new List<LineaVisual>();
-            int iStatus = 0;
-            string strObservaciones;
-            var NombreOt = string.Empty;
-            var NombreCliente = string.Empty;
-            //var NombreNivel = string.Empty;
-            var strPernocta = string.Empty;
-            var strPreslin = string.Empty;
-            foreach (var l in lTemp)
-            {
-                var oTemp = new LineaVisual();
-                oTemp = null;
-                var worker = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == l.Idusuario);
-                var NombreNivel = await aldakinDbContext.Preslin.FirstOrDefaultAsync(x => x.Idpreslin == l.Idpreslin);
-                if (NombreNivel is null)
-                {
-                    strPreslin = string.Empty;
-                }
-                else
-                {
-                    strPreslin = NombreNivel.Nombre;
-                }
-                var statusDay = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Idusuario == l.Idusuario && x.Dia == Convert.ToDateTime(l.Inicio.ToString("yyyy-MM-dd")));
-                if (statusDay is null)
-                {
-                    iStatus = 0;//no hay estadodia no esta cerrado el dia
-                }
-                else
-                {
-                    if (l.Registrado == 1)
-                    {
-                        iStatus = 1;////hay estadodia por lo que esta cerrada y volcada
-                    }
-                    else
-                    {
-                        if (l.Validado == 1)
-                        {
-                            iStatus = 2;//semana cerrada, validada no registrada
-                        }
-                        else
-                        {
-                            iStatus = 3;//semana cerrada, no validada no registrada
-                        }
-                    }
-                }
-                if (l.Facturable == 0)
-                {
-                    strPernocta = "NO";
-                }
-                else
-                {
-                    var pernocta = await aldakinDbContext.Pernoctaciones.FirstOrDefaultAsync(x => x.Tipo == l.Facturable && x.CodEnt == l.CodEnt);
-                    strPernocta = pernocta.Descripcion;
-                }
-                if (l.Idoriginal == 0)
-                {
-                    var nombre = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == l.Idot);
-                    NombreOt = "[" + nombre.Numero + "]" + nombre.Nombre;
-                    var nombreCliente = await aldakinDbContext.Clientes.FirstOrDefaultAsync(x => x.Idclientes == aldakinDbContext.Ots.FirstOrDefault(o => o.Idots == l.Idot).Cliente);
-                    NombreCliente = nombreCliente.Nombre;
-                    if (l.Observaciones.Length > 50)
-                    {
-                        strObservaciones = l.Observaciones.Substring(0, 45) + "...";
-                    }
-                    else
-                    {
-                        strObservaciones = l.Observaciones;
-                    }
-                    oTemp = (new LineaVisual
-                    {
-                        iStatus = iStatus,
-                        NombreUsuario = worker.Nombrecompleto,
-                        Idlinea = l.Idlinea,
-                        Idot = l.Idot,
-                        NombreOt = NombreOt,
-                        NombreCliente = NombreCliente,
-                        NombrePreslin = strPreslin,
-                        Dietas = l.Dietas,
-                        Km = l.Km,
-                        Observaciones = strObservaciones,
-                        Horasviaje = l.Horasviaje,
-                        Horas = l.Horas,
-                        Inicio = l.Inicio,
-                        Fin = l.Fin,
-                        strInicio = WorkPartInformation.ConvertDateTimeToString(l.Inicio),
-                        strFin = WorkPartInformation.ConvertDateTimeToString(l.Fin),
-                        Idusuario = l.Idusuario,
-                        strPernocta = strPernocta,
-                        Npartefirmado = l.Npartefirmado,
-                        Idoriginal = l.Idoriginal,
-                        Registrado = l.Registrado,
-                        CodEnt = l.CodEnt,
-                        Validado = l.Validado,
-                        Validador = l.Validador
-                    });
-                }
-                else
-                {
-                    var lineaOriginal = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == l.Idoriginal);
-                    if (lineaOriginal.Observaciones.Length > 50)
-                    {
-                        strObservaciones = lineaOriginal.Observaciones.Substring(0, 45) + "...";
-                    }
-                    else
-                    {
-                        strObservaciones = lineaOriginal.Observaciones;
-                    }
-                    var ootOrigen = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == lineaOriginal.Idot);
-                    NombreOt = "[" + ootOrigen.Numero + "]" + ootOrigen.Nombre;
-                    var nombreCliente = await aldakinDbContext.Clientes.FirstOrDefaultAsync(x => x.Idclientes == aldakinDbContext.Ots.FirstOrDefault(o => o.Idots == lineaOriginal.Idot).Cliente);
-                    NombreCliente = nombreCliente.Nombre;
-                    oTemp = (new LineaVisual
-                    {
-                        iStatus = iStatus,
-                        NombreUsuario = worker.Nombrecompleto,
-                        Idlinea = lineaOriginal.Idlinea,
-                        Idot = lineaOriginal.Idot,
-                        NombreOt = NombreOt,
-                        NombreCliente = NombreCliente,
-                        NombrePreslin = strPreslin,
-                        Dietas = lineaOriginal.Dietas,
-                        Km = lineaOriginal.Km,
-                        Observaciones = strObservaciones,
-                        Horasviaje = lineaOriginal.Horasviaje,
-                        Horas = lineaOriginal.Horas,
-                        Inicio = lineaOriginal.Inicio,
-                        Fin = lineaOriginal.Fin,
-                        strInicio = WorkPartInformation.ConvertDateTimeToString(lineaOriginal.Inicio),
-                        strFin = WorkPartInformation.ConvertDateTimeToString(lineaOriginal.Fin),
-                        Idusuario = lineaOriginal.Idusuario,
-                        strPernocta = strPernocta,
-                        Npartefirmado = lineaOriginal.Npartefirmado,
-                        Idoriginal = lineaOriginal.Idoriginal,
-                        Registrado = lineaOriginal.Registrado,
-                        CodEnt = lineaOriginal.CodEnt,
-                        Validado = lineaOriginal.Validado,
-                        Validador = lineaOriginal.Validador
-                    });
-                }
-                var i = Convert.ToInt32(l.Inicio.DayOfWeek);
-                switch (i)
-                {
-                    case 0:
-                        lSunday.Add(oTemp);
-                        break;
-                    case 1:
-                        lMonday.Add(oTemp);
-                        break;
-                    case 2:
-                        lTuesday.Add(oTemp);
-                        break;
-                    case 3:
-                        lWednesday.Add(oTemp);
-                        break;
-                    case 4:
-                        lThursday.Add(oTemp);
-                        break;
-                    case 5:
-                        lFriday.Add(oTemp);
-                        break;
-                    case 6:
-                        lSaturday.Add(oTemp);
-                        break;
-                    default:
-                        break;
-                }
-            }
-            lReturn.Add(lMonday);
-            lReturn.Add(lTuesday);
-            lReturn.Add(lWednesday);
-            lReturn.Add(lThursday);
-            lReturn.Add(lFriday);
-            lReturn.Add(lSaturday);
-            lReturn.Add(lSunday);
-            return lReturn;
-        }
-        public async Task<SearchViewLogic> ValidateWorkerLineAsync(string strLine, int idAldakinUser, sbyte? sValue)
-        {
-            //SelectData
-            var oReturn = new SearchViewLogic();
-            try
-            {
-
-                int iLine = Convert.ToInt32(strLine);
-                var line = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == iLine);
-                if (!(line is null))
-                {
-                    oReturn.strWorker = Convert.ToString(line.Idusuario);
-                    oReturn.strDate1 = Convert.ToString(line.Inicio.Date);
-                    oReturn.strEntity = Convert.ToString(line.CodEnt);
-                    var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == idAldakinUser);
-                    line.Validado = sValue;
-                    line.Validador = user.Nombrecompleto + "[" + DateTime.Now + "]";
-                    var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
-                    try
-                    {
-                        aldakinDbContext.Lineas.Update(line);
-                        await aldakinDbContext.SaveChangesAsync();
-                        var lineCopy = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idoriginal == line.Idlinea);
-                        if (!(lineCopy is null))
-                        {
-                            lineCopy.Validado = sValue;
-                            lineCopy.Validador = user.Nombrecompleto + "[" + DateTime.Now + "]";
-                            aldakinDbContext.Lineas.Update(lineCopy);
-                            await aldakinDbContext.SaveChangesAsync();
-                        }
-                        await transaction.CommitAsync();
-                        oReturn.strError = line.Inicio.ToString();
-                        if (sValue == 1)
-                        {
-                            oReturn.strError = "Parte validado satisfactorioamente";
-                        }
-                        else
-                        {
-                            oReturn.strError = "Parte Desvalidado satisfactorioamente";
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        await transaction.RollbackAsync();
-                        oReturn.strError = "Ha ocurrido un problema durante el proceso de validar la linea.;";
-                        return oReturn;
-                    }
-                }
-                else
-                {
-                    oReturn.strError = "Ha ocurrido un problema durante el proceso de validar la linea.;";
-                }
-            }
-            catch (Exception ex)
-            {
-                oReturn.strError = "Error al cerrar la semana tron";
-            }
-
-            return oReturn;
-        }
-        public async Task<string> ValidateGlobalLineAsync(int idAldakinUser, string strLine, sbyte sValue)
-        {
-            string strReturn = string.Empty;
-            try
-            {
-                List<string> split = strLine.Split(new Char[] { '|' }).Distinct().ToList();
-                foreach (string s in split)
-                {
-                    if (!(string.IsNullOrEmpty(s)))
-                    {
-                        await ValidateWorkerLineAsync(s, idAldakinUser, sValue);
-                    }
-                }
-                strReturn = "Validacion de partes sleccionados satisfactoria";
-            }
-            catch (Exception ex)
-            {
-                strReturn = "Durante la validacion ha ocurrido algun error Revise el estado de los partes";
-            }
-            return strReturn;
-        }
-        public async Task<string> OpenWeek(string strLine)
-        {
-            string strReturn = string.Empty;
-            DateTime dtIni, dtEnd;
-            var lEstado = new List<Estadodias>();
-            try
-            {
-                List<string> split = strLine.Split(new Char[] { '|' }).Distinct().ToList();
-                foreach (string s in split)
-                {
-                    if (!(string.IsNullOrEmpty(s)))
-                    {
-                        var lLine = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(s) && x.Validado == 0 && x.Registrado == 0);
-                        if (lLine.Validado==1)
-                        {
-                            strReturn = "Revise si hay partes validados, deben estar desvalidados para poder abrirlos";
-                            return strReturn;
-                        }
-                        if (lLine.Registrado == 1)
-                        {
-                            strReturn = "Hay partes registrados por lo que no se va a poder abrir la semana";
-                            return strReturn;
-                        }
-                        var oTemp = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Idusuario == lLine.Idusuario && x.Dia == lLine.Inicio.Date);
-                        lEstado.Add(oTemp);
-                    }
-                }
-
-                var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
-                try
-                {
-                    aldakinDbContext.RemoveRange(lEstado);
-                    await aldakinDbContext.SaveChangesAsync();
-                    //por siquedan dias sin borrar por ejemplo sabados o domingos  o dias que no tengan horas
-                    var lLineO = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(split[0]) && x.Validado == 0 && x.Registrado == 0);
-                    if (!(lLineO is null))
-                    {
-                        WorkPartInformation.IniEndWeek(lLineO.Inicio.Date, out dtIni, out dtEnd);
-                        var Status = await aldakinDbContext.Estadodias.Where(x => x.Dia >= dtIni && x.Dia <= dtEnd && x.Idusuario == lLineO.Idusuario).ToListAsync();
-                        aldakinDbContext.RemoveRange(Status);
-                        await aldakinDbContext.SaveChangesAsync();
-                    }
-                    await transaction.CommitAsync();
-                }
-                catch (Exception)
-                {
-                    await transaction.RollbackAsync();
-                    strReturn = "Ocurrio un error al abrir la semana";
-                    return strReturn;
-                }
-                
-                
-            }
-            catch (Exception ex)
-            {
-                strReturn = "Durante la validacion ha ocurrido algun error Revise el estado de los partes";
-            }
-            strReturn = "Semana abierta satisfactoriamente;";
-            return strReturn;
-        }
-        public async Task<string> WritetUdObrePresuNewAsync(string strDescription, string strRef, string strEntidad)
-        {
-            string strReturn = string.Empty;
-            try
-            {
-                int iCodEnt = Convert.ToInt32(strEntidad);
-                int iRef = Convert.ToInt32(strRef);
-                var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
-                try
-                {
-                    var line = new Udobrapresu
-                    {
-                        Descripcion = strDescription,
-                        RefiPes = iRef,
-                        CodEnt = iCodEnt
-                    };
-                    aldakinDbContext.Udobrapresu.Add(line);
-                    await aldakinDbContext.SaveChangesAsync();
-                    await transaction.CommitAsync();
-                    strReturn = "Datos guardados satisfactoriamente";
-                }
-                catch (Exception ex)
-                {
-                    await transaction.RollbackAsync();
-                    strReturn = "Recargue la páguina error al guardar los datos";
-                }
-            }
-            catch (Exception ex)
-            {
-                strReturn = "Recargue la páguina y revise los datos a insertar";
-            }
-            return strReturn;
-        }
-        public async Task<string> DeletetUdObrePresuNewAsync(string strId)
-        {
-            string strReturn = string.Empty;
-            try
-            {
-                int iId = Convert.ToInt32(strId);
-                var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
-                try
-                {
-                    var line = await aldakinDbContext.Udobrapresu.FirstOrDefaultAsync(x => x.IdudObraPresu == iId);
-                    if (!(line is null))
-                    {
-                        aldakinDbContext.Udobrapresu.RemoveRange(line);
-                        await aldakinDbContext.SaveChangesAsync();
-                        await transaction.CommitAsync();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    await transaction.RollbackAsync();
-                    strReturn = "Recargue la páguina error al borrar los datos";
-                }
-            }
-            catch (Exception ex)
-            {
-                strReturn = "Error en el borrado avise a Administración";
-            }
-            return strReturn;
-        }
-        public async Task<string> InsertHoliDayAsync(string strCalendario, string strEntidad, string strJornada, string strAction)
-        {
-            string strReturn = string.Empty;
-            try
-            {
-                DateTime dtSelected = Convert.ToDateTime(strCalendario);
-                int iEntidad = Convert.ToInt32(strEntidad);
-                bool bJornada = Convert.ToBoolean(strJornada);
-                var oTemp = new Diasfestivos
-                {
-                    Dia = dtSelected,
-                    Calendario = iEntidad,
-                    Jornadareducida = bJornada
-                };
-                var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
-                try
-                {
-
-                    aldakinDbContext.Diasfestivos.Add(oTemp);
-                    await aldakinDbContext.SaveChangesAsync();
-                    await transaction.CommitAsync();
-                    strReturn = "Fecha " + dtSelected + " añadida correctamente al calendario " + iEntidad;
-                }
-                catch (Exception)
-                {
-                    await transaction.RollbackAsync();
-                    strReturn = "Error en el proceso de insercion de dias festivos, avise a admin";
-                    return (strReturn);
-                }
-
-            }
-            catch (Exception ex)
-            {
-                strReturn = "Error con los datos de insercion de dias festivos, avise a admin";
-            }
-
-            return strReturn;
-        }
-        public async Task<string> DeleteHoliDayAsync(string strId)
-        {
-            string strReturn = string.Empty;
-            try
-            {
-                int iId = Convert.ToInt32(strId);
-                var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
-                try
-                {
-                    var line = await aldakinDbContext.Diasfestivos.FirstOrDefaultAsync(x => x.Idfestivos == iId);
-                    if (!(line is null))
-                    {
-                        aldakinDbContext.Diasfestivos.RemoveRange(line);
-                        await aldakinDbContext.SaveChangesAsync();
-                        await transaction.CommitAsync();
-                        strReturn = "Dato Borrado satisfactoriamente";
-                    }
-                }
-                catch (Exception ex)
-                {
-                    await transaction.RollbackAsync();
-                    strReturn = "Recargue la páguina error al borrar los datos";
-                }
-            }
-            catch (Exception ex)
-            {
-                strReturn = "Error en el borrado avise a Administración";
-            }
-            return strReturn;
-        }
-        public async Task<string> WriteAllHolidaysAsync(string strAllHoliDays)
-        {
-            var list = new List<Diasfestivos>();
-            string strReturn = string.Empty;
-            try
-            {
-                if (!(string.IsNullOrEmpty(strAllHoliDays)))
-                {
-                    string line;
-                    string[] substring;
-                    var strReader = new StringReader(strAllHoliDays);
-                    while ((line = strReader.ReadLine()) != null)
-                    {
-                        if (line != null)
-                        {
-                            substring = line.Split('|');
-
-                            if (substring.Length == 3)
-                            {
-                                var oTemp = new Diasfestivos
-                                {
-                                    Dia = Convert.ToDateTime(substring[0]),
-                                    Calendario = Convert.ToInt32(substring[1]),
-                                    Jornadareducida = Convert.ToBoolean(substring[2])
-                                };
-                                list.Add(oTemp);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    strReturn = "Lista de días vacia";
-                }
-            }
-            catch (Exception ex)
-            {
-                strReturn = "Error en el Procesamiento de los datos";
-                list = null;
-            }
-            if (!(list is null))
-            {
-                var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
-                try
-                {
-                    await aldakinDbContext.Diasfestivos.AddRangeAsync(list);
-                    await aldakinDbContext.SaveChangesAsync();
-                    await transaction.CommitAsync();
-                    strReturn = "Datos añadidos satisfactoriamente";
-                }
-                catch (Exception ex)
-                {
-                    await transaction.RollbackAsync();
-                    strReturn = "Error durente el proceso de guardar los datos";
-                }
-            }
-            return strReturn;
-        }
 
         //public async Task<string> EditWorkerLineAdminAsync(WorkerLineData lineData)
         //{
@@ -2281,101 +2454,6 @@ namespace AppPartes.Logic
         //    await AnswerMessageAsync(message);
         //    return strReturn;
         //}
-        public static bool RangeIsUsed(List<Lineas> lLineas, DateTime dtFin, DateTime dtInicio, ref string strReturn)
-        {
-            bool bReturn;
-            strReturn = string.Empty;
-            bReturn = false;//true==error
-            if (lLineas != null)
-            {
-                foreach (var x in lLineas)
-                {
-                    //if ((DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) = 0) || (DateTime.Compare(dtInicio, x.Fin) = 0 && DateTime.Compare(dtFin, x.Fin) > 0) || (DateTime.Compare(dtInicio, x.Fin) > 0 && DateTime.Compare(dtFin, x.Fin) > 0) || (DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) < 0))
-
-                    if ((DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) == 0) || (DateTime.Compare(dtInicio, x.Fin) == 0 && DateTime.Compare(dtFin, x.Fin) > 0) || (DateTime.Compare(dtInicio, x.Fin) > 0 && DateTime.Compare(dtFin, x.Fin) > 0) || (DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) < 0))
-                    {
-                        bReturn = false;
-                        //rango ok
-                    }
-                    else
-                    {
-                        bReturn = true;
-                        strReturn = "Rango de Horas ya utilizado;";
-                        break;
-                    }
-
-                    //if (DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) > 0)
-                    //{
-                    //    bReturn = true;
-                    //    strReturn = "Rango de Horas ya utilizado;";
-                    //}
-                    //if (DateTime.Compare(dtFin, x.Inicio) > 0 && DateTime.Compare(dtFin, x.Fin) < 0)
-                    //{
-                    //    bReturn = true;
-                    //    strReturn = "Rango de Horas ya utilizado;";
-                    //}
-                    //if (DateTime.Compare(dtInicio, x.Inicio) > 0 && DateTime.Compare(dtInicio, x.Fin) < 0)
-                    //{
-                    //    bReturn = true;
-                    //    strReturn = "Rango de Horas ya utilizado;";
-                    //}
-                    //if (DateTime.Compare(dtInicio, x.Inicio) == 0 && DateTime.Compare(dtFin, x.Fin) == 0)
-                    //{
-                    //    bReturn = true;
-                    //    strReturn = "Rango de Horas ya utilizado;";
-                    //}
-                }
-            }
-            return bReturn;
-        }
-        private async Task<Lineas> ReviewLineData(int iLine, int idAldakinUser,int idAdminUser)
-        {
-            var oReturn = new Lineas();
-            var strReturn = string.Empty;
-            var iIdLinea = 0;
-            try
-            {
-                iIdLinea = Convert.ToInt32(iLine);
-            }
-            catch (Exception)
-            {
-                oReturn = null;
-                return oReturn;
-            }
-            if (iIdLinea == 0)
-            {
-                oReturn = null;
-                return oReturn;
-            }
-            oReturn = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(iIdLinea));
-            DateTime day;
-            if (oReturn is null)
-            {
-                oReturn = null;
-                return oReturn;
-            }
-            day = oReturn.Inicio;
-            var lEstadoDia = await aldakinDbContext.Estadodias.Where(x => x.Idusuario == idAldakinUser && DateTime.Compare(x.Dia, day.Date) == 0).ToListAsync();//
-            if (idAdminUser != idAldakinUser)
-            {
-                //si hay administardor la semana tiene que estar cerrada, 
-                if (lEstadoDia.Count == 0)
-                {
-                    oReturn = null;
-                    return oReturn;
-                }
-            }
-            else
-            {
-                if (lEstadoDia.Count > 0)
-                {
-                    oReturn = null;
-                    return oReturn;
-                }
-            }
-            return oReturn;
-        }
-
     }
 }
 

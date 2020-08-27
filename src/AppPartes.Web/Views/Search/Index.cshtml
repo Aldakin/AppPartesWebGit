@@ -146,37 +146,37 @@
                 if (Model.strGlobalValidation != null)
                 {
                     <div class="row gtr-uniform">
+                        <div class="col-12">
+                            <label id="lblWorker" for="start">La validación masiva valida todos los partes que se listan a continuación</label>
+                            <form asp-controller="Search" asp-action="GlobalValidation" method="POST">
+                                <input type="hidden" id="strEntity" name="strEntity" value="@Model.strEntity" />
+                                <input type="hidden" id="strWorker" name="strWorker" value="@Model.strWorker" />
+                                <input type="hidden" id="strDate1" name="strDate1" value="@Model.strDate1" />
+                                <input type="hidden" id="strOt" name="strOt" value="0" />
+
+                                <input type="hidden" id="strListValidation" name="strListValidation" value="@Model.strGlobalValidation" />
+                                <input type="hidden" name="strAction" value="globalValidation" />
                                 <div class="col-12">
-                                    <label id="lblWorker" for="start">La validación masiva valida todos los partes que se listan a continuación</label>
-                                    <form asp-controller="Search" asp-action="GlobalValidation" method="POST">
-                                        <input type="hidden" id="strEntity" name="strEntity" value="@Model.strEntity" />
-                                        <input type="hidden" id="strWorker" name="strWorker" value="@Model.strWorker" />
-                                        <input type="hidden" id="strDate1" name="strDate1" value="@Model.strDate1" />
-                                        <input type="hidden" id="strOt" name="strOt" value="0" />
-
-                                        <input type="hidden" id="strListValidation" name="strListValidation" value="@Model.strGlobalValidation" />
-                                        <input type="hidden" name="strAction" value="globalValidation" />
-                                        <div class="col-12">
-                                            <ul class="actions">
-                                                <li><input type="submit" name="strStatus" value="Validación Masiva" class="primary" /></li>
-                                            </ul>
-                                        </div>
-                                    </form>
-                                    <form asp-controller="Search" asp-action="OpenWeek" method="POST">
-                                        <label id="lblWorker" for="start">Si hay partes validado o registrados no se podra abrir la semana</label>
-                                        <input type="hidden" id="strEntity" name="strEntity" value="@Model.strEntity" />
-                                        <input type="hidden" id="strWorker" name="strWorker" value="@Model.strWorker" />
-                                        <input type="hidden" id="strDate1" name="strDate1" value="@Model.strDate1" />
-                                        <input type="hidden" id="strOt" name="strOt" value="0" />
-
-                                        <input type="hidden" id="strListValidation" name="strListValidation" value="@Model.strGlobalValidation" />
-                                        <div class="col-12">
-                                            <ul class="actions">
-                                                <li><input type="submit" name="strStatus" value="Abrir Semana" class="primary" /></li>
-                                            </ul>
-                                        </div>
-                                    </form>
+                                    <ul class="actions">
+                                        <li><input type="submit" name="strStatus" value="Validación Masiva" class="primary" /></li>
+                                    </ul>
                                 </div>
+                            </form>
+                            <form asp-controller="Search" asp-action="OpenWeek" method="POST">
+                                <label id="lblWorker" for="start">Si hay partes validado o registrados no se podra abrir la semana</label>
+                                <input type="hidden" id="strEntity" name="strEntity" value="@Model.strEntity" />
+                                <input type="hidden" id="strWorker" name="strWorker" value="@Model.strWorker" />
+                                <input type="hidden" id="strDate1" name="strDate1" value="@Model.strDate1" />
+                                <input type="hidden" id="strOt" name="strOt" value="0" />
+
+                                <input type="hidden" id="strListValidation" name="strListValidation" value="@Model.strGlobalValidation" />
+                                <div class="col-12">
+                                    <ul class="actions">
+                                        <li><input type="submit" name="strStatus" value="Abrir Semana" class="primary" /></li>
+                                    </ul>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 }
 
@@ -287,6 +287,9 @@
                                                 <td>@part.Npartefirmado</td>
                                                 <td>@part.Validado</td>
                                             </tr>
+                                            <tr>
+                                                <td colspan="12"> @part.ObservacionesCompleta</td>
+                                            </tr>
                                         }
                                     </tbody>
                                     @*<tfoot>
@@ -323,7 +326,7 @@
                         <td style="background-color:#FFFFFF">Día sin cerrar</td>
                         <td style="background-color:#D3D3D3">Fin de semana</td>
                         <td style="background-color:#FFFF00">Día Cerrado</td>
-                        <td style="background-color:#F0FFF0">Día MediaJornada</td>
+                        <td style="background-color:#F0FFF0">Día Jornada Reducida</td>
                     </tr>
                 </tbody>
             </table>
@@ -334,33 +337,39 @@
                 <div class="table-wrapper">
                     <h4>@dept.User</h4>
                     <table class="alt">
-                        @*<thead>
-                                <tr>
-                                    <td>@dept.User</td>
-                                </tr>
-                            </thead>*@
                         <tbody>
-                            @*<tr>
-                                    <td>Dias</td>
-                                </tr>*@
                             <tr>
+                                @{ 
+                                    if (dept.iMoroso>0)
+                                    {
+                                                                <td></td>
+                                    }
                                 <td>Dias:</td>
-                                @foreach (var t in dept.lDay)
-                                {
+                                    foreach (var t in dept.lDay)
+                                    {
                                     <td>@t</td>
+                                    }
                                 }
                             </tr>
                             <tr>
-                                <td>Horas:</td>
-                                @foreach (var t in dept.dayStatus)
-                                {
-                                    <td style="background-color: @t.colour;">@t.hour</td>
-                                }
-                            </tr>
+                                @{
+                                    if (dept.iMoroso>0)
+                                    {
+                                                                <td>
+                                                                    <span class="button" onclick="SendMoroso(@dept.iMoroso);" style="display: inline-block">Dar Toque</span>
+                                                                </td>
+                                    }
+                                    <td>Horas:</td>
+                                    foreach (var t in dept.dayStatus)
+                                    {
+                                        <td style="background-color: @t.colour;">@t.hour</td>
+                                        }
+                                    }
+                                </tr>
 
                         </tbody>
                     </table>
-                </div><!-- Elements -->
+                </div>
             }
         }
 
@@ -470,7 +479,8 @@
             }
         }
 
-            function validationLineConfir(idlinea) {
+        function validationLineConfir(idlinea)
+        {
             var opcion = confirm("¿Seguro que desea Validar?");
             var linea = idlinea;
             if (opcion == true) {
@@ -489,7 +499,9 @@
                 alert('Borrado cancelado');
             }
         }
-
+        function SendMoroso(id) {
+            alert('dar toque a Moroso de partes: ' + id + ' pendiente desarrollo');
+        }
         $EntityWorker.addEventListener("change", EntitySelected);
         $entidad.addEventListener("change", EntidadSeleccionada);
     </script>

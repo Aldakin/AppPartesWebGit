@@ -87,6 +87,7 @@ namespace AppPartes.Logic
         public float? Dietas { get; set; }
         public float? Km { get; set; }
         public string Observaciones { get; set; }
+        public string ObservacionesCompleta { get; set; }
         public float? Horasviaje { get; set; }
         public float Horas { get; set; }
         public string strInicio { get; set; }
@@ -189,6 +190,7 @@ namespace AppPartes.Logic
         public string strEntity { get; set; }
         public string strWorker { get; set; }
         public string strAction{set;get;}
+        public bool bLevelError { set; get; }
     }
     public class SearchEditViewLogic
     {
@@ -201,18 +203,21 @@ namespace AppPartes.Logic
         public List<Ots> listOts { set; get; }
         public string DateSelected { set; get; }
         public string Gastos { set; get; }
+        public bool bLevelError { set; get; }
     }
     public class SearchPendingViewLogic
     {
         public List<Entidad> listCompany { set; get; }
         public List<string> lSummary { set; get; }
         public string strError { set; get; }
+        public bool bLevelError { set; get; }
     }
     public class UdObraPresuViewLogic
     {
         public List<Udobrapresu> lUdObra { set; get; }
         public List<Entidad> lEntidad { set; get; }
         public string strMensaje { set; get; }
+        public bool bLevelError { set; get; }
     }
     public class HoliDaysViewLogic
     {
@@ -222,17 +227,20 @@ namespace AppPartes.Logic
         public string dtSelectedIni { set; get; }
         public string dtSelectedFin { set; get; }
         public string strEntidadSelec { set; get; }
+        public bool bLevelError { set; get; }
     }
     public class ViewMounthResume
     {
         public string User { get; set; }
         public List<string> lDay { get; set; }
         public List<SearchDay> dayStatus { set; get; }
+        public int iMoroso{set;get;}
         //public List<double> lHour { get; set; }
         //public List<string> lStatusColour { get; set; }
     }
     public class SearchDay
     {
+        public int day { set; get; } 
         public double hour { set; get; }
         public string colour { set; get; }
     }
@@ -240,7 +248,12 @@ namespace AppPartes.Logic
     {
         public List<Usuarios> lUser { set; get; }
         public List<Entidad> lEnt { set; get; }
+        public List<Usuarios> lUserAllUser { set; get; }
         public List<Usuarios> lUserSelected { set; get; }
         public List<Ots> lOtsSelected { set; get; }
+        public List<Ots> lAllOts { set; get; }
+        public string strUserSelected { set; get; }
+        public string strError { set; get; }
+        public bool bLevelError { set; get; }
     }
 }

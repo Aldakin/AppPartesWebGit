@@ -27,6 +27,7 @@ namespace AppPartes.Logic
         Task<string> DeleteHoliDayAsync(string strId);
         Task<string> WriteAllHolidaysAsync(string strAllHoliDays);
         Task<string> OpenWeek(string strLine);
+        Task<string> WritePermissionAsync(string strAldakinUser, string strUsers, string strAutor, string strData);
         //Task<string> EditWorkerLineAdminAsync(WorkerLineData lineData);
     }
 }

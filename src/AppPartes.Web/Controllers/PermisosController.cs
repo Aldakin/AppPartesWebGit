@@ -27,8 +27,15 @@ namespace AppPartes.Web.Controllers
         public async Task<IActionResult> Index(string strUsuario = "", string strEntidad = "", string strFiltro = "", string strMessage="" )
         {
             ViewBag.Message = strMessage;
+            _idAldakinUser = await _iApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
             var oView = new PermisosViewLogic();
-            oView = await _iLoadIndexController.PermisosMainControllerAsync(strUsuario, strEntidad, strFiltro);
+            oView = await _iLoadIndexController.PermisosMainControllerAsync(_idAldakinUser,strUsuario, strEntidad, strFiltro);
+            if(!(string.IsNullOrEmpty(oView.strError)))
+            {
+                ViewBag.Message = oView.strError;
+            }
+
+            if (oView.bLevelError) return RedirectToAction("Index", "Home", new { strMessage = "No tiene permiso de acceso a la página" });
             return View(oView);
         }
 

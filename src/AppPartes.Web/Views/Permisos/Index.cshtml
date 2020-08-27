@@ -15,12 +15,13 @@
             @{
                 if (!string.IsNullOrEmpty(ViewBag.Message))
                 {
-                <div class="alert alert-warning">@ViewBag.Message</div>
+                    <div class="alert alert-warning">@ViewBag.Message</div>
                 }
             }
-            <header class="main">
-                <h1>aaaaaa</h1>
-            </header>
+        <header class="main">
+            <h1>Sección para la asigancion de permisos</h1>
+            <h1>OJITO EN CONSTURCCIÓN</h1>
+        </header>
 
 
             <form asp-action="Index" asp-controller="Permisos" method="POST">
@@ -32,11 +33,11 @@
                             <select id="usuario" name="strUsuario" required>
                                 <option value=""></option>
                                 @foreach (var dept in Model.lUser)
-                        {
-                                <option value="@dept.Idusuario">
-                                    @dept.Nombrecompleto
-                                </option>
-                        }
+                                {
+                                    <option value="@dept.Idusuario">
+                                        @dept.Nombrecompleto
+                                    </option>
+                                }
                             </select>
                         </div>
                         <div class="col-12">
@@ -44,19 +45,19 @@
                             <select id="entidad" name="strEntidad" required>
                                 <option value=""></option>
                                 @foreach (var ent in Model.lEnt)
-                        {
-                                <option value="@ent.CodEnt">
-                                    @ent.Nombre
-                                </option>
-                        }
+                                {
+                                    <option value="@ent.CodEnt">
+                                        @ent.Nombre
+                                    </option>
+                                }
                             </select>
                         </div>
                         <div class="col-12">
                             <label for="start">Selecciones filtro:</label>
                             <select id="filtro" name="strFiltro" required>
                                 <option value=""></option>
-                                <option value="trabajador">Trabajador</option>
-                                <option value="ot">Ot</option>
+                                <option value="trabajador">TRABAJADOR</option>
+                                <option value="ot">OT</option>
                             </select>
                         </div>
                         <div class="col-12">
@@ -69,37 +70,212 @@
             </form>
         </section>
         @{
-            if(Model.lUserSelected != null)
+            if (Model.lUserAllUser != null)
             {
-            <section>
-                <div class="col-12 col-6">
-                    <table>
-                        <tbody>
-                            @foreach (var dept in Model.lUserSelected)
-                            {
-                            <tr>
-                                <td>@dept.Nombrecompleto</td>
-                                <td><span class="button" onclick="insertUser(@dept.Idusuario);" style="display: inline-block">Añadir</span></td>
+                <section>
 
-                            </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-                <div class="col-12 col-6">
-                    <table>
-                        <tbody>
-                            <tr>
-                                <td></td>
-                                <td></td>
+                    <form asp-action="Index" asp-controller="Permisos" method="POST">
+                        <div class="row gtr-200">
 
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+                            <div class="col-12">
+
+                                        <div class="col-6 col-12-medium">
+                                            <label for="start">Usuario seleccionado:</label>
+                                            <input type="text" id="user" value="@Model.strUserSelected" readonly />
+                                        </div>
+                            </div>
+                            <div class="col-12">
+                                <p>Seleccione la orden de trabajo para su parte de trabajo .</p>
+                                <div class="col-6 col-12-medium">
+                                    <label for="start">Usuario de la entidad:</label>
+                                    <select id="usuarioTodos" name="strUsuarioTodos" required>
+                                        @foreach (var dept in Model.lUserAllUser)
+                                        {
+                                            <option value="@dept.Idusuario">
+                                                @dept.Nombrecompleto
+                                            </option>
+                                        }
+                                    </select>
+                                    <div class="col-12">
+                                        <ul class="actions">
+                                            <li>
+                                                <span class="button" onclick="moveUser('usuarioTodos','usuarioSeleccionado');" style="display: inline-block">Añadir</span>
+                                            </li>
+
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="col-6 col-12-medium">
+                                    <label for="start">Usuarios sobre los que tiene permisos:</label>
+                                    <select id="usuarioSeleccionado" name="strUsuarioSeleccionado" required>
+                                        @foreach (var dept in Model.lUserSelected)
+                                        {
+                                            <option value="@dept.Idusuario">
+                                                @dept.Nombrecompleto
+                                            </option>
+                                        }
+                                    </select>
+                                    <div class="col-12">
+                                        <ul class="actions">
+                                            <li>
+                                                <span class="button" onclick="moveUser('usuarioSeleccionado','usuarioTodos');" style="display: inline-block">Quitar</span>
+                                            </li>
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <ul class="actions">
+                                <li>
+                                    <span class="button" onclick="saveUser('usuarioSeleccionado','user');" style="display: inline-block">Guardar cambios</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </form>
+                </section>
+            }
+            if (Model.lAllOts != null)
+            {
+                <section>
+
+                    <form asp-action="Index" asp-controller="Permisos" method="POST">
+                        <div class="row gtr-200">
+
+                            <div class="col-12">
+
+                                <div class="col-6 col-12-medium">
+                                    <label for="start">Usuario seleccionado:</label>
+                                    <input type="text" id="user" value="@Model.strUserSelected" readonly />
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <p>Seleccione la orden de trabajo para su parte de trabajo .</p>
+                                <div class="col-6 col-12-medium">
+                                    <label for="start">Usuarios de la entidad:</label>
+                                    <select id="otTodos" name="strUsuarioTodos" required>
+                                        @foreach (var dept in Model.lAllOts)
+                                        {
+                                            <option value="@dept.Idots">
+                                                @dept.Nombre
+                                            </option>
+                                        }
+                                    </select>
+                                    <div class="col-12">
+                                        <ul class="actions">
+                                            <li>
+                                                <span class="button" onclick="moveUser('otTodos','otSeleccionado');" style="display: inline-block">Dar permisos</span>
+                                            </li>
+
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="col-6 col-12-medium">
+                                    <label for="start">Usuarios sobre los que tiene permisos:</label>
+                                    <select id="otSeleccionado" name="strUsuarioSeleccionado" required>
+                                        @foreach (var dept in Model.lOtsSelected)
+                                        {
+                                            <option value="@dept.Idots">
+                                                @dept.Nombre
+                                            </option>
+                                        }
+                                    </select>
+                                    <div class="col-12">
+                                        <ul class="actions">
+                                            <li>
+                                                <span class="button" onclick="moveUser('otSeleccionado','otTodos');" style="display: inline-block">Quitar permisos</span>
+                                            </li>
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <ul class="actions">
+                                <li>
+                                    <span class="button" onclick="saveOt('otSeleccionado','user');" style="display: inline-block">Guardar cambios</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </form>
+                </section>
             }
         }
     </div>
+
+
+    <script type="text/javascript">
+
+        const moveUser = (origen, destino) => {
+            var origen = document.getElementById(origen)
+            var destino = document.getElementById(destino)
+            var index = origen.selectedIndex;
+            const optionSelec = origen.options[index];
+            if (optionSelec.text.length == 0) {
+                alert('Maquina! selección no valida.')
+            }
+            else {
+                const option = document.createElement('option');
+                option.value = optionSelec.value;
+                option.text = optionSelec.text;
+                destino.appendChild(option);
+                origen.removeChild(optionSelec);
+            }
+        };
+        const saveUser = (info,worker) => {
+
+            var dataSend;
+            var worker=document.getElementById(worker).value
+            var select = document.getElementById(info);
+            var length = select.options.length;
+            for (i = 0; i < length; i++) {
+              dataSend=dataSend+"|"+select.options[i].value;
+            }
+            var url = "@Url.Action("SaveUsers","PermisosDataApi")";
+            var data = { users: dataSend,worker:worker };
+            $.post(url, data).done(function (data) {
+                //si la operacion es buena
+                if (data != null) {
+                    alert('Ok:'+data);
+                }
+                else {
+                    alert('Nok:' + data);
+                }
+            }).fail(daError).always(function () {
+                //esto se ejecuta siempre
+            });
+        };
+        
+        const saveOt = (info,worker) => {
+
+            var dataSend;
+            var worker=document.getElementById(worker).value
+            var select = document.getElementById(info);
+            var length = select.options.length;
+            for (i = 0; i < length; i++) {
+              dataSend=dataSend+"|"+select.options[i].value;
+            }
+            var url = "@Url.Action("SaveOTs","PermisosDataApi")";
+            var data = { listots: dataSend,worker:worker };
+            $.post(url, data).done(function (data) {
+                //si la operacion es buena
+                if (data != null) {
+                    alert('1');
+
+                    alert('Ok:'+data);
+                }
+                else {
+                    alert('Nok:' + data);
+                }
+            }).fail(daError).always(function () {
+                //esto se ejecuta siempre
+            });
+        };
+
+    </script>
 </body>
 
