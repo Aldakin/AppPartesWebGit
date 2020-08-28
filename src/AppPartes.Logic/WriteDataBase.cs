@@ -999,7 +999,6 @@ namespace AppPartes.Logic
             var oReturn = new SearchViewLogic();
             try
             {
-
                 int iLine = Convert.ToInt32(strLine);
                 var line = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == iLine);
                 if (!(line is null))
@@ -1015,7 +1014,7 @@ namespace AppPartes.Logic
                     {
                         aldakinDbContext.Lineas.Update(line);
                         await aldakinDbContext.SaveChangesAsync();
-                        var lineCopy = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idoriginal == line.Idlinea);
+                        var lineCopy = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == line.Idoriginal);
                         if (!(lineCopy is null))
                         {
                             lineCopy.Validado = sValue;
@@ -1024,6 +1023,31 @@ namespace AppPartes.Logic
                             await aldakinDbContext.SaveChangesAsync();
                         }
                         await transaction.CommitAsync();
+                        var dayStatus =await  aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Dia == line.Inicio.Date && x.Idusuario == line.Idusuario);
+                        if (line.Validado==0)
+                        {
+                            dayStatus.Estado = 2;
+                            aldakinDbContext.Estadodias.Update(dayStatus);
+                            await aldakinDbContext.SaveChangesAsync();
+                        }
+                        else
+                        {
+                            if (line.Validado == 1)
+                            {
+                                var allLine = await aldakinDbContext.Lineas.Where(x => x.Inicio.Date == line.Inicio.Date && x.Idusuario == line.Idusuario).ToListAsync();
+                                var iValidate = allLine.Sum(x => x.Validado );
+                                if(iValidate==allLine.Count)
+                                {
+                                    dayStatus.Estado = 4;
+                                }
+                                else
+                                {
+                                    dayStatus.Estado = 2;
+                                }
+                            }
+                        }
+                        await transaction.CommitAsync();
+
                         oReturn.strError = line.Inicio.ToString();
                         if (sValue == 1)
                         {
