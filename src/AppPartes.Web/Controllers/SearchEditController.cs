@@ -102,5 +102,14 @@ namespace AppPartes.Web.Controllers
             //return RedirectToAction("Index", new { strMessage = "aqui" });
             //return RedirectToAction("Index", new { strMessage = strMessage, action = strAction, strDate1 = oReturn.strValue, strEntity = Convert.ToString(oReturn.iValue) });
         }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Back(string strDate1 = "", string strWorker = "", string strOt = "" , string strEntity = "", string strAction = "")
+        {
+            string strReturn = string.Empty;
+            return RedirectToAction("Index", "Search", new { strMessage = strReturn, strAction = strAction, strDate1 = strDate1, strWorker = strWorker, strEntity = strEntity, strOt = strOt });
+
+        }
+
     }
 }

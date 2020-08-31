@@ -1023,12 +1023,20 @@ namespace AppPartes.Logic
                             await aldakinDbContext.SaveChangesAsync();
                         }
                         await transaction.CommitAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        await transaction.RollbackAsync();
+                        oReturn.strError = "Ha ocurrido un problema durante el proceso de validar la linea.;";
+                        return oReturn;
+                    }
+                    try
+                    { 
+                        transaction = await aldakinDbContext.Database.BeginTransactionAsync();
                         var dayStatus =await  aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Dia == line.Inicio.Date && x.Idusuario == line.Idusuario);
                         if (line.Validado==0)
                         {
                             dayStatus.Estado = 2;
-                            aldakinDbContext.Estadodias.Update(dayStatus);
-                            await aldakinDbContext.SaveChangesAsync();
                         }
                         else
                         {
@@ -1046,6 +1054,8 @@ namespace AppPartes.Logic
                                 }
                             }
                         }
+                        aldakinDbContext.Estadodias.Update(dayStatus);
+                        await aldakinDbContext.SaveChangesAsync();
                         await transaction.CommitAsync();
 
                         oReturn.strError = line.Inicio.ToString();
@@ -1058,7 +1068,7 @@ namespace AppPartes.Logic
                             oReturn.strError = "Parte Desvalidado satisfactorioamente";
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
                         await transaction.RollbackAsync();
                         oReturn.strError = "Ha ocurrido un problema durante el proceso de validar la linea.;";

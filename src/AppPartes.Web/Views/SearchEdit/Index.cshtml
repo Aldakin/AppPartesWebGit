@@ -36,553 +36,582 @@
                         <h3>Editar parte de trabajo</h3>
                         @foreach (var dept in Model.listSelect)
                         {
-                            <div class="col-12">
-                                <form asp-action="EditLine" asp-controller="SearchEdit" method="POST">
-                                    <div class="row gtr-uniform">
-                                        <!--<div class="col-6 col-12-xsmall">
-        <label for="start">Fecha actual parte:</label>
-        <input type="text" name="strCalendarioAnterior" id="demo-name" value="@dept.Inicio.Year-@dept.Inicio.Month-@dept.Inicio.Day" readonly />
-    </div>-->
-                                        <div class="col-12">
-                                            <label for="start">Fecha nueva parte(si procede cambiar):</label>
-                                            <input type="date" id="Calendario1" name="strCalendario"
-                                                   value="@Model.DateSelected"
-                                                   min="@(DateTime.Now.Year - 2)-01-01"
-                                                   max="@(DateTime.Now.Year + 2)-12-31">
-                                            <!--<input type="text" name="demo-name" id="demo-name" value="" placeholder="Name" />-->
-                                        </div>
-                                        <p>Seleccione la orden de trabajo para su parte de trabajo .</p>
-                                        <div class="col-12">
-                                            <label for="start">Entidad:</label>
-                                            <select id="entidad" name="strEntidad">
-                                                <option value="@dept.iEntidad">
-                                                    @dept.strEntidad
-                                                </option>
-                                                @foreach (var e in Model.listCompany)
-                                                {
-                                                    <option value="@e.CodEnt">
-                                                        @e.Nombre
-                                                    </option>
-                                                }
-                                            </select>
-                                        </div>
-                                        <div class="col-12">
-                                            <label for="start">Clientes:</label>
-                                            <select id="cliente" name="strCliente">
-                                                <option value="0"></option>
-                                                @foreach (var client in Model.listClient)
-                                                {
-                                                    <option value="@client.Idclientes">
-                                                        @client.Nombre
-                                                    </option>
-                                                }
-                                            </select>
-                                        </div>
-                                        <div class="col-12">
-                                            <label for="start">* Ots:</label>
-                                            <select id="ot" name="strOt">
-                                                <option value="@dept.Idot">
-                                                    @dept.NombreOt
-                                                </option>
-                                                @foreach (var l in Model.listOts)
-                                                {
-                                                    <option value="@l.Idots">
-                                                        @l.Numero || @l.Nombre
-                                                    </option>
-                                                }
-                                            </select>
-                                        </div>
-                                        <div class="col-12">
-                                            @if (dept.lpresupuesto != null)
-                                            {
-                                                <label id="lbPresupuesto" for="start">* Presupuesto:</label>
-                                                <select id="presupuesto" name="strPresupuesto">
-                                                    <option value="@dept.iPresu">@dept.NombrePresu</option>
-                                                    @if (dept.lpresupuesto != null)
-                                                    {
-                                                        @foreach (var l in dept.lpresupuesto)
-                                                        {
-                                                            <option value="@l.Idpresupuestos">
-                                                                @l.Nombre
-                                                            </option>
-                                                        }
-                                                    }
-                                                </select>
-                                            }
-                                            else
-                                            {
+            <div class="col-12">
+                <form asp-action="Back" asp-controller="SearchEdit" method="POST">
+                    <div class="row gtr-uniform">
+                        <div class="col-12">
+                            <input type="hidden" name="strDate1" value="@Model.DateSelected" />
+                            <input type="hidden" name="strWorker" value="@dept.Idusuario" />
+                            <input type="hidden" name="strOt" value="0" />
+                            <input type="hidden" name="strEntity" value="@dept.CodEnt" />
+                            <input type="hidden" name="strAction" value="StatusResume" />
+                            <ul class="actions">
+                                <li><input type="submit" name="Back" value="Volver" /></li>
+                            </ul>
+                        </div>
+                    </div>
+                </form>
 
-                                                <label id="lbPresupuesto" for="start" style="display:none">* Presupuesto:</label>
-                                                <select id="presupuesto" name="strPresupuesto" style="display:none">
-                                                    <option value="@dept.iPresu">@dept.NombrePresu</option>
-                                                    @if (dept.lpresupuesto != null)
-                                                    {
-                                                        @foreach (var l in dept.lpresupuesto)
-                                                        {
-                                                            <option value="@l.Idpresupuestos">
-                                                                @l.Nombre
-                                                            </option>
-                                                        }
-                                                    }
-                                                </select>
-                                            }
-                                        </div>
-                                        <div class="col-12">
-                                            @if (dept.iNivel1 == 0)
-                                            {
-                                                <label id="lbNivel1" for="start" style="display:none">* Nivel1:</label>
-                                                <select id="nivel1" name="strNivel1" style="display:none">
-                                                    <option value="@dept.iNivel1">@dept.strNivel1</option>
-                                                    @if (dept.lNivel1 != null)
-                                                    {
-                                                        @foreach (var l in dept.lNivel1)
-                                                        {
-                                                            <option value="@l.Idpreslin">
-                                                                @l.Nombre
-                                                            </option>
-                                                        }
-                                                    }
-                                                </select>
-                                            }
-                                            else
-                                            {
+                <form asp-action="EditLine" asp-controller="SearchEdit" method="POST">
+                    <div class="row gtr-uniform">
+                        <!--<div class="col-6 col-12-xsmall">
+                <label for="start">Fecha actual parte:</label>
+                <input type="text" name="strCalendarioAnterior" id="demo-name" value="@dept.Inicio.Year-@dept.Inicio.Month-@dept.Inicio.Day" readonly />
+            </div>-->
+                        <div class="col-12">
+                            <label for="start">Fecha nueva parte(si procede cambiar):</label>
+                            <input type="date" id="Calendario1" name="strCalendario"
+                                   value="@Model.DateSelected"
+                                   min="@(DateTime.Now.Year - 2)-01-01"
+                                   max="@(DateTime.Now.Year + 2)-12-31">
+                            <!--<input type="text" name="demo-name" id="demo-name" value="" placeholder="Name" />-->
+                        </div>
+                        <p>Seleccione la orden de trabajo para su parte de trabajo .</p>
+                        <div class="col-12">
+                            <label for="start">Entidad:</label>
+                            <select id="entidad" name="strEntidad">
+                                <option value="@dept.iEntidad">
+                                    @dept.strEntidad
+                                </option>
+                                @foreach (var e in Model.listCompany)
+                                {
+                                    <option value="@e.CodEnt">
+                                        @e.Nombre
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label for="start">Clientes:</label>
+                            <select id="cliente" name="strCliente">
+                                <option value="0"></option>
+                                @foreach (var client in Model.listClient)
+                                {
+                                    <option value="@client.Idclientes">
+                                        @client.Nombre
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label for="start">* Ots:</label>
+                            <select id="ot" name="strOt">
+                                <option value="@dept.Idot">
+                                    @dept.NombreOt
+                                </option>
+                                @foreach (var l in Model.listOts)
+                                {
+                                    <option value="@l.Idots">
+                                        @l.Numero || @l.Nombre
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            @if (dept.lpresupuesto != null)
+                            {
+                                <label id="lbPresupuesto" for="start">* Presupuesto:</label>
+                                <select id="presupuesto" name="strPresupuesto">
+                                    <option value="@dept.iPresu">@dept.NombrePresu</option>
+                                    @if (dept.lpresupuesto != null)
+                                    {
+                                        @foreach (var l in dept.lpresupuesto)
+                                        {
+                                            <option value="@l.Idpresupuestos">
+                                                @l.Nombre
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            }
+                            else
+                            {
 
-                                                <label id="lbNivel1" for="start">* Nivel1:</label>
-                                                <select id="nivel1" name="strNivel1">
-                                                    <option value="@dept.iNivel1">@dept.strNivel1</option>
-                                                    @if (dept.lNivel1 != null)
-                                                    {
-                                                        @foreach (var l in dept.lNivel1)
-                                                        {
-                                                            <option value="@l.Idpreslin">
-                                                                @l.Nombre
-                                                            </option>
-                                                        }
-                                                    }
-                                                </select>
-                                            }
-                                        </div>
-                                        <div class="col-12">
-                                            @if (dept.iNivel2 == 0)
-                                            {
-                                                <label id="lbNivel2" for="start" style="display:none">* Nivel2:</label>
-                                                <select id="nivel2" name="strNivel2" style="display:none">
-                                                    <option value="@dept.iNivel2">@dept.strNivel2</option>
-                                                    @if (dept.lNivel2 != null)
-                                                    {
-                                                        @foreach (var l in dept.lNivel2)
-                                                        {
-                                                            <option value="@l.Idpreslin">
-                                                                @l.Nombre
-                                                            </option>
-                                                        }
-                                                    }
-                                                </select>
-                                            }
-                                            else
-                                            {
+                                <label id="lbPresupuesto" for="start" style="display:none">* Presupuesto:</label>
+                                <select id="presupuesto" name="strPresupuesto" style="display:none">
+                                    <option value="@dept.iPresu">@dept.NombrePresu</option>
+                                    @if (dept.lpresupuesto != null)
+                                    {
+                                        @foreach (var l in dept.lpresupuesto)
+                                        {
+                                            <option value="@l.Idpresupuestos">
+                                                @l.Nombre
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            }
+                        </div>
+                        <div class="col-12">
+                            @if (dept.iNivel1 == 0)
+                            {
+                                <label id="lbNivel1" for="start" style="display:none">* Nivel1:</label>
+                                <select id="nivel1" name="strNivel1" style="display:none">
+                                    <option value="@dept.iNivel1">@dept.strNivel1</option>
+                                    @if (dept.lNivel1 != null)
+                                    {
+                                        @foreach (var l in dept.lNivel1)
+                                        {
+                                            <option value="@l.Idpreslin">
+                                                @l.Nombre
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            }
+                            else
+                            {
 
-                                                <label id="lbNivel2" for="start">* Nivel2:</label>
-                                                <select id="nivel2" name="strNivel2">
-                                                    <option value="@dept.iNivel2">@dept.strNivel2</option>
-                                                    @if (dept.lNivel2 != null)
-                                                    {
-                                                        @foreach (var l in dept.lNivel2)
-                                                        {
-                                                            <option value="@l.Idpreslin">
-                                                                @l.Nombre
-                                                            </option>
-                                                        }
-                                                    }
-                                                </select>
-                                            }
-                                        </div>
-                                        <div class="col-12">
-                                            @if (dept.iNivel3 == 0)
-                                            {
-                                                <label id="lbNivel3" for="start" style="display:none">* Nivel3:</label>
-                                                <select id="nivel3" name="strNivel3" style="display:none">
-                                                    <option value="@dept.iNivel3">@dept.strNivel3</option>
-                                                    @if (dept.lNivel3 != null)
-                                                    {
-                                                        @foreach (var l in dept.lNivel3)
-                                                        {
-                                                            <option value="@l.Idpreslin">
-                                                                @l.Nombre
-                                                            </option>
-                                                        }
-                                                    }
-                                                </select>
-                                            }
-                                            else
-                                            {
+                                <label id="lbNivel1" for="start">* Nivel1:</label>
+                                <select id="nivel1" name="strNivel1">
+                                    <option value="@dept.iNivel1">@dept.strNivel1</option>
+                                    @if (dept.lNivel1 != null)
+                                    {
+                                        @foreach (var l in dept.lNivel1)
+                                        {
+                                            <option value="@l.Idpreslin">
+                                                @l.Nombre
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            }
+                        </div>
+                        <div class="col-12">
+                            @if (dept.iNivel2 == 0)
+                            {
+                                <label id="lbNivel2" for="start" style="display:none">* Nivel2:</label>
+                                <select id="nivel2" name="strNivel2" style="display:none">
+                                    <option value="@dept.iNivel2">@dept.strNivel2</option>
+                                    @if (dept.lNivel2 != null)
+                                    {
+                                        @foreach (var l in dept.lNivel2)
+                                        {
+                                            <option value="@l.Idpreslin">
+                                                @l.Nombre
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            }
+                            else
+                            {
 
-                                                <label id="lbNivel3" for="start">* Nivel3:</label>
-                                                <select id="nivel3" name="strNivel3">
-                                                    <option value="@dept.iNivel3">@dept.strNivel3</option>
-                                                    @if (dept.lNivel3 != null)
-                                                    {
-                                                        @foreach (var l in dept.lNivel3)
-                                                        {
-                                                            <option value="@l.Idpreslin">
-                                                                @l.Nombre
-                                                            </option>
-                                                        }
-                                                    }
-                                                </select>
-                                            }
-                                        </div>
-                                        <div class="col-12">
-                                            @if (dept.iNivel4 == 0)
-                                            {
-                                                <label id="lbNivel4" for="start" style="display:none">* Nivel4:</label>
-                                                <select id="nivel4" name="strNivel4" style="display:none">
-                                                    <option value="@dept.iNivel4">@dept.strNivel4</option>
-                                                    @if (dept.lNivel4 != null)
-                                                    {
-                                                        @foreach (var l in dept.lNivel4)
-                                                        {
-                                                            <option value="@l.Idpreslin">
-                                                                @l.Nombre
-                                                            </option>
-                                                        }
-                                                    }
-                                                </select>
-                                            }
-                                            else
-                                            {
+                                <label id="lbNivel2" for="start">* Nivel2:</label>
+                                <select id="nivel2" name="strNivel2">
+                                    <option value="@dept.iNivel2">@dept.strNivel2</option>
+                                    @if (dept.lNivel2 != null)
+                                    {
+                                        @foreach (var l in dept.lNivel2)
+                                        {
+                                            <option value="@l.Idpreslin">
+                                                @l.Nombre
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            }
+                        </div>
+                        <div class="col-12">
+                            @if (dept.iNivel3 == 0)
+                            {
+                                <label id="lbNivel3" for="start" style="display:none">* Nivel3:</label>
+                                <select id="nivel3" name="strNivel3" style="display:none">
+                                    <option value="@dept.iNivel3">@dept.strNivel3</option>
+                                    @if (dept.lNivel3 != null)
+                                    {
+                                        @foreach (var l in dept.lNivel3)
+                                        {
+                                            <option value="@l.Idpreslin">
+                                                @l.Nombre
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            }
+                            else
+                            {
 
-                                                <label id="lbNivel4" for="start">* Nivel4:</label>
-                                                <select id="nivel4" name="strNivel4">
-                                                    <option value="@dept.iNivel4">@dept.strNivel4</option>
-                                                    @if (dept.lNivel4 != null)
-                                                    {
-                                                        @foreach (var l in dept.lNivel4)
-                                                        {
-                                                            <option value="@l.Idpreslin">
-                                                                @l.Nombre
-                                                            </option>
-                                                        }
-                                                    }
-                                                </select>
-                                            }
-                                        </div>
-                                        <div class="col-12">
-                                            @if (dept.iNivel5 == 0)
-                                            {
-                                                <label id="lbNivel5" for="start" style="display:none">* Nivel5:</label>
-                                                <select id="nivel5" name="strNivel5" style="display:none">
-                                                    <option value="@dept.iNivel5">@dept.strNivel5</option>
-                                                    @if (dept.lNivel5 != null)
-                                                    {
-                                                        @foreach (var l in dept.lNivel5)
-                                                        {
-                                                            <option value="@l.Idpreslin">
-                                                                @l.Nombre
-                                                            </option>
-                                                        }
-                                                    }
-                                                </select>
-                                            }
-                                            else
-                                            {
+                                <label id="lbNivel3" for="start">* Nivel3:</label>
+                                <select id="nivel3" name="strNivel3">
+                                    <option value="@dept.iNivel3">@dept.strNivel3</option>
+                                    @if (dept.lNivel3 != null)
+                                    {
+                                        @foreach (var l in dept.lNivel3)
+                                        {
+                                            <option value="@l.Idpreslin">
+                                                @l.Nombre
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            }
+                        </div>
+                        <div class="col-12">
+                            @if (dept.iNivel4 == 0)
+                            {
+                                <label id="lbNivel4" for="start" style="display:none">* Nivel4:</label>
+                                <select id="nivel4" name="strNivel4" style="display:none">
+                                    <option value="@dept.iNivel4">@dept.strNivel4</option>
+                                    @if (dept.lNivel4 != null)
+                                    {
+                                        @foreach (var l in dept.lNivel4)
+                                        {
+                                            <option value="@l.Idpreslin">
+                                                @l.Nombre
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            }
+                            else
+                            {
 
-                                                <label id="lbNivel5" for="start">* Nivel5:</label>
-                                                <select id="nivel5" name="strNivel5">
-                                                    <option value="@dept.iNivel5">@dept.strNivel5</option>
-                                                    @if (dept.lNivel5 != null)
-                                                    {
-                                                        @foreach (var l in dept.lNivel5)
-                                                        {
-                                                            <option value="@l.Idpreslin">
-                                                                @l.Nombre
-                                                            </option>
-                                                        }
-                                                    }
-                                                </select>
-                                            }
-                                        </div>
-                                        <div class="col-12">
-                                            @if (dept.iNivel6 == 0)
-                                            {
-                                                <label id="lbNivel6" for="start" style="display:none">* Nivel6:</label>
-                                                <select id="nivel6" name="strNivel6" style="display:none">
-                                                    <option value="@dept.iNivel6">@dept.strNivel6</option>
-                                                    @if (dept.lNivel6 != null)
-                                                    {
-                                                        @foreach (var l in dept.lNivel6)
-                                                        {
-                                                            <option value="@l.Idpreslin">
-                                                                @l.Nombre
-                                                            </option>
-                                                        }
-                                                    }
-                                                </select>
-                                            }
-                                            else
-                                            {
+                                <label id="lbNivel4" for="start">* Nivel4:</label>
+                                <select id="nivel4" name="strNivel4">
+                                    <option value="@dept.iNivel4">@dept.strNivel4</option>
+                                    @if (dept.lNivel4 != null)
+                                    {
+                                        @foreach (var l in dept.lNivel4)
+                                        {
+                                            <option value="@l.Idpreslin">
+                                                @l.Nombre
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            }
+                        </div>
+                        <div class="col-12">
+                            @if (dept.iNivel5 == 0)
+                            {
+                                <label id="lbNivel5" for="start" style="display:none">* Nivel5:</label>
+                                <select id="nivel5" name="strNivel5" style="display:none">
+                                    <option value="@dept.iNivel5">@dept.strNivel5</option>
+                                    @if (dept.lNivel5 != null)
+                                    {
+                                        @foreach (var l in dept.lNivel5)
+                                        {
+                                            <option value="@l.Idpreslin">
+                                                @l.Nombre
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            }
+                            else
+                            {
 
-                                                <label id="lbNivel6" for="start">* Nivel6:</label>
-                                                <select id="nivel6" name="strNivel6">
-                                                    <option value="@dept.iNivel6">@dept.strNivel6</option>
-                                                    @if (dept.lNivel6 != null)
-                                                    {
-                                                        @foreach (var l in dept.lNivel6)
-                                                        {
-                                                            <option value="@l.Idpreslin">
-                                                                @l.Nombre
-                                                            </option>
-                                                        }
-                                                    }
-                                                </select>
-                                            }
-                                        </div>
-                                        <div class="col-12">
-                                            @if (dept.iNivel7 == 0)
-                                            {
-                                                <label id="lbNivel7" for="start" style="display:none">* Nivel7:</label>
-                                                <select id="nivel7" name="strNivel7" style="display:none">
-                                                    <option value="@dept.iNivel7">@dept.strNivel7</option>
-                                                    @if (dept.lNivel7 != null)
-                                                    {
-                                                        @foreach (var l in dept.lNivel7)
-                                                        {
-                                                            <option value="@l.Idpreslin">
-                                                                @l.Nombre
-                                                            </option>
-                                                        }
-                                                    }
-                                                </select>
-                                            }
-                                            else
-                                            {
+                                <label id="lbNivel5" for="start">* Nivel5:</label>
+                                <select id="nivel5" name="strNivel5">
+                                    <option value="@dept.iNivel5">@dept.strNivel5</option>
+                                    @if (dept.lNivel5 != null)
+                                    {
+                                        @foreach (var l in dept.lNivel5)
+                                        {
+                                            <option value="@l.Idpreslin">
+                                                @l.Nombre
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            }
+                        </div>
+                        <div class="col-12">
+                            @if (dept.iNivel6 == 0)
+                            {
+                                <label id="lbNivel6" for="start" style="display:none">* Nivel6:</label>
+                                <select id="nivel6" name="strNivel6" style="display:none">
+                                    <option value="@dept.iNivel6">@dept.strNivel6</option>
+                                    @if (dept.lNivel6 != null)
+                                    {
+                                        @foreach (var l in dept.lNivel6)
+                                        {
+                                            <option value="@l.Idpreslin">
+                                                @l.Nombre
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            }
+                            else
+                            {
 
-                                                <label id="lbNivel7" for="start">* Nivel7:</label>
-                                                <select id="nivel7" name="strNivel7">
-                                                    <option value="@dept.iNivel7">@dept.strNivel7</option>
-                                                    @if (dept.lNivel7 != null)
-                                                    {
-                                                        @foreach (var l in dept.lNivel7)
-                                                        {
-                                                            <option value="@l.Idpreslin">
-                                                                @l.Nombre
-                                                            </option>
-                                                        }
-                                                    }
-                                                </select>
-                                            }
-                                        </div>
-                                        <div class="col-12">
-                                            <hr class="major" />
-                                        </div>
+                                <label id="lbNivel6" for="start">* Nivel6:</label>
+                                <select id="nivel6" name="strNivel6">
+                                    <option value="@dept.iNivel6">@dept.strNivel6</option>
+                                    @if (dept.lNivel6 != null)
+                                    {
+                                        @foreach (var l in dept.lNivel6)
+                                        {
+                                            <option value="@l.Idpreslin">
+                                                @l.Nombre
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            }
+                        </div>
+                        <div class="col-12">
+                            @if (dept.iNivel7 == 0)
+                            {
+                                <label id="lbNivel7" for="start" style="display:none">* Nivel7:</label>
+                                <select id="nivel7" name="strNivel7" style="display:none">
+                                    <option value="@dept.iNivel7">@dept.strNivel7</option>
+                                    @if (dept.lNivel7 != null)
+                                    {
+                                        @foreach (var l in dept.lNivel7)
+                                        {
+                                            <option value="@l.Idpreslin">
+                                                @l.Nombre
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            }
+                            else
+                            {
 
-                                        <div class="col-12">
-                                            <label for="start">Hora Inicio:</label>
-                                            <table class="egt">
-                                                <tr>
-                                                    <td>
-                                                        <select id="strHoraInicio" name="strHoraInicio">
-                                                            <option value="@dept.Inicio.Hour" selected>@dept.Inicio.Hour</option>
-                                                            <option value="00">00</option>
-                                                            <option value="01">01</option>
-                                                            <option value="02">02</option>
-                                                            <option value="03">03</option>
-                                                            <option value="04">04</option>
-                                                            <option value="05">05</option>
-                                                            <option value="06">06</option>
-                                                            <option value="07">07</option>
-                                                            <option value="08">08</option>
-                                                            <option value="09">09</option>
-                                                            <option value="10">10</option>
-                                                            <option value="11">11</option>
-                                                            <option value="12">12</option>
-                                                            <option value="13">13</option>
-                                                            <option value="14">14</option>
-                                                            <option value="15">15</option>
-                                                            <option value="16">16</option>
-                                                            <option value="17">17</option>
-                                                            <option value="18">18</option>
-                                                            <option value="19">19</option>
-                                                            <option value="20">20</option>
-                                                            <option value="21">21</option>
-                                                            <option value="22">22</option>
-                                                            <option value="23">23</option>
-                                                        </select>
-                                                    </td>
-                                                    <td>:</td>
-                                                    <td>
-                                                        <select id="strMinutoInicio" name="strMinutoInicio">
-                                                            <option value="@dept.Inicio.Minute" selected>@dept.Inicio.Minute</option>
-                                                            <option value="00">00</option>
-                                                            <option value="15">15</option>
-                                                            <option value="30">30</option>
-                                                            <option value="45">45</option>
-                                                        </select>
-                                                    </td>
-                                                </tr>
-                                            </table>
+                                <label id="lbNivel7" for="start">* Nivel7:</label>
+                                <select id="nivel7" name="strNivel7">
+                                    <option value="@dept.iNivel7">@dept.strNivel7</option>
+                                    @if (dept.lNivel7 != null)
+                                    {
+                                        @foreach (var l in dept.lNivel7)
+                                        {
+                                            <option value="@l.Idpreslin">
+                                                @l.Nombre
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            }
+                        </div>
+                        <div class="col-12">
+                            <hr class="major" />
+                        </div>
 
-                                            <!--<input type="email" name="demo-email" id="demo-email" value="" placeholder="Email" />-->
-                                        </div>
-                                        <div class="col-12">
+                        <div class="col-12">
+                            <label for="start">Hora Inicio:</label>
+                            <table class="egt">
+                                <tr>
+                                    <td>
+                                        <select id="strHoraInicio" name="strHoraInicio">
+                                            <option value="@dept.Inicio.Hour" selected>@dept.Inicio.Hour</option>
+                                            <option value="00">00</option>
+                                            <option value="01">01</option>
+                                            <option value="02">02</option>
+                                            <option value="03">03</option>
+                                            <option value="04">04</option>
+                                            <option value="05">05</option>
+                                            <option value="06">06</option>
+                                            <option value="07">07</option>
+                                            <option value="08">08</option>
+                                            <option value="09">09</option>
+                                            <option value="10">10</option>
+                                            <option value="11">11</option>
+                                            <option value="12">12</option>
+                                            <option value="13">13</option>
+                                            <option value="14">14</option>
+                                            <option value="15">15</option>
+                                            <option value="16">16</option>
+                                            <option value="17">17</option>
+                                            <option value="18">18</option>
+                                            <option value="19">19</option>
+                                            <option value="20">20</option>
+                                            <option value="21">21</option>
+                                            <option value="22">22</option>
+                                            <option value="23">23</option>
+                                        </select>
+                                    </td>
+                                    <td>:</td>
+                                    <td>
+                                        <select id="strMinutoInicio" name="strMinutoInicio">
+                                            <option value="@dept.Inicio.Minute" selected>@dept.Inicio.Minute</option>
+                                            <option value="00">00</option>
+                                            <option value="15">15</option>
+                                            <option value="30">30</option>
+                                            <option value="45">45</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </table>
 
-                                            <label for="start">Hora Fin:</label>
-                                            <table class="egt">
-                                                <tr>
-                                                    <td>
-                                                        <select id="strHoraFin" name="strHoraFin">
-                                                            <option value="@dept.Fin.Hour" selected>@dept.Fin.Hour</option>
-                                                            <option value="00">00</option>
-                                                            <option value="01">01</option>
-                                                            <option value="02">02</option>
-                                                            <option value="03">03</option>
-                                                            <option value="04">04</option>
-                                                            <option value="05">05</option>
-                                                            <option value="06">06</option>
-                                                            <option value="07">07</option>
-                                                            <option value="08">08</option>
-                                                            <option value="09">09</option>
-                                                            <option value="10">10</option>
-                                                            <option value="11">11</option>
-                                                            <option value="12">12</option>
-                                                            <option value="13">13</option>
-                                                            <option value="14">14</option>
-                                                            <option value="15">15</option>
-                                                            <option value="16">16</option>
-                                                            <option value="17">17</option>
-                                                            <option value="18">18</option>
-                                                            <option value="19">19</option>
-                                                            <option value="20">20</option>
-                                                            <option value="21">21</option>
-                                                            <option value="22">22</option>
-                                                            <option value="23">23</option>
-                                                        </select>
-                                                    </td>
-                                                    <td>:</td>
-                                                    <td>
-                                                        <select id="strMinutoFin" name="strMinutoFin">
-                                                            <option value="@dept.Fin.Minute" selected>@dept.Fin.Minute</option>
-                                                            <option value="00">00</option>
-                                                            <option value="15">15</option>
-                                                            <option value="30">30</option>
-                                                            <option value="45">45</option>
-                                                        </select>
-                                                    </td>
-                                                </tr>
-                                            </table>
+                            <!--<input type="email" name="demo-email" id="demo-email" value="" placeholder="Email" />-->
+                        </div>
+                        <div class="col-12">
 
-                                            <!--<input type="email" name="demo-email" id="demo-email" value="" placeholder="Email" />-->
-                                        </div>
-                                        <!-- Break -->
-                                        <div class="col-6 col-12-small">
-                                            @if (dept.Horasviaje > 0)
-                                            {
-                                                <input type="checkbox" id="viaje" value="true" name="bHorasViaje" checked="checked"> <label for="viaje">Viaje</label>
-                                            }
-                                            else
-                                            {
-                                                <input type="checkbox" id="viaje" value="true" name="bHorasViaje"> <label for="viaje">Viaje</label>
-                                            }
-                                        </div>
-                                        <div class="col-6 col-12-small">
-                                            <label for="start">NºParte:</label>
-                                            <input type="text" name="strParte" value="@dept.Npartefirmado" />
-                                        </div>
-                                        <div class="col-6 col-12-small">
-                                            @{
-                                                if ((dept.Horas == 0) && (dept.Horasviaje == 0))
-                                                {
-                                                    <input type="checkbox" id="gastos" value="true" name="bGastos" checked="checked"> <label for="gastos">Solo gastos</label>
-                                                }
-                                                else
-                                                {
-                                                    <input type="checkbox" id="gastos" value="true" name="bGastos"> <label for="gastos">Solo gastos</label>
-                                                }
-                                            }
-                                        </div>
-                                        <div class="col-6 col-12-small">
-                                            <label for="vehicle1">Pernoctación</label>
-                                            <select name="strPernoctacion" required>
-                                                <option value="0">NO</option>
-                                                @foreach (var client in Model.listPernocta)
-                                                {
-                                                    if (@client.Tipo == @dept.Facturable)
-                                                    {
-                                                        <option value="@client.Tipo" selected> @client.Descripcion </option>
-                                                    }
-                                                    else
-                                                    {
-                                                        <option value="@client.Tipo"> @client.Descripcion </option>
-                                                    }
-                                                }
-                                                <!--<option value="NACIONAL">NACIONAL</option>
-            <option value="INTERNACIONAL">INTERNACIONAL</option>-->
-                                            </select>
-                                        </div>
-                                        <div class="col-12">
-                                            <textarea name="strObservaciones" id="txtObservaciones" placeholder="Enter your message" value="@dept.Observaciones" rows="6" required>@dept.Observaciones</textarea>
-                                        </div>
-                                        <div class="col-12">
-                                            <span class="button" onclick="viewLblGastos();" style="display: inline-block">Mostrar Gastos</span>
-                                            <hr class="major" />
-                                            <div class="col-12" id="lblGastos" name="lblGastos" style="display:none">
-                                                <input type="hidden" id="idGasto" name="idGasto" value="@dept.ContGastos" readonly />
+                            <label for="start">Hora Fin:</label>
+                            <table class="egt">
+                                <tr>
+                                    <td>
+                                        <select id="strHoraFin" name="strHoraFin">
+                                            <option value="@dept.Fin.Hour" selected>@dept.Fin.Hour</option>
+                                            <option value="00">00</option>
+                                            <option value="01">01</option>
+                                            <option value="02">02</option>
+                                            <option value="03">03</option>
+                                            <option value="04">04</option>
+                                            <option value="05">05</option>
+                                            <option value="06">06</option>
+                                            <option value="07">07</option>
+                                            <option value="08">08</option>
+                                            <option value="09">09</option>
+                                            <option value="10">10</option>
+                                            <option value="11">11</option>
+                                            <option value="12">12</option>
+                                            <option value="13">13</option>
+                                            <option value="14">14</option>
+                                            <option value="15">15</option>
+                                            <option value="16">16</option>
+                                            <option value="17">17</option>
+                                            <option value="18">18</option>
+                                            <option value="19">19</option>
+                                            <option value="20">20</option>
+                                            <option value="21">21</option>
+                                            <option value="22">22</option>
+                                            <option value="23">23</option>
+                                        </select>
+                                    </td>
+                                    <td>:</td>
+                                    <td>
+                                        <select id="strMinutoFin" name="strMinutoFin">
+                                            <option value="@dept.Fin.Minute" selected>@dept.Fin.Minute</option>
+                                            <option value="00">00</option>
+                                            <option value="15">15</option>
+                                            <option value="30">30</option>
+                                            <option value="45">45</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </table>
 
-                                                <label for="start">Cantidad:</label>
-                                                <input type="text" id="strCantidad" name="strCantidad" value="0" />
-                                                <label for="start">Pagador:</label>
-                                                <select id="Pagador" name="Pagador">
-                                                    <option value="0"></option>
-                                                    <option value="TRABAJADOR">TRABAJADOR</option>
-                                                    <option value="ALDAKIN">ALDAKIN</option>
-                                                </select>
-                                                <label id="lblTipo" for="start">Tipo Gasto:</label>
-                                                <select id="Tipo" name="Tipo" disabled>
-                                                    <option value="0"></option>
-                                                </select>
-                                                <label for="start">Observaciones:</label>
-                                                <input type="text" id="strObservaciones" name="strObservaciones" value="" />
-                                                <span class="button" onclick="insertText('idGasto','strCantidad','Pagador','Tipo','strGastos','strObservaciones');" style="display: inline-block">Añadir Gasto</span>
-                                                <label for="start">Lista de gastos:</label>
-                                                <textarea name="strGastos" id="strGastos" value="@dept.Gastos" rows="6">@dept.Gastos</textarea>
-                                                <hr class="major" />
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <label for="start">Mensaje para informar al operaio del cambio:*</label>
-                                            <textarea name="strMessage" id="strMessage" placeholder="Enter your message" rows="6" required></textarea>
-                                        </div>
+                            <!--<input type="email" name="demo-email" id="demo-email" value="" placeholder="Email" />-->
+                        </div>
+                        <!-- Break -->
+                        <div class="col-6 col-12-small">
+                            @if (dept.Horasviaje > 0)
+                            {
+                                <input type="checkbox" id="viaje" value="true" name="bHorasViaje" checked="checked"> <label for="viaje">Viaje</label>
+                            }
+                            else
+                            {
+                                <input type="checkbox" id="viaje" value="true" name="bHorasViaje"> <label for="viaje">Viaje</label>
+                            }
+                        </div>
+                        <div class="col-6 col-12-small">
+                            <label for="start">NºParte:</label>
+                            <input type="text" name="strParte" value="@dept.Npartefirmado" />
+                        </div>
+                        <div class="col-6 col-12-small">
+                            @{
+                                if ((dept.Horas == 0) && (dept.Horasviaje == 0))
+                                {
+                                    <input type="checkbox" id="gastos" value="true" name="bGastos" checked="checked"> <label for="gastos">Solo gastos</label>
+                                }
+                                else
+                                {
+                                    <input type="checkbox" id="gastos" value="true" name="bGastos"> <label for="gastos">Solo gastos</label>
+                                }
+                            }
+                        </div>
+                        <div class="col-6 col-12-small">
+                            <label for="vehicle1">Pernoctación</label>
+                            <select name="strPernoctacion" required>
+                                <option value="0">NO</option>
+                                @foreach (var client in Model.listPernocta)
+                                {
+                                    if (@client.Tipo == @dept.Facturable)
+                                    {
+                                        <option value="@client.Tipo" selected> @client.Descripcion </option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@client.Tipo"> @client.Descripcion </option>
+                                    }
+                                }
+                                <!--<option value="NACIONAL">NACIONAL</option>
+                    <option value="INTERNACIONAL">INTERNACIONAL</option>-->
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <textarea name="strObservaciones" id="txtObservaciones" placeholder="Enter your message" value="@dept.Observaciones" rows="6" required>@dept.Observaciones</textarea>
+                        </div>
+                        <div class="col-12">
+                            <span class="button" onclick="viewLblGastos();" style="display: inline-block">Mostrar Gastos</span>
+                            <hr class="major" />
+                            <div class="col-12" id="lblGastos" name="lblGastos" style="display:none">
+                                <input type="hidden" id="idGasto" name="idGasto" value="@dept.ContGastos" readonly />
 
-                                        <input type="hidden" name="strIdLinea" value="@dept.Idlinea" />
-                                        <input type="hidden" name="strIdUser" value="@dept.Idusuario" />
-                                        <input id="strPreslin" name="strPreslin" type="hidden" value="@dept.Idpreslin" />
-
-                                        <div class="col-12">
-                                            <ul class="actions">
-                                                <li><input type="submit" name="Save" value="Modificar" /></li>
-                                                <li><input type="submit" name="SaveAndValidate" value="Modificar y Validar" /></li>
-                                            </ul>
-                                        </div>
-                                        @*<div class="col-12">
-            <label for="start">Pulse para modificar parte y no validarlo</label>
-            <input type="hidden" name="strAction" value="Save" />
-            <input type="submit" value="Modificar" />
-        </div>
-        <div class="col-12">
-            <label for="start">Pulse para modificar parte y validarlo con los cambios</label>
-            <input type="hidden" name="strAction" value="SaveAndValidate" />
-            <input type="submit" value="Modificar y Validar" />
-        </div>*@
-                                    </div>
-                                </form>
-                                @*<form asp-controller="Search" asp-action="SearchValidate" method="POST">
-                                        <label for="start">Pulse para validar el parte sin ningun cambio</label>
-                                        <input type="hidden" id="idLinea" name="idLine" value="@dept.Idlinea" />
-                                        <input type="hidden" id="dtIni" name="dtIni" value="@dept.Inicio.Date" />
-                                        <input type="hidden" name="strAction" value="ValidateLine" />
-                                        <input type="submit" value="Validar" />
-                                    </form>*@
+                                <label for="start">Cantidad:</label>
+                                <input type="text" id="strCantidad" name="strCantidad" value="0" />
+                                <label for="start">Pagador:</label>
+                                <select id="Pagador" name="Pagador">
+                                    <option value="0"></option>
+                                    <option value="TRABAJADOR">TRABAJADOR</option>
+                                    <option value="ALDAKIN">ALDAKIN</option>
+                                </select>
+                                <label id="lblTipo" for="start">Tipo Gasto:</label>
+                                <select id="Tipo" name="Tipo" disabled>
+                                    <option value="0"></option>
+                                </select>
+                                <label for="start">Observaciones:</label>
+                                <input type="text" id="strObservaciones" name="strObservaciones" value="" />
+                                <span class="button" onclick="insertText('idGasto','strCantidad','Pagador','Tipo','strGastos','strObservaciones');" style="display: inline-block">Añadir Gasto</span>
+                                <label for="start">Lista de gastos:</label>
+                                <textarea name="strGastos" id="strGastos" value="@dept.Gastos" rows="6">@dept.Gastos</textarea>
+                                <hr class="major" />
                             </div>
+                        </div>
+                        <div class="col-12">
+                            <label for="start">Mensaje para informar al operaio del cambio:*</label>
+                            <textarea name="strMessage" id="strMessage" placeholder="Enter your message" rows="6" required></textarea>
+                        </div>
+
+                        <input type="hidden" name="strIdLinea" value="@dept.Idlinea" />
+                        <input type="hidden" name="strIdUser" value="@dept.Idusuario" />
+                        <input id="strPreslin" name="strPreslin" type="hidden" value="@dept.Idpreslin" />
+
+                        <div class="col-12">
+                            <ul class="actions">
+                                <li><input type="submit" name="Save" value="Modificar" /></li>
+                                <li><input type="submit" name="SaveAndValidate" value="Modificar y Validar" /></li>
+                            </ul>
+                        </div>
+                        @*<div class="col-12">
+                    <label for="start">Pulse para modificar parte y no validarlo</label>
+                    <input type="hidden" name="strAction" value="Save" />
+                    <input type="submit" value="Modificar" />
+                </div>
+                <div class="col-12">
+                    <label for="start">Pulse para modificar parte y validarlo con los cambios</label>
+                    <input type="hidden" name="strAction" value="SaveAndValidate" />
+                    <input type="submit" value="Modificar y Validar" />
+                </div>*@
+                    </div>
+                </form>
+                <form asp-action="Back" asp-controller="SearchEdit" method="POST">
+                    <div class="row gtr-uniform">
+                        <div class="col-12">
+                            <input type="hidden" name="strDate1" value="@Model.DateSelected" />
+                            <input type="hidden" name="strWorker" value="@dept.Idusuario" />
+                            <input type="hidden" name="strOt" value="0" />
+                            <input type="hidden" name="strEntity" value="@dept.CodEnt" />
+                            <input type="hidden" name="strAction" value="StatusResume" />
+                            <ul class="actions">
+                                <li><input type="submit" name="Back" value="Volver" /></li>
+                            </ul>
+                        </div>
+                    </div>
+                </form>
+                @*<form asp-controller="Search" asp-action="SearchValidate" method="POST">
+            <label for="start">Pulse para validar el parte sin ningun cambio</label>
+            <input type="hidden" id="idLinea" name="idLine" value="@dept.Idlinea" />
+            <input type="hidden" id="dtIni" name="dtIni" value="@dept.Inicio.Date" />
+            <input type="hidden" name="strAction" value="ValidateLine" />
+            <input type="submit" value="Validar" />
+        </form>*@
+            </div>
                         }
                     }
 

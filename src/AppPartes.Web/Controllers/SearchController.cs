@@ -45,7 +45,7 @@ namespace AppPartes.Web.Controllers
 
             strMessage = oReturn.strError;
             strAction = "StatusResume";
-            return RedirectToAction("Index", new { strMessage = strMessage, action = strAction, strDate1 = oReturn.strDate1, strEntity = oReturn.strEntity,strWorker=oReturn.strWorker });
+            return RedirectToAction("Index", new { strMessage = strMessage, strAction = strAction, strDate1 = oReturn.strDate1, strEntity = oReturn.strEntity, strOt = "0", strWorker = oReturn.strWorker });
         }
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> SearchUnValidate(string idLine)
@@ -55,7 +55,7 @@ namespace AppPartes.Web.Controllers
             var oReturn = await _iWriteDataBase.ValidateWorkerLineAsync(idLine, _idAldakinUser, 0);
             strMessage = oReturn.strError;
             strAction = "StatusResume";
-            return RedirectToAction("Index", new { strMessage = strMessage, action = strAction, strDate1 = oReturn.strDate1, strEntity = oReturn.strEntity, strWorker = oReturn.strWorker });
+            return RedirectToAction("Index", new { strMessage = strMessage, strAction = strAction, strDate1 = oReturn.strDate1, strEntity = oReturn.strEntity, strOt="0",strWorker = oReturn.strWorker });
         }
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> GlobalValidation(string strMessage = "",  string strDate1 = "", string strEntity = "", string strAction = "", string strOt = "", string strWorker = "", string strListValidation = "")
