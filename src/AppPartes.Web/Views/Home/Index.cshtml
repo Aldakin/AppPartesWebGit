@@ -75,7 +75,8 @@
                                             </div>
                                         </th>
                                         <th><a class="nav-link text-dark" asp-area="" asp-controller="SearchPending" asp-action="Index">Partes Pendientes</a></th>
-                                        <th>XX XX</th>
+                                        <th><a class="nav-link text-dark" asp-area="" asp-controller="Reports" asp-action="Index">Informes</a> </th>
+                                        <th>XX</th>
                                     </tr>
                                     <tr>
                                         @if (Model.user.iLevel >= 4)
@@ -119,7 +120,7 @@
         </section>
         <footer class="border-top footer text-muted">
             <div class="container">
-                &copy; @DateTime.Now.Year -Grupo Aldakin AppPartes.Web 4.0.15 - J - @Model.strVersion
+                &copy; @DateTime.Now.Year -Grupo Aldakin AppPartes.Web 4.0.16 - J - @Model.strVersion
                 @*&copy; 2020 - AppPartes.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>*@
             </div>
         </footer>

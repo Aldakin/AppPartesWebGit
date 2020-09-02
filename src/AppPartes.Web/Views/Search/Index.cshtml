@@ -145,7 +145,7 @@
             {
                 if (Model.strGlobalValidation != null)
                 {
-                    <div  class="row gtr-uniform">
+                    <div class="row gtr-uniform">
                         <div class="col-12">
                             <label id="lblWorker" for="start">La validación masiva valida todos los partes que se listan a continuación</label>
                             <form asp-controller="Search" asp-action="GlobalValidation" method="POST">
@@ -339,33 +339,33 @@
                     <table class="alt">
                         <tbody>
                             <tr>
-                                @{ 
-                                    if (dept.iMoroso>0)
+                                @{
+                                    if (dept.iMoroso > 0)
                                     {
-                                                                <td></td>
+                                        <td></td>
                                     }
-                                <td>Dias:</td>
+                                    <td>Dias:</td>
                                     foreach (var t in dept.lDay)
                                     {
-                                    <td>@t</td>
+                                        <td>@t</td>
                                     }
                                 }
                             </tr>
                             <tr>
                                 @{
-                                    if (dept.iMoroso>0)
+                                    if (dept.iMoroso > 0)
                                     {
-                                                                <td>
-                                                                    <span class="button" onclick="SendMoroso(@dept.iMoroso);" style="display: inline-block">Dar Toque</span>
-                                                                </td>
+                                        <td>
+                                            <span class="button" onclick="SendMoroso(@dept.iMoroso);" style="display: inline-block">Dar Toque</span>
+                                        </td>
                                     }
                                     <td>Horas:</td>
                                     foreach (var t in dept.dayStatus)
                                     {
                                         <td style="background-color: @t.colour;">@t.hour</td>
-                                        }
                                     }
-                                </tr>
+                                }
+                            </tr>
 
                         </tbody>
                     </table>

@@ -37,7 +37,7 @@ namespace AppPartes.Logic
             try
             {
                 //var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == idAldakinUser && x.CodEnt == x.CodEntO);
-                var user = aldakinDbContext.Usuarios.FirstOrDefault(x => x.Idusuario == idAldakinUser && x.CodEnt == x.CodEntO && x.Baja==0);
+                var user = aldakinDbContext.Usuarios.FirstOrDefault(x => x.Idusuario == idAldakinUser && x.CodEnt == x.CodEntO && x.Baja == 0);
                 var admin = aldakinDbContext.Administracion.FirstOrDefault(x => x.Idusuario == idAldakinUser);//select * from administracion where idusuario = {0}
                 if (!(admin is null))
                 {
@@ -149,7 +149,7 @@ namespace AppPartes.Logic
                 await transaction.RollbackAsync();
                 iReturn = 0;
             }
-            
+
             return (iReturn);
         }
         public async Task<string> XXXXInsertWorkerLineAsync(WorkerLineData dataToInsertLine, int idAldakinUser)
@@ -545,8 +545,8 @@ namespace AppPartes.Logic
             strReturn = "Parte rellenado satisfactoriamente";
             return (strReturn);
         }
-        
-        public async Task<List<SelectData>> DeleteWorkerLineAsync(int iLine, int idAldakinUser,int idAdminUser)
+
+        public async Task<List<SelectData>> DeleteWorkerLineAsync(int iLine, int idAldakinUser, int idAdminUser)
         {
             WriteUserDataAsync(idAldakinUser);
             string strReturn;
@@ -816,7 +816,7 @@ namespace AppPartes.Logic
             var lWednesday = new List<LineaVisual>();
             var lThursday = new List<LineaVisual>();
             var lFriday = new List<LineaVisual>();
-            var lSaturday = new List<LineaVisual>();            
+            var lSaturday = new List<LineaVisual>();
             foreach (var l in lTemp)
             {
                 int iStatus = 0;
@@ -1003,76 +1003,80 @@ namespace AppPartes.Logic
                 var line = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == iLine);
                 if (!(line is null))
                 {
-                    oReturn.strWorker = Convert.ToString(line.Idusuario);
-                    oReturn.strDate1 = Convert.ToString(line.Inicio.Date);
-                    oReturn.strEntity = Convert.ToString(line.CodEnt);
-                    var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == idAldakinUser);
-                    line.Validado = sValue;
-                    line.Validador = user.Nombrecompleto + "[" + DateTime.Now + "]";
-                    var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
-                    try
+                    var oStatus = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Idusuario == line.Idusuario && x.Dia == line.Inicio.Date);
+                    if (!(oStatus is null))
                     {
-                        aldakinDbContext.Lineas.Update(line);
-                        await aldakinDbContext.SaveChangesAsync();
-                        var lineCopy = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == line.Idoriginal);
-                        if (!(lineCopy is null))
+                        oReturn.strWorker = Convert.ToString(line.Idusuario);
+                        oReturn.strDate1 = Convert.ToString(line.Inicio.Date);
+                        oReturn.strEntity = Convert.ToString(line.CodEnt);
+                        var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == idAldakinUser);
+                        line.Validado = sValue;
+                        line.Validador = user.Nombrecompleto + "[" + DateTime.Now + "]";
+                        var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+                        try
                         {
-                            lineCopy.Validado = sValue;
-                            lineCopy.Validador = user.Nombrecompleto + "[" + DateTime.Now + "]";
-                            aldakinDbContext.Lineas.Update(lineCopy);
+                            aldakinDbContext.Lineas.Update(line);
                             await aldakinDbContext.SaveChangesAsync();
-                        }
-                        await transaction.CommitAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        await transaction.RollbackAsync();
-                        oReturn.strError = "Ha ocurrido un problema durante el proceso de validar la linea.;";
-                        return oReturn;
-                    }
-                    try
-                    { 
-                        transaction = await aldakinDbContext.Database.BeginTransactionAsync();
-                        var dayStatus =await  aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Dia == line.Inicio.Date && x.Idusuario == line.Idusuario);
-                        if (line.Validado==0)
-                        {
-                            dayStatus.Estado = 2;
-                        }
-                        else
-                        {
-                            if (line.Validado == 1)
+                            var lineCopy = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == line.Idoriginal);
+                            if (!(lineCopy is null))
                             {
-                                var allLine = await aldakinDbContext.Lineas.Where(x => x.Inicio.Date == line.Inicio.Date && x.Idusuario == line.Idusuario).ToListAsync();
-                                var iValidate = allLine.Sum(x => x.Validado );
-                                if(iValidate==allLine.Count)
+                                lineCopy.Validado = sValue;
+                                lineCopy.Validador = user.Nombrecompleto + "[" + DateTime.Now + "]";
+                                aldakinDbContext.Lineas.Update(lineCopy);
+                                await aldakinDbContext.SaveChangesAsync();
+                            }
+                            await transaction.CommitAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            await transaction.RollbackAsync();
+                            oReturn.strError = "Ha ocurrido un problema durante el proceso de validar la linea.;";
+                            return oReturn;
+                        }
+                        try
+                        {
+                            transaction = await aldakinDbContext.Database.BeginTransactionAsync();
+                            var dayStatus = await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Dia == line.Inicio.Date && x.Idusuario == line.Idusuario);
+                            if (line.Validado == 0)
+                            {
+                                dayStatus.Estado = 2;
+                            }
+                            else
+                            {
+                                if (line.Validado == 1)
                                 {
-                                    dayStatus.Estado = 4;
-                                }
-                                else
-                                {
-                                    dayStatus.Estado = 2;
+                                    var allLine = await aldakinDbContext.Lineas.Where(x => x.Inicio.Date == line.Inicio.Date && x.Idusuario == line.Idusuario).ToListAsync();
+                                    var iValidate = allLine.Sum(x => x.Validado);
+                                    if (iValidate == allLine.Count)
+                                    {
+                                        dayStatus.Estado = 4;
+                                    }
+                                    else
+                                    {
+                                        dayStatus.Estado = 2;
+                                    }
                                 }
                             }
-                        }
-                        aldakinDbContext.Estadodias.Update(dayStatus);
-                        await aldakinDbContext.SaveChangesAsync();
-                        await transaction.CommitAsync();
+                            aldakinDbContext.Estadodias.Update(dayStatus);
+                            await aldakinDbContext.SaveChangesAsync();
+                            await transaction.CommitAsync();
 
-                        oReturn.strError = line.Inicio.ToString();
-                        if (sValue == 1)
-                        {
-                            oReturn.strError = "Parte validado satisfactorioamente";
+                            oReturn.strError = line.Inicio.ToString();
+                            if (sValue == 1)
+                            {
+                                oReturn.strError = "Parte validado satisfactorioamente";
+                            }
+                            else
+                            {
+                                oReturn.strError = "Parte Desvalidado satisfactorioamente";
+                            }
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            oReturn.strError = "Parte Desvalidado satisfactorioamente";
+                            await transaction.RollbackAsync();
+                            oReturn.strError = "Ha ocurrido un problema durante el proceso de validar la linea.;";
+                            return oReturn;
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        await transaction.RollbackAsync();
-                        oReturn.strError = "Ha ocurrido un problema durante el proceso de validar la linea.;";
-                        return oReturn;
                     }
                 }
                 else
@@ -1121,7 +1125,7 @@ namespace AppPartes.Logic
                     if (!(string.IsNullOrEmpty(s)))
                     {
                         var lLine = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(s) && x.Validado == 0 && x.Registrado == 0);
-                        if (lLine.Validado==1)
+                        if (lLine.Validado == 1)
                         {
                             strReturn = "Revise si hay partes validados, deben estar desvalidados para poder abrirlos";
                             return strReturn;
@@ -1158,8 +1162,8 @@ namespace AppPartes.Logic
                     strReturn = "Ocurrio un error al abrir la semana";
                     return strReturn;
                 }
-                
-                
+
+
             }
             catch (Exception ex)
             {
@@ -1360,22 +1364,23 @@ namespace AppPartes.Logic
             return strReturn;
         }
 
-        public async Task<string> WritePermissionAsync(string strAldakinUser, string strUsers,string strAutor,string strData)
+        public async Task<string> WritePermissionAsync(string strAldakinUser, string strUsers, string strAutor, string strData)
         {
-            string strReturn=string.Empty;
+            string strReturn = string.Empty;
             try
             {
                 var permission = await aldakinDbContext.Responsables.FirstOrDefaultAsync(x => x.Name == strAldakinUser);
-                if(!(permission is null))
+                if (!(permission is null))
                 {
-                    var transaction =await aldakinDbContext.Database.BeginTransactionAsync();
+                    var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
                     try
                     {
-                        if (string.Equals(strData,"ot"))
+                        if (string.Equals(strData, "ot"))
                         {
                             permission.Ots = strUsers;
                         }
-                        else {
+                        else
+                        {
                             permission.PersonasName = strUsers;
                         }
                         aldakinDbContext.Responsables.AsNoTracking();
@@ -1405,10 +1410,10 @@ namespace AppPartes.Logic
                     }
                     var oNew = new Responsables
                     {
-                        Name=strAldakinUser,
-                        PersonasName=usuarios,
-                        Ots=ots,
-                        Autor= strAutor
+                        Name = strAldakinUser,
+                        PersonasName = usuarios,
+                        Ots = ots,
+                        Autor = strAutor
                     };
                     var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
                     try
@@ -1479,7 +1484,7 @@ namespace AppPartes.Logic
             }
             return bReturn;
         }
-        private async Task<Lineas> ReviewLineData(int iLine, int idAldakinUser,int idAdminUser)
+        private async Task<Lineas> ReviewLineData(int iLine, int idAldakinUser, int idAdminUser)
         {
             var oReturn = new Lineas();
             var strReturn = string.Empty;
