@@ -229,6 +229,11 @@ namespace AppPartes.Logic
         public string strEntidadSelec { set; get; }
         public bool bLevelError { set; get; }
     }
+    public class ReportsViewLogic
+    {
+        public string strMensaje { set; get; }
+        public List<Entidad> lEntidad { set; get; }
+    }
     public class ViewMounthResume
     {
         public string User { get; set; }
@@ -255,5 +260,24 @@ namespace AppPartes.Logic
         public string strUserSelected { set; get; }
         public string strError { set; get; }
         public bool bLevelError { set; get; }
+    }
+    public class Excel
+    {
+        public string str1 { set; get; }
+        public string str2 { set; get; }
+        public string str3 { set; get; }
+        public string str4 { set; get; }
+        public string str5 { set; get; }
+        public string str6 { set; get; }
+        public string str7 { set; get; }
+        public string str8 { set; get; }
+        public string str9 { set; get; }
+        public string str10 { set; get; }
+        public string str11{ set; get; }
+        public string str12 { set; get; }
+        public string str13 { set; get; }
+        public string str14 { set; get; }
+        public string str15 { set; get; }
+        public string str16 { set; get; }
     }
 }

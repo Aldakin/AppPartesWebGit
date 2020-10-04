@@ -1369,6 +1369,8 @@ namespace AppPartes.Logic
             string strReturn = string.Empty;
             try
             {
+
+                aldakinDbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                 var permission = await aldakinDbContext.Responsables.FirstOrDefaultAsync(x => x.Name == strAldakinUser);
                 if (!(permission is null))
                 {
@@ -1415,10 +1417,12 @@ namespace AppPartes.Logic
                         Ots = ots,
                         Autor = strAutor
                     };
+                    aldakinDbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                     var transaction = await aldakinDbContext.Database.BeginTransactionAsync();
                     try
                     {
-                        aldakinDbContext.Responsables.AsNoTracking();
+                        //aldakinDbContext.Responsables.AsNoTracking();
+                        aldakinDbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                         aldakinDbContext.Responsables.Add(oNew);
                         await aldakinDbContext.SaveChangesAsync();
                         await transaction.CommitAsync();

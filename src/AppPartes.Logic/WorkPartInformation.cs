@@ -1,8 +1,8 @@
 ﻿using AppPartes.Data.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Mail;
@@ -733,11 +733,11 @@ namespace AppPartes.Logic
             DateTime dtIniWeek, dtEndWeek;
             DateTime dtSelected = Convert.ToDateTime(strDate);
             IniEndWeek(dtSelected, out dtIniWeek, out dtEndWeek);
-            if(dtIniWeek.Month<dtSelected.Month)
+            if (dtIniWeek.Month < dtSelected.Month)
             {
                 dtIniWeek = new DateTime(dtSelected.Year, dtSelected.Month, 01);
             }
-            if(dtEndWeek.Month>dtSelected.Month)
+            if (dtEndWeek.Month > dtSelected.Month)
             {
                 dtEndWeek = new DateTime(dtSelected.Year, dtSelected.Month + 1, 01);
                 dtEndWeek = dtEndWeek.AddDays(-1);
@@ -751,7 +751,7 @@ namespace AppPartes.Logic
                 if ((iWorker > 0) && (iOt > 0))
                 {
                     //seleccionado trabajador y ot
-                    lTemp = await aldakinDbContext.Lineas.Where(x=> x.Inicio.Date >= dtIniWeek.Date && x.Fin.Date <= dtEndWeek.Date && x.Idusuario == iWorker && x.CodEnt == iEntity && x.Idot == iOt && x.Validado == 0 && x.Registrado == 0).OrderBy(x => x.Inicio).ToListAsync();
+                    lTemp = await aldakinDbContext.Lineas.Where(x => x.Inicio.Date >= dtIniWeek.Date && x.Fin.Date <= dtEndWeek.Date && x.Idusuario == iWorker && x.CodEnt == iEntity && x.Idot == iOt && x.Validado == 0 && x.Registrado == 0).OrderBy(x => x.Inicio).ToListAsync();
                 }
                 else
                 {
@@ -1201,9 +1201,1437 @@ namespace AppPartes.Logic
             }
             return strReturn;
         }
+        struct idsComprobacion
+        {
+            public int idOt;
+            public int idPreslin;
+        };
+
+        public async Task<List<Excel>> ReviewHourMonthAsync(int iCodEnt, DateTime dtSelected)
+        {
+
+            List<Excel> lReturn = new List<Excel>();
+            var lLineas = await aldakinDbContext.Lineas.Where(x => x.CodEnt == iCodEnt && x.Inicio.Month == dtSelected.Month && x.Inicio.Year == dtSelected.Year).ToListAsync();
+            var lUsuarios = lLineas.Select(o => o.Idusuario).Distinct().ToList();
+            foreach (int u in lUsuarios)
+            {
+                var usuario = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == u);
+                var lUserLines = lLineas.Where(x => x.Idusuario == u).ToList();
+                var lDateUserLines = lUserLines.Select(x => x.Inicio.Date).Distinct().OrderBy(x => x.Date).ToList();
+                foreach (DateTime dt in lDateUserLines)
+                {
+                    var lPartsDay = lUserLines.Where(x => x.Inicio.Date == dt).ToList();
+
+                    var horas = lPartsDay.Sum(x => x.Horas);
+                    lReturn.Add(new Excel { str1 = usuario.Nombrecompleto, str2 = dt.ToString(), str3 = horas.ToString() });
+                }
+            }
+            return lReturn;
+        }
+
+        public async Task<string> GetUserNameAsync(int iUser)
+        {
+            string strReturn;
+            var user = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == iUser);
+            if (user is null)
+            {
+                strReturn = "NoUserData";
+            }
+            else
+            {
+                strReturn = user.Nombrecompleto;
+            }
+            return strReturn;
+        }
+        
+        public async Task<List<Excel>> ReviewHourTypeHourAsync(int iCodEnt, DateTime dtSelected)
+        {
+            List<Excel> lReturn = new List<Excel>();
+            try
+            {
+                //return lReturn;
+                int iTipoHora = 0, iMomento = 0; ;
+                float[] fMomentos = new float[4];
+                float fHoras = 0;
+                DateTime PrimerDia = new DateTime(dtSelected.Year, dtSelected.Month, 1, 0, 0, 0);
+                DateTime UltimoDia = PrimerDia.AddMonths(1).AddDays(-1);
+                //todos los partes del mes y de la delegacion
+                List<Lineas> lLineasAll = await aldakinDbContext.Lineas.Where(x => x.Inicio.Month == dtSelected.Month && x.Inicio.Year == dtSelected.Year && x.Registrado == 1 && x.CodEnt == iCodEnt).ToListAsync();
+                //usuarios con parte
+                var lUsuarios = lLineasAll.Select(o => o.Idusuario).Distinct().ToList();
+                foreach (int u in lUsuarios)
+                {
+                    var oUser = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == u);
+                    var nombre = oUser.Nombrecompleto;
+                    var codEmpl = oUser.CodEmpl;
+                    var oPresu = await aldakinDbContext.Presupuestos.FirstOrDefaultAsync(x => x.Idot == u);
+                    string strNumeroPresu = "";
+                    if (!(oPresu is null)) strNumeroPresu = oPresu.Numero.ToString();
+
+                    //listar los partes de trabajos ese mes
+                    List<Lineas> lTemp = lLineasAll.Where(x => x.Idusuario == u).ToList();
+                    //distintas ots
+                    var lOts = lTemp.Select(o => o.Idot).Distinct().ToList();
+                    foreach (int o in lOts)
+                    {
+                        if (o == 46582)
+                        {
+                            var y = 0;
+                        }
+                        string strNombreCapitulo = "";
+                        string strAnexo = "";
+                        string strVersion = "";
+                        var oOt = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == o);
+                        var nombreOt = oOt.Nombre;
+                        var numeroOt = oOt.Numero;
+                        int iRefOT;
+                        try
+                        {
+                            iRefOT = Convert.ToInt32(oOt.Codigorefot);
+                        }
+                        catch (Exception ex)
+                        {
+                            iRefOT = 0;
+                        }
+                        var oTipoHora = await aldakinDbContext.Tipohora.FirstOrDefaultAsync(x => x.RefOt == iRefOT);
+                        List<Lineas> lLineasOt = lTemp.Where(x => x.Idot == o).ToList();
+                        var lpTemp = lLineasOt.Select(o => o.Idpreslin).Distinct().ToList();
+                        if (lpTemp is null)
+                        {
+                            //los partes que NO tienen preslin
+
+                            fMomentos = await WorkMomentDay(lLineasOt, oOt.CodEnt);
+                            for (int i = 0; i <= 3; i++)
+                            {
+                                //0 = normal, 1 = noche, 2 = sabado, 3 = festivo
+                                string strHoras, strTipo;
+                                switch (i)
+                                {
+                                    case 0:
+                                        strHoras = fMomentos[0].ToString();
+                                        strTipo = oTipoHora.Normal.ToString();
+                                        break;
+                                    case 1:
+                                        strHoras = fMomentos[1].ToString();
+                                        strTipo = oTipoHora.Noche.ToString();
+                                        break;
+                                    case 2:
+                                        strHoras = fMomentos[2].ToString();
+                                        strTipo = oTipoHora.Sabado.ToString();
+                                        break;
+                                    case 3:
+                                        strHoras = fMomentos[3].ToString();
+                                        strTipo = oTipoHora.Festivo.ToString();
+                                        break;
+                                    default:
+                                        strHoras = "0";
+                                        strTipo = "0";
+                                        break;
+                                }
+                                lReturn.Add(new Excel
+                                {
+                                    str1 = nombre,
+                                    str2 = codEmpl.ToString(),
+                                    str3 = numeroOt.ToString(),
+                                    str4 = nombreOt,
+                                    str5 = strNumeroPresu,
+                                    str6 = "XX",
+                                    str7 = strNombreCapitulo,
+                                    str8 = strAnexo,
+                                    str9 = strVersion,
+                                    str10 = strHoras,
+                                    str11 = strTipo
+                                });
+                            }
+                        }
+                        else
+                        {
+                            //los partes tienen preslin
+                            foreach (int? p in lpTemp)
+                            {
+                                if (p is null)
+                                {
+                                    fMomentos = await WorkMomentDay(lLineasOt, oOt.CodEnt);
+                                    for (int i = 0; i <= 3; i++)
+                                    {
+                                        //0 = normal, 1 = noche, 2 = sabado, 3 = festivo
+                                        string strHoras, strTipo;
+                                        switch (i)
+                                        {
+                                            case 0:
+                                                strHoras = fMomentos[0].ToString();
+                                                strTipo = oTipoHora.Normal.ToString();
+                                                break;
+                                            case 1:
+                                                strHoras = fMomentos[1].ToString();
+                                                strTipo = oTipoHora.Noche.ToString();
+                                                break;
+                                            case 2:
+                                                strHoras = fMomentos[2].ToString();
+                                                strTipo = oTipoHora.Sabado.ToString();
+                                                break;
+                                            case 3:
+                                                strHoras = fMomentos[3].ToString();
+                                                strTipo = oTipoHora.Festivo.ToString();
+                                                break;
+                                            default:
+                                                strHoras = "0";
+                                                strTipo = "0";
+                                                break;
+                                        }
+                                        lReturn.Add(new Excel
+                                        {
+                                            str1 = nombre,
+                                            str2 = codEmpl.ToString(),
+                                            str3 = numeroOt.ToString(),
+                                            str4 = nombreOt,
+                                            str5 = strNumeroPresu,
+                                            str6 = "XX",
+                                            str7 = strNombreCapitulo,
+                                            str8 = strAnexo,
+                                            str9 = strVersion,
+                                            str10 = strHoras,
+                                            str11 = strTipo
+                                        });
+                                    }
+                                }
+                                else
+                                {
+
+                                    var oPreslin = await aldakinDbContext.Preslin.FirstOrDefaultAsync(x => x.Idpreslin == p);
+                                    strAnexo = oPreslin.Anexo.ToString();
+                                    strVersion = oPreslin.Version.ToString();
+                                    List<Lineas> lLineasPres = lTemp.Where(x => x.Idpreslin == p).ToList();
+
+                                    fMomentos = await WorkMomentDay(lLineasPres, oOt.CodEnt);
+                                    for (int i = 0; i <= 3; i++)
+                                    {
+                                        //0 = normal, 1 = noche, 2 = sabado, 3 = festivo
+                                        string strHoras, strTipo;
+                                        switch (i)
+                                        {
+                                            case 0:
+                                                strHoras = fMomentos[0].ToString();
+                                                strTipo = oTipoHora.Normal.ToString();
+                                                break;
+                                            case 1:
+                                                strHoras = fMomentos[1].ToString();
+                                                strTipo = oTipoHora.Noche.ToString();
+                                                break;
+                                            case 2:
+                                                strHoras = fMomentos[2].ToString();
+                                                strTipo = oTipoHora.Sabado.ToString();
+                                                break;
+                                            case 3:
+                                                strHoras = fMomentos[3].ToString();
+                                                strTipo = oTipoHora.Festivo.ToString();
+                                                break;
+                                            default:
+                                                strHoras = "0";
+                                                strTipo = "0";
+                                                break;
+                                        }
+                                        lReturn.Add(new Excel
+                                        {
+                                            str1 = nombre,
+                                            str2 = codEmpl.ToString(),
+                                            str3 = numeroOt.ToString(),
+                                            str4 = nombreOt,
+                                            str5 = strNumeroPresu,
+                                            str6 = "XX",
+                                            str7 = strNombreCapitulo,
+                                            str8 = strAnexo,
+                                            str9 = strVersion,
+                                            str10 = strHoras,
+                                            str11 = strTipo
+                                        });
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return lReturn;
+        }
+
+        private async Task<float[]> WorkMomentDay(List<Lineas> lLines, int iCodEnt)//, DateTime dtIni, DateTime dtEnd
+        {
+            //devuelve un array con las horas trabajadas entre la hora inicio y fin segun su momneto del dia
+            //    el indice del array marcha el momento del dia
+            //0 = normal, 1 = noche, 2 = sabado, 3 = festivo
+            float[] fReturn = new float[4];
+            fReturn[0] = 0;
+            fReturn[1] = 0;
+            fReturn[2] = 0;
+            fReturn[3] = 0;
+            foreach (Lineas l in lLines)
+            {
+                float fHora0 = 0;
+                float fHora1 = 0;
+                float fHora2 = 0;
+                float fHora3 = 0;
+                //de cada linea calculo las hoas de cada franja
+                //y añado al array de salida fReturn[0]=fReturn[0]+horas;
+
+                var festivo = await aldakinDbContext.Diasfestivos.FirstOrDefaultAsync(x => x.Calendario == iCodEnt && x.Dia == l.Inicio.Date);
+                //si es festivo??
+                if ((!(festivo is null)) && (festivo.Jornadareducida == false))
+                {
+                    //es fectivo
+                    fHora0 = 0;
+                    fHora1 = 0;
+                    fHora2 = 0;
+                    fHora3 = Convert.ToSingle((l.Fin - l.Inicio).TotalHours);
+                }
+                else
+                {
+                    //es domingo??
+                    if (l.Inicio.DayOfWeek == DayOfWeek.Sunday)
+                    {
+                        fHora0 = 0;
+                        fHora1 = 0;
+                        fHora2 = 0;
+                        fHora3 = Convert.ToSingle((l.Fin - l.Inicio).TotalHours);
+                    }
+                    else
+                    {
+                        //es sabado
+                        if (l.Inicio.DayOfWeek == DayOfWeek.Saturday)
+                        {
+                            //sabado
+                            //horas de 00:00 a 06:00 festivo
+                            //horas de 06:00 a 14:00 sabado
+                            //horas de 14:00 a 24:00 festivo
+
+
+                            //Inicio > 00:00 &&Inicio < 06:00 && fin <= 6:00 (OK)
+                            if (l.Inicio.TimeOfDay >= new TimeSpan(0, 0, 0) && l.Inicio.TimeOfDay < new TimeSpan(6, 0, 0) && l.Fin.TimeOfDay <= new TimeSpan(6, 0, 0))
+                            {
+                                fHora0 = 0;
+                                fHora1 = 0;
+                                fHora2 = 0;
+                                fHora3 = Convert.ToSingle((l.Fin - l.Inicio).TotalHours);
+                            }
+
+                            //Inicio > 00:00 &&Inicio < 06:00  && fin <= 14:00 (OK)
+                            if (l.Inicio.TimeOfDay >= new TimeSpan(0, 0, 0) && l.Inicio.TimeOfDay < new TimeSpan(6, 0, 0) && l.Fin.TimeOfDay <= new TimeSpan(14, 0, 0))
+                            {
+                                fHora0 = 0;
+                                fHora1 = 0;
+                                fHora2 = Convert.ToSingle((new TimeSpan(14, 0, 0) - l.Fin.TimeOfDay).TotalHours);
+                                fHora3 = Convert.ToSingle((new TimeSpan(6, 0, 0) - l.Inicio.TimeOfDay).TotalHours);
+                            }
+
+                            //Inicio > 00:00 &&Inicio < 06:00   && fin => 14:00 (OK)
+                            if (l.Inicio.TimeOfDay >= new TimeSpan(0, 0, 0) && l.Inicio.TimeOfDay < new TimeSpan(6, 0, 0) && l.Fin.TimeOfDay >= new TimeSpan(14, 0, 0))
+                            {
+                                fHora0 = 0;
+                                fHora1 = 0;
+                                fHora2 = Convert.ToSingle((new TimeSpan(14, 0, 0) - new TimeSpan(6, 0, 0)).TotalHours);
+                                fHora3 = Convert.ToSingle((((new TimeSpan(6, 0, 0) - l.Inicio.TimeOfDay).TotalHours)) + (((l.Fin.TimeOfDay - new TimeSpan(14, 0, 0)).TotalHours)));
+                            }
+
+                            //Inicio > 6:00 && fin <= 14:00 (OK)
+                            if (l.Inicio.TimeOfDay >= new TimeSpan(6, 0, 0) && l.Fin.TimeOfDay <= new TimeSpan(14, 0, 0))
+                            {
+                                fHora0 = 0;
+                                fHora1 = 0;
+                                fHora2 = Convert.ToSingle((l.Fin.TimeOfDay - l.Inicio.TimeOfDay).TotalHours);
+                                fHora3 = 0;
+                            }
+
+                            //Inicio > 6:00 && fin >= 14:00 (OK)
+                            if (l.Inicio.TimeOfDay >= new TimeSpan(6, 0, 0) && l.Fin.TimeOfDay >= new TimeSpan(14, 0, 0))
+                            {
+                                fHora0 = 0;
+                                fHora1 = 0;
+                                fHora2 = Convert.ToSingle((new TimeSpan(14, 0, 0) - l.Inicio.TimeOfDay).TotalHours);
+                                fHora3 = Convert.ToSingle((l.Fin.TimeOfDay - new TimeSpan(14, 0, 0)).TotalHours);
+                            }
+
+                            //Inicio > 14:00 && fin >= 14:00 (OK)
+                            if (l.Inicio.TimeOfDay >= new TimeSpan(14, 0, 0) && l.Fin.TimeOfDay > new TimeSpan(14, 0, 0))
+                            {
+                                fHora0 = 0;
+                                fHora1 = 0;
+                                fHora2 = 0;
+                                fHora3 = Convert.ToSingle((l.Fin - l.Inicio).TotalHours);
+                            }
+
+                        }
+                        else
+                        {
+                            //es dia normal?
+                            //horas de 00:00 a 06:00 nocturno
+                            //horas de 06:00 a 22:00 normal
+                            //horas de 22:00 a 24:00 nocturno
+
+                            //Inicio > 00:00 &&Inicio < 06:00 && fin <= 6:00 (OK)
+                            if (l.Inicio.TimeOfDay >= new TimeSpan(0, 0, 0) && l.Inicio.TimeOfDay < new TimeSpan(6, 0, 0) && l.Fin.TimeOfDay <= new TimeSpan(6, 0, 0))
+                            {
+                                fHora0 = 0;
+                                fHora1 = Convert.ToSingle((l.Fin - l.Inicio).TotalHours);
+                                fHora2 = 0;
+                                fHora3 = 0;
+                            }
+
+                            //Inicio > 00:00 &&Inicio < 06:00  && fin <= 22:00 (OK)
+                            if (l.Inicio.TimeOfDay >= new TimeSpan(0, 0, 0) && l.Inicio.TimeOfDay < new TimeSpan(6, 0, 0) && l.Fin.TimeOfDay <= new TimeSpan(22, 0, 0))
+                            {
+                                fHora0 = Convert.ToSingle((new TimeSpan(22, 0, 0) - l.Fin.TimeOfDay).TotalHours);
+                                fHora1 = Convert.ToSingle((new TimeSpan(6, 0, 0) - l.Inicio.TimeOfDay).TotalHours);
+                                fHora2 = 0;
+                                fHora3 = 0;
+                            }
+
+                            //Inicio > 00:00 &&Inicio < 06:00   && fin => 22:00 (OK)
+                            if (l.Inicio.TimeOfDay >= new TimeSpan(0, 0, 0) && l.Inicio.TimeOfDay < new TimeSpan(6, 0, 0) && l.Fin.TimeOfDay >= new TimeSpan(22, 0, 0))
+                            {
+                                fHora0 = Convert.ToSingle((new TimeSpan(22, 0, 0) - new TimeSpan(6, 0, 0)).TotalHours);
+                                fHora1 = Convert.ToSingle((((new TimeSpan(6, 0, 0) - l.Inicio.TimeOfDay).TotalHours)) + (((l.Fin.TimeOfDay - new TimeSpan(22, 0, 0)).TotalHours)));
+                                fHora2 = 0;
+                                fHora3 = 0;
+                            }
+
+                            //Inicio > 6:00 && fin <= 22:00 (OK)
+                            if (l.Inicio.TimeOfDay >= new TimeSpan(6, 0, 0) && l.Fin.TimeOfDay <= new TimeSpan(22, 0, 0))
+                            {
+                                fHora0 = Convert.ToSingle((l.Fin.TimeOfDay - l.Inicio.TimeOfDay).TotalHours);
+                                fHora1 = 0;
+                                fHora2 = 0;
+                                fHora3 = 0;
+                            }
+
+                            //Inicio > 6:00 && fin >= 22:00 (OK)
+                            if (l.Inicio.TimeOfDay >= new TimeSpan(6, 0, 0) && l.Fin.TimeOfDay >= new TimeSpan(22, 0, 0))
+                            {
+                                fHora0 = Convert.ToSingle((new TimeSpan(22, 0, 0) - l.Inicio.TimeOfDay).TotalHours);
+                                fHora1 = Convert.ToSingle((l.Fin.TimeOfDay - new TimeSpan(22, 0, 0)).TotalHours);
+                                fHora2 = 0;
+                                fHora3 = 0;
+                            }
+
+                            //Inicio > 14:00 && fin >= 14:00 (OK)
+                            if (l.Inicio.TimeOfDay >= new TimeSpan(22, 0, 0) && l.Fin.TimeOfDay > new TimeSpan(22, 0, 0))
+                            {
+                                fHora0 = 0;
+                                fHora1 = Convert.ToSingle((l.Fin - l.Inicio).TotalHours);
+                                fHora2 = 0;
+                                fHora3 = 0;
+                            }
+                        }
+                    }
+                }
+
+                fReturn[0] = fReturn[0] + fHora0;
+                fReturn[1] = fReturn[1] + fHora1;
+                fReturn[2] = fReturn[2] + fHora2;
+                fReturn[3] = fReturn[3] + fHora3;
+            }
+
+
+            return fReturn;
+        }
+
+
+        //private int WorkMomentDay(DateTime dtIni,DateTime dtEnd)
+        //{
+        //    int iReturn = 0;
+
+        //    #region Domingos
+        //    if (dtIni.DayOfWeek == DayOfWeek.Sunday)
+        //    {
+        //        iReturn = 3;
+        //    }
+        //    #endregion
+
+
+        //    #region Sabados
+        //    else if (dtIni.DayOfWeek == DayOfWeek.Saturday)
+        //    {
+        //        #region Inicio < 6:00 && fin <= 14:00 (OK)
+        //        if (dtIni.TimeOfDay < new TimeSpan(6, 0, 0) && dtEnd.TimeOfDay <= new TimeSpan(14, 0, 0) && dtEnd.TimeOfDay != new TimeSpan(0, 0, 0))
+        //        {
+        //            #region Acaba despues de las 6:00
+        //            if (dtEnd.TimeOfDay > new TimeSpan(6, 0, 0))
+        //            {
+        //                //Parte diurna
+        //                tmp[tmp.Length - 1].idLinea = lineas[i].idLinea;
+        //                tmp[tmp.Length - 1].idOriginal = lineas[i].idOriginal;
+        //                tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //                tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //                tmp[tmp.Length - 1].Inicio = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 6, 0, 0);
+        //                tmp[tmp.Length - 1].Fin = lineas[i].Fin;
+
+
+        //                diurnas = (lineas[i].Fin.TimeOfDay - new TimeSpan(6, 0, 0)).TotalHours;
+
+
+        //                if (lineas[i].Horas == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].HorasViaje = (decimal)diurnas;
+        //                }
+        //                else if (lineas[i].HorasViaje == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].Horas = (decimal)diurnas;
+        //                }
+        //                if (myArrayFestivos != null)
+        //                {
+        //                    if (dtIni.DayOfWeek == DayOfWeek.Saturday) iReturn = 2;//"Sabado";
+        //                    else if (dtIni.DayOfWeek == DayOfWeek.Sunday || festivoActual.Festivo) iReturn = 3;
+        //                    else tmp[tmp.Length - 1].momento = 0;
+
+        //                }
+        //                else if (myArrayFestivos == null)
+        //                {
+        //                    if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Saturday) tmp[tmp.Length - 1].momento = 2;//"Sabado";
+        //                    else if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Sunday) tmp[tmp.Length - 1].momento = 3;
+        //                    else tmp[tmp.Length - 1].momento = 0;
+        //                }
+
+        //                tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //                tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //                tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+
+        //                //Parte nocrutna
+        //                Array.Resize(ref tmp, tmp.Length + 1);
+        //                tmp[tmp.Length - 1] = new Linea();
+        //                tmp[tmp.Length - 1].idLinea = -2;
+        //                tmp[tmp.Length - 1].idOriginal = -2;
+        //                tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //                tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //                tmp[tmp.Length - 1].Inicio = lineas[i].Inicio;
+        //                tmp[tmp.Length - 1].Fin = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 6, 0, 0);
+
+
+        //                nocturnas = (new TimeSpan(6, 0, 0) - lineas[i].Inicio.TimeOfDay).TotalHours;
+
+
+        //                if (lineas[i].Horas == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].HorasViaje = (decimal)nocturnas;
+        //                }
+        //                else if (lineas[i].HorasViaje == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].Horas = (decimal)nocturnas;
+        //                }
+        //                tmp[tmp.Length - 1].momento = 1; //Nocturna
+
+        //                tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //                tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //                tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+        //            }
+        //            #endregion
+        //            #region Acaba antes de las 6:00
+        //            else if (lineas[i].Fin.TimeOfDay <= new TimeSpan(6, 0, 0))
+        //            {
+        //                tmp[tmp.Length - 1].idLinea = lineas[i].idLinea;
+        //                tmp[tmp.Length - 1].idOriginal = lineas[i].idOriginal;
+        //                tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //                tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //                tmp[tmp.Length - 1].Inicio = lineas[i].Inicio;
+        //                tmp[tmp.Length - 1].Fin = lineas[i].Fin;
+        //                tmp[tmp.Length - 1].HorasViaje = lineas[i].HorasViaje;
+        //                tmp[tmp.Length - 1].Horas = lineas[i].Horas;
+
+        //                tmp[tmp.Length - 1].momento = 1; //Nocturna
+        //                tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //                tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //                tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+
+        //            }
+        //            #endregion
+        //        }
+        //        #endregion
+
+        //        #region Inicio >= 6:00 && Fin <= 14:00 (OK)
+        //        else if (lineas[i].Inicio.TimeOfDay >= new TimeSpan(6, 0, 0) && lineas[i].Fin.TimeOfDay <= new TimeSpan(14, 0, 0) && lineas[i].Fin.TimeOfDay != new TimeSpan(0, 0, 0))
+        //        {
+        //            tmp[tmp.Length - 1].Inicio = lineas[i].Inicio;
+        //            tmp[tmp.Length - 1].Fin = lineas[i].Fin;
+        //            tmp[tmp.Length - 1].idLinea = lineas[i].idLinea;
+        //            tmp[tmp.Length - 1].idOriginal = lineas[i].idOriginal;
+        //            tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //            tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //            tmp[tmp.Length - 1].Horas = lineas[i].Horas;
+        //            tmp[tmp.Length - 1].HorasViaje = lineas[i].HorasViaje;
+
+
+        //            if (myArrayFestivos != null)
+        //            {
+        //                if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Saturday) tmp[tmp.Length - 1].momento = 2;//"Sabado";
+        //                else if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Sunday || festivoActual.Festivo) tmp[tmp.Length - 1].momento = 3;
+        //                else tmp[tmp.Length - 1].momento = 0;
+
+        //            }
+        //            else if (myArrayFestivos == null)
+        //            {
+        //                if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Saturday) tmp[tmp.Length - 1].momento = 2;//"Sabado";
+        //                else if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Sunday) tmp[tmp.Length - 1].momento = 3;
+        //                else tmp[tmp.Length - 1].momento = 0;
+        //            }
+        //            tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //            tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //            tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+
+        //        }
+
+        //        //Sustituir hasta aqui
+        //        #endregion
+
+        //        #region Inicio >= 6:00 && Inicio < 14:00 && fin > 14:00 && fin <= 22:00
+        //        else if (lineas[i].Fin.TimeOfDay > new TimeSpan(14, 0, 0) && lineas[i].Fin.TimeOfDay <= new TimeSpan(22, 0, 0) && lineas[i].Inicio.TimeOfDay >= new TimeSpan(6, 0, 0) && lineas[i].Inicio.TimeOfDay < new TimeSpan(14, 0, 0))
+        //        {
+        //            #region Empieza antes de las 14:00
+        //            if (lineas[i].Inicio.TimeOfDay < new TimeSpan(14, 0, 0))
+        //            {
+        //                //Parte diurna
+        //                tmp[tmp.Length - 1].idLinea = lineas[i].idLinea;
+        //                tmp[tmp.Length - 1].idOriginal = lineas[i].idOriginal;
+        //                tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //                tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //                tmp[tmp.Length - 1].Inicio = lineas[i].Inicio;
+        //                tmp[tmp.Length - 1].Fin = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 14, 0, 0);
+
+
+        //                diurnas = (new TimeSpan(14, 0, 0) - lineas[i].Inicio.TimeOfDay).TotalHours;
+
+
+        //                if (lineas[i].Horas == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].HorasViaje = (decimal)diurnas;
+        //                }
+        //                else if (lineas[i].HorasViaje == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].Horas = (decimal)diurnas;
+        //                }
+
+
+        //                if (myArrayFestivos != null)
+        //                {
+        //                    if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Saturday) tmp[tmp.Length - 1].momento = 2;//"Sabado";
+        //                    else if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Sunday || festivoActual.Festivo) tmp[tmp.Length - 1].momento = 3;
+        //                    else tmp[tmp.Length - 1].momento = 0;
+
+        //                }
+        //                else if (myArrayFestivos == null)
+        //                {
+        //                    if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Saturday) tmp[tmp.Length - 1].momento = 2;//"Sabado";
+        //                    else if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Sunday) tmp[tmp.Length - 1].momento = 3;
+        //                    else tmp[tmp.Length - 1].momento = 0;
+        //                }
+
+        //                tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //                tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //                tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+
+        //                //Parte festiva
+        //                Array.Resize(ref tmp, tmp.Length + 1);
+        //                tmp[tmp.Length - 1] = new Linea();
+        //                tmp[tmp.Length - 1].idLinea = -2;
+        //                tmp[tmp.Length - 1].idOriginal = -2;
+        //                tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //                tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //                tmp[tmp.Length - 1].Inicio = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 14, 0, 0);
+        //                tmp[tmp.Length - 1].Fin = lineas[i].Fin;
+
+
+        //                nocturnas = (lineas[i].Fin.TimeOfDay - new TimeSpan(14, 0, 0)).TotalHours;
+
+
+        //                if (lineas[i].Horas == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].HorasViaje = (decimal)nocturnas;
+        //                }
+        //                else if (lineas[i].HorasViaje == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].Horas = (decimal)nocturnas;
+        //                }
+        //                tmp[tmp.Length - 1].momento = 3; //festiva
+
+        //                tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //                tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //                tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+        //            }
+        //            #endregion
+        //        }
+        //        #endregion
+
+        //        #region Inicio < 6:00 && fin > 14:00 && fin < 22:00
+        //        else if (lineas[i].Fin.TimeOfDay > new TimeSpan(14, 0, 0) && lineas[i].Fin.TimeOfDay <= new TimeSpan(22, 0, 0) && lineas[i].Inicio.TimeOfDay < new TimeSpan(6, 0, 0))
+        //        {
+
+        //            //Parte nocturna (Mañana)                   
+        //            tmp[tmp.Length - 1].idLinea = lineas[i].idLinea;
+        //            tmp[tmp.Length - 1].idOriginal = lineas[i].idOriginal;
+        //            tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //            tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //            tmp[tmp.Length - 1].Inicio = lineas[i].Inicio;
+        //            tmp[tmp.Length - 1].Fin = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 6, 0, 0);
+
+
+        //            nocturnas = (new TimeSpan(6, 0, 0) - lineas[i].Inicio.TimeOfDay).TotalHours;
+
+
+        //            if (lineas[i].Horas == 0)
+        //            {
+        //                tmp[tmp.Length - 1].HorasViaje = (decimal)nocturnas;
+        //            }
+        //            else if (lineas[i].HorasViaje == 0)
+        //            {
+        //                tmp[tmp.Length - 1].Horas = (decimal)nocturnas;
+        //            }
+        //            tmp[tmp.Length - 1].momento = 1; //Nocturna
+
+        //            tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //            tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //            tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+
+        //            //Parte diurna
+        //            Array.Resize(ref tmp, tmp.Length + 1);
+        //            tmp[tmp.Length - 1] = new Linea();
+        //            tmp[tmp.Length - 1].idLinea = -2;
+        //            tmp[tmp.Length - 1].idOriginal = -2;
+        //            tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //            tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //            tmp[tmp.Length - 1].Inicio = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 6, 0, 0);
+        //            tmp[tmp.Length - 1].Fin = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 14, 0, 0);
+
+
+        //            diurnas = 8.0;
+
+
+        //            if (lineas[i].Horas == 0)
+        //            {
+        //                tmp[tmp.Length - 1].HorasViaje = (decimal)diurnas;
+        //            }
+        //            else if (lineas[i].HorasViaje == 0)
+        //            {
+        //                tmp[tmp.Length - 1].Horas = (decimal)diurnas;
+        //            }
+
+
+        //            if (myArrayFestivos != null)
+        //            {
+        //                if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Saturday) tmp[tmp.Length - 1].momento = 2;//"Sabado";
+        //                else if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Sunday || festivoActual.Festivo) tmp[tmp.Length - 1].momento = 3;
+        //                else tmp[tmp.Length - 1].momento = 0;
+
+        //            }
+        //            else if (myArrayFestivos == null)
+        //            {
+        //                if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Saturday) tmp[tmp.Length - 1].momento = 2;//"Sabado";
+        //                else if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Sunday) tmp[tmp.Length - 1].momento = 3;
+        //                else tmp[tmp.Length - 1].momento = 0;
+        //            }
+
+        //            tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //            tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //            tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+
+        //            //Parte nocturna (Tarde)
+        //            Array.Resize(ref tmp, tmp.Length + 1);
+        //            tmp[tmp.Length - 1] = new Linea();
+        //            tmp[tmp.Length - 1].idLinea = -2;
+        //            tmp[tmp.Length - 1].idOriginal = -2;
+        //            tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //            tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //            tmp[tmp.Length - 1].Inicio = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 14, 0, 0);
+        //            tmp[tmp.Length - 1].Fin = lineas[i].Fin;
+
+        //            nocturnas = (lineas[i].Fin.TimeOfDay - new TimeSpan(14, 0, 0)).TotalHours;
+
+
+        //            if (lineas[i].Horas == 0)
+        //            {
+        //                tmp[tmp.Length - 1].HorasViaje = (decimal)nocturnas;
+        //            }
+        //            else if (lineas[i].HorasViaje == 0)
+        //            {
+        //                tmp[tmp.Length - 1].Horas = (decimal)nocturnas;
+        //            }
+        //            tmp[tmp.Length - 1].momento = 3; //Nocturna
+
+        //            tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //            tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //            tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+
+        //        }
+        //        #endregion
+
+        //        #region Inicio >= 14:00 && fin < 22:00
+        //        else if (lineas[i].Inicio.TimeOfDay >= new TimeSpan(14, 0, 0) && lineas[i].Inicio.TimeOfDay <= new TimeSpan(22, 0, 0) && lineas[i].Fin.TimeOfDay <= new TimeSpan(22, 0, 0))
+        //        {
+        //            #region Empieza despues de 14:00
+        //            if (lineas[i].Inicio.TimeOfDay >= new TimeSpan(14, 0, 0))
+        //            {
+        //                tmp[tmp.Length - 1].idLinea = lineas[i].idLinea;
+        //                tmp[tmp.Length - 1].idOriginal = lineas[i].idOriginal;
+        //                tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //                tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //                tmp[tmp.Length - 1].Inicio = lineas[i].Inicio;
+        //                tmp[tmp.Length - 1].Fin = lineas[i].Fin;
+
+
+        //                nocturnas = (lineas[i].Fin.TimeOfDay - lineas[i].Inicio.TimeOfDay).TotalHours;
+
+
+        //                if (lineas[i].Horas == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].HorasViaje = (decimal)nocturnas;
+        //                }
+        //                else if (lineas[i].HorasViaje == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].Horas = (decimal)nocturnas;
+        //                }
+        //                tmp[tmp.Length - 1].momento = 3; //Festiva
+        //                tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //                tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //                tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+
+        //            }
+        //            #endregion
+        //        }
+        //        #endregion
+
+        //        #region Inicio >= 0:00 && fin > 22:00 
+        //        else if (lineas[i].Inicio.TimeOfDay >= new TimeSpan(0, 0, 0) && (lineas[i].Fin.TimeOfDay > new TimeSpan(22, 0, 0) || lineas[i].Fin.TimeOfDay == new TimeSpan(0, 0, 0)))
+        //        {
+        //            #region Empieza antes de las 6:00
+        //            if (lineas[i].Inicio.TimeOfDay < new TimeSpan(6, 0, 0))
+        //            {
+        //                //Parte nocturna (Mañana)
+        //                tmp[tmp.Length - 1].idLinea = lineas[i].idLinea;
+        //                tmp[tmp.Length - 1].idOriginal = lineas[i].idOriginal;
+        //                tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //                tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //                tmp[tmp.Length - 1].Inicio = lineas[i].Inicio;
+        //                tmp[tmp.Length - 1].Fin = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 6, 0, 0);
+
+        //                nocturnas = (new TimeSpan(6, 0, 0) - lineas[i].Inicio.TimeOfDay).TotalHours;
+
+
+        //                if (lineas[i].Horas == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].HorasViaje = (decimal)nocturnas;
+        //                }
+        //                else if (lineas[i].HorasViaje == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].Horas = (decimal)nocturnas;
+        //                }
+        //                tmp[tmp.Length - 1].momento = 1;//"Nocturna";    
+
+        //                tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //                tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //                tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+
+        //                //Parte sabado
+        //                tmp[tmp.Length - 1].idLinea = lineas[i].idLinea;
+        //                tmp[tmp.Length - 1].idOriginal = lineas[i].idOriginal;
+        //                tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //                tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //                tmp[tmp.Length - 1].Inicio = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 6, 0, 0);
+        //                tmp[tmp.Length - 1].Fin = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 14, 0, 0);
+
+        //                diurnas = 8.0;
+
+
+        //                if (lineas[i].Horas == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].HorasViaje = (decimal)diurnas;
+        //                }
+        //                else if (lineas[i].HorasViaje == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].Horas = (decimal)diurnas;
+        //                }
+        //                tmp[tmp.Length - 1].momento = 2;//"Sabado";    
+
+        //                tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //                tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //                tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+
+        //                //Parte Festiva
+        //                Array.Resize(ref tmp, tmp.Length + 1);
+        //                tmp[tmp.Length - 1] = new Linea();
+        //                tmp[tmp.Length - 1].idLinea = -2;
+        //                tmp[tmp.Length - 1].idOriginal = -2;
+        //                tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //                tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //                tmp[tmp.Length - 1].Inicio = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 14, 0, 0);
+        //                tmp[tmp.Length - 1].Fin = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 22, 0, 0);
 
 
 
+        //                nocturnas = 8.0;
+
+
+        //                if (lineas[i].Horas == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].HorasViaje = (decimal)nocturnas;
+        //                }
+        //                else if (lineas[i].HorasViaje == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].Horas = (decimal)nocturnas;
+        //                }
+        //                tmp[tmp.Length - 1].momento = 3; //Festiva
+
+        //                tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //                tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //                tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+
+        //                //Parte nocrutna (Tarde)
+        //                Array.Resize(ref tmp, tmp.Length + 1);
+        //                tmp[tmp.Length - 1] = new Linea();
+        //                tmp[tmp.Length - 1].idLinea = -2;
+        //                tmp[tmp.Length - 1].idOriginal = -2;
+        //                tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //                tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //                tmp[tmp.Length - 1].Inicio = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 22, 0, 0);
+        //                tmp[tmp.Length - 1].Fin = lineas[i].Fin;
+
+
+        //                nocturnas = (tmp[tmp.Length - 1].Fin - tmp[tmp.Length - 1].Inicio).TotalHours;
+
+
+        //                if (lineas[i].Horas == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].HorasViaje = (decimal)nocturnas;
+        //                }
+        //                else if (lineas[i].HorasViaje == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].Horas = (decimal)nocturnas;
+        //                }
+        //                tmp[tmp.Length - 1].momento = 1; //Nocturna
+
+        //                tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //                tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //                tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+        //            }
+        //            #endregion
+
+        //            #region Empieza antes de las 14:00
+        //            else if (lineas[i].Inicio.TimeOfDay < new TimeSpan(14, 0, 0))
+        //            {
+        //                //Parte sabado
+        //                tmp[tmp.Length - 1].idLinea = lineas[i].idLinea;
+        //                tmp[tmp.Length - 1].idOriginal = lineas[i].idOriginal;
+        //                tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //                tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //                tmp[tmp.Length - 1].Inicio = lineas[i].Inicio;
+        //                tmp[tmp.Length - 1].Fin = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 14, 0, 0);
+
+        //                diurnas = (new TimeSpan(14, 0, 0) - lineas[i].Inicio.TimeOfDay).TotalHours;
+
+
+        //                if (lineas[i].Horas == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].HorasViaje = (decimal)diurnas;
+        //                }
+        //                else if (lineas[i].HorasViaje == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].Horas = (decimal)diurnas;
+        //                }
+        //                tmp[tmp.Length - 1].momento = 2;//"Sabado";    
+
+        //                tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //                tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //                tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+
+        //                //Parte Festiva
+        //                Array.Resize(ref tmp, tmp.Length + 1);
+        //                tmp[tmp.Length - 1] = new Linea();
+        //                tmp[tmp.Length - 1].idLinea = -2;
+        //                tmp[tmp.Length - 1].idOriginal = -2;
+        //                tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //                tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //                tmp[tmp.Length - 1].Inicio = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 14, 0, 0);
+        //                tmp[tmp.Length - 1].Fin = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 22, 0, 0);
+
+
+
+        //                nocturnas = 8.0;
+
+
+        //                if (lineas[i].Horas == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].HorasViaje = (decimal)nocturnas;
+        //                }
+        //                else if (lineas[i].HorasViaje == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].Horas = (decimal)nocturnas;
+        //                }
+        //                tmp[tmp.Length - 1].momento = 3; //FEstiva
+
+        //                tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //                tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //                tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+
+        //                //Parte nocrutna
+        //                Array.Resize(ref tmp, tmp.Length + 1);
+        //                tmp[tmp.Length - 1] = new Linea();
+        //                tmp[tmp.Length - 1].idLinea = -2;
+        //                tmp[tmp.Length - 1].idOriginal = -2;
+        //                tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //                tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //                tmp[tmp.Length - 1].Inicio = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 22, 0, 0);
+        //                tmp[tmp.Length - 1].Fin = lineas[i].Fin;
+
+
+        //                if (lineas[i].Fin.TimeOfDay == new TimeSpan(0, 0, 0)) nocturnas = 2.0;
+        //                else nocturnas = (lineas[i].Fin.TimeOfDay - new TimeSpan(22, 0, 0)).TotalHours;
+
+
+        //                if (lineas[i].Horas == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].HorasViaje = (decimal)nocturnas;
+        //                }
+        //                else if (lineas[i].HorasViaje == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].Horas = (decimal)nocturnas;
+        //                }
+        //                tmp[tmp.Length - 1].momento = 1; //Nocturna
+
+        //                tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //                tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //                tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+        //            }
+        //            #endregion
+
+        //            #region Empieza antes de las 22:00
+        //            else if (lineas[i].Inicio.TimeOfDay < new TimeSpan(22, 0, 0))
+        //            {
+        //                //Parte diurna
+        //                tmp[tmp.Length - 1].idLinea = lineas[i].idLinea;
+        //                tmp[tmp.Length - 1].idOriginal = lineas[i].idOriginal;
+        //                tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //                tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //                tmp[tmp.Length - 1].Inicio = lineas[i].Inicio;
+        //                tmp[tmp.Length - 1].Fin = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 22, 0, 0);
+
+        //                diurnas = (new TimeSpan(22, 0, 0) - lineas[i].Inicio.TimeOfDay).TotalHours;
+
+
+        //                if (lineas[i].Horas == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].HorasViaje = (decimal)diurnas;
+        //                }
+        //                else if (lineas[i].HorasViaje == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].Horas = (decimal)diurnas;
+        //                }
+        //                tmp[tmp.Length - 1].momento = 3;//"Festivo";    
+
+        //                tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //                tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //                tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+
+        //                //Parte nocrutna
+        //                Array.Resize(ref tmp, tmp.Length + 1);
+        //                tmp[tmp.Length - 1] = new Linea();
+        //                tmp[tmp.Length - 1].idLinea = -2;
+        //                tmp[tmp.Length - 1].idOriginal = -2;
+        //                tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //                tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //                tmp[tmp.Length - 1].Inicio = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 22, 0, 0);
+        //                tmp[tmp.Length - 1].Fin = lineas[i].Fin;
+
+
+        //                if (lineas[i].Fin.TimeOfDay == new TimeSpan(0, 0, 0)) nocturnas = 2.0;
+        //                else nocturnas = (lineas[i].Fin.TimeOfDay - new TimeSpan(22, 0, 0)).TotalHours;
+
+
+        //                if (lineas[i].Horas == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].HorasViaje = (decimal)nocturnas;
+        //                }
+        //                else if (lineas[i].HorasViaje == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].Horas = (decimal)nocturnas;
+        //                }
+        //                tmp[tmp.Length - 1].momento = 1; //Nocturna
+
+        //                tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //                tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //                tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+        //            }
+        //            #endregion
+
+        //            #region Empieza despues de las 22:00
+        //            else if (lineas[i].Inicio.TimeOfDay >= new TimeSpan(22, 0, 0))
+        //            {
+        //                tmp[tmp.Length - 1].idLinea = lineas[i].idLinea;
+        //                tmp[tmp.Length - 1].idOriginal = lineas[i].idOriginal;
+        //                tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //                tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //                tmp[tmp.Length - 1].Inicio = lineas[i].Inicio;
+        //                tmp[tmp.Length - 1].Fin = lineas[i].Fin;
+        //                tmp[tmp.Length - 1].HorasViaje = lineas[i].HorasViaje;
+        //                tmp[tmp.Length - 1].Horas = lineas[i].Horas;
+
+
+        //                tmp[tmp.Length - 1].momento = 1; //Nocturna
+        //                tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //                tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //                tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+
+        //            }
+        //            #endregion
+        //        }
+        //        #endregion
+
+        //    }
+        //    #endregion
+
+        //    #region Lunes a Viernes
+        //    else
+        //    {
+        //        #region Inicio < 6:00 && fin <= 22:00 (OK)
+        //        if (lineas[i].Inicio.TimeOfDay < new TimeSpan(6, 0, 0) && lineas[i].Fin.TimeOfDay <= new TimeSpan(22, 0, 0))
+        //        {
+        //            #region Acaba despues de las 6:00
+        //            if (lineas[i].Fin.TimeOfDay > new TimeSpan(6, 0, 0))
+        //            {
+        //                //Parte diurna
+        //                tmp[tmp.Length - 1].idLinea = lineas[i].idLinea;
+        //                tmp[tmp.Length - 1].idOriginal = lineas[i].idOriginal;
+        //                tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //                tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //                tmp[tmp.Length - 1].Inicio = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 6, 0, 0);
+        //                tmp[tmp.Length - 1].Fin = lineas[i].Fin;
+
+
+        //                diurnas = (lineas[i].Fin.TimeOfDay - new TimeSpan(6, 0, 0)).TotalHours;
+
+
+        //                if (lineas[i].Horas == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].HorasViaje = (decimal)diurnas;
+        //                }
+        //                else if (lineas[i].HorasViaje == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].Horas = (decimal)diurnas;
+        //                }
+        //                if (myArrayFestivos != null)
+        //                {
+        //                    if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Saturday) tmp[tmp.Length - 1].momento = 2;//"Sabado";
+        //                    else if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Sunday || festivoActual.Festivo) tmp[tmp.Length - 1].momento = 3;
+        //                    else tmp[tmp.Length - 1].momento = 0;
+
+        //                }
+        //                else if (myArrayFestivos == null)
+        //                {
+        //                    if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Saturday) tmp[tmp.Length - 1].momento = 2;//"Sabado";
+        //                    else if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Sunday) tmp[tmp.Length - 1].momento = 3;
+        //                    else tmp[tmp.Length - 1].momento = 0;
+        //                }
+
+        //                tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //                tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //                tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+
+        //                //Parte nocrutna
+        //                Array.Resize(ref tmp, tmp.Length + 1);
+        //                tmp[tmp.Length - 1] = new Linea();
+        //                tmp[tmp.Length - 1].idLinea = -2;
+        //                tmp[tmp.Length - 1].idOriginal = -2;
+        //                tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //                tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //                tmp[tmp.Length - 1].Inicio = lineas[i].Inicio;
+        //                tmp[tmp.Length - 1].Fin = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 6, 0, 0);
+
+
+        //                nocturnas = (new TimeSpan(6, 0, 0) - lineas[i].Inicio.TimeOfDay).TotalHours;
+
+
+        //                if (lineas[i].Horas == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].HorasViaje = (decimal)nocturnas;
+        //                }
+        //                else if (lineas[i].HorasViaje == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].Horas = (decimal)nocturnas;
+        //                }
+        //                tmp[tmp.Length - 1].momento = 1; //Nocturna
+
+        //                tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //                tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //                tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+        //            }
+        //            #endregion
+        //            #region Acaba antes de las 6:00
+        //            else if (lineas[i].Fin.TimeOfDay <= new TimeSpan(6, 0, 0))
+        //            {
+        //                tmp[tmp.Length - 1].idLinea = lineas[i].idLinea;
+        //                tmp[tmp.Length - 1].idOriginal = lineas[i].idOriginal;
+        //                tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //                tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //                tmp[tmp.Length - 1].Inicio = lineas[i].Inicio;
+        //                tmp[tmp.Length - 1].Fin = lineas[i].Fin;
+        //                tmp[tmp.Length - 1].HorasViaje = lineas[i].HorasViaje;
+        //                tmp[tmp.Length - 1].Horas = lineas[i].Horas;
+
+        //                tmp[tmp.Length - 1].momento = 1; //Nocturna
+        //                tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //                tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //                tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+
+        //            }
+        //            #endregion
+        //        }
+        //        #endregion
+
+        //        #region Inicio >= 6:00 && fin > 22:00 (OK)
+        //        else if ((lineas[i].Fin.TimeOfDay > new TimeSpan(22, 0, 0) || lineas[i].Fin.TimeOfDay == new TimeSpan(0, 0, 0)) && lineas[i].Inicio.TimeOfDay >= new TimeSpan(6, 0, 0))
+        //        {
+        //            #region Empieza antes de las 22:00
+        //            if (lineas[i].Inicio.TimeOfDay < new TimeSpan(22, 0, 0))
+        //            {
+        //                //Parte diurna
+        //                tmp[tmp.Length - 1].idLinea = lineas[i].idLinea;
+        //                tmp[tmp.Length - 1].idOriginal = lineas[i].idOriginal;
+        //                tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //                tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //                tmp[tmp.Length - 1].Inicio = lineas[i].Inicio;
+        //                tmp[tmp.Length - 1].Fin = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 22, 0, 0);
+
+
+        //                diurnas = (new TimeSpan(22, 0, 0) - lineas[i].Inicio.TimeOfDay).TotalHours;
+
+
+        //                if (lineas[i].Horas == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].HorasViaje = (decimal)diurnas;
+        //                }
+        //                else if (lineas[i].HorasViaje == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].Horas = (decimal)diurnas;
+        //                }
+
+
+        //                if (myArrayFestivos != null)
+        //                {
+        //                    if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Saturday) tmp[tmp.Length - 1].momento = 2;//"Sabado";
+        //                    else if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Sunday || festivoActual.Festivo) tmp[tmp.Length - 1].momento = 3;
+        //                    else tmp[tmp.Length - 1].momento = 0;
+
+        //                }
+        //                else if (myArrayFestivos == null)
+        //                {
+        //                    if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Saturday) tmp[tmp.Length - 1].momento = 2;//"Sabado";
+        //                    else if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Sunday) tmp[tmp.Length - 1].momento = 3;
+        //                    else tmp[tmp.Length - 1].momento = 0;
+        //                }
+
+        //                tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //                tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //                tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+
+        //                //Parte nocturna
+        //                Array.Resize(ref tmp, tmp.Length + 1);
+        //                tmp[tmp.Length - 1] = new Linea();
+        //                tmp[tmp.Length - 1].idLinea = -2;
+        //                tmp[tmp.Length - 1].idOriginal = -2;
+        //                tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //                tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //                tmp[tmp.Length - 1].Inicio = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 22, 0, 0);
+        //                tmp[tmp.Length - 1].Fin = lineas[i].Fin;
+
+        //                nocturnas = (tmp[tmp.Length - 1].Fin - tmp[tmp.Length - 1].Inicio).TotalHours;
+
+
+
+        //                if (lineas[i].Horas == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].HorasViaje = (decimal)nocturnas;
+        //                }
+        //                else if (lineas[i].HorasViaje == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].Horas = (decimal)nocturnas;
+        //                }
+        //                tmp[tmp.Length - 1].momento = 1; //Nocturna
+
+        //                tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //                tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //                tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+        //            }
+        //            #endregion
+        //            #region Empieza despues de 22:00
+        //            else if (lineas[i].Inicio.TimeOfDay >= new TimeSpan(22, 0, 0))
+        //            {
+        //                tmp[tmp.Length - 1].idLinea = lineas[i].idLinea;
+        //                tmp[tmp.Length - 1].idOriginal = lineas[i].idOriginal;
+        //                tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //                tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //                tmp[tmp.Length - 1].Inicio = lineas[i].Inicio;
+        //                tmp[tmp.Length - 1].Fin = lineas[i].Fin;
+
+        //                nocturnas = (tmp[tmp.Length - 1].Fin - tmp[tmp.Length - 1].Inicio).TotalHours;
+
+
+        //                if (lineas[i].Horas == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].HorasViaje = (decimal)nocturnas;
+        //                }
+        //                else if (lineas[i].HorasViaje == 0)
+        //                {
+        //                    tmp[tmp.Length - 1].Horas = (decimal)nocturnas;
+        //                }
+        //                tmp[tmp.Length - 1].momento = 1; //Nocturna
+        //                tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //                tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //                tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+
+        //            }
+        //            #endregion
+        //        }
+        //        #endregion
+
+        //        #region Inicio < 6:00 && fin > 22:00
+        //        else if ((lineas[i].Fin.TimeOfDay > new TimeSpan(22, 0, 0) || lineas[i].Fin.TimeOfDay == new TimeSpan(0, 0, 0)) && lineas[i].Inicio.TimeOfDay < new TimeSpan(6, 0, 0))
+        //        {
+
+
+        //            //Parte nocturna (Mañana)                   
+        //            tmp[tmp.Length - 1].idLinea = lineas[i].idLinea;
+        //            tmp[tmp.Length - 1].idOriginal = lineas[i].idOriginal;
+        //            tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //            tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //            tmp[tmp.Length - 1].Inicio = lineas[i].Inicio;
+        //            tmp[tmp.Length - 1].Fin = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 6, 0, 0);
+
+
+        //            nocturnas = (new TimeSpan(6, 0, 0) - lineas[i].Inicio.TimeOfDay).TotalHours;
+
+
+        //            if (lineas[i].Horas == 0)
+        //            {
+        //                tmp[tmp.Length - 1].HorasViaje = (decimal)nocturnas;
+        //            }
+        //            else if (lineas[i].HorasViaje == 0)
+        //            {
+        //                tmp[tmp.Length - 1].Horas = (decimal)nocturnas;
+        //            }
+        //            tmp[tmp.Length - 1].momento = 1; //Nocturna
+
+        //            tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //            tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //            tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+
+        //            //Parte diurna
+        //            Array.Resize(ref tmp, tmp.Length + 1);
+        //            tmp[tmp.Length - 1] = new Linea();
+        //            tmp[tmp.Length - 1].idLinea = -2;
+        //            tmp[tmp.Length - 1].idOriginal = -2;
+        //            tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //            tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //            tmp[tmp.Length - 1].Inicio = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 6, 0, 0);
+        //            tmp[tmp.Length - 1].Fin = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 22, 0, 0);
+
+
+        //            diurnas = 16.0;
+
+
+        //            if (lineas[i].Horas == 0)
+        //            {
+        //                tmp[tmp.Length - 1].HorasViaje = (decimal)diurnas;
+        //            }
+        //            else if (lineas[i].HorasViaje == 0)
+        //            {
+        //                tmp[tmp.Length - 1].Horas = (decimal)diurnas;
+        //            }
+
+
+        //            if (myArrayFestivos != null)
+        //            {
+        //                if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Saturday) tmp[tmp.Length - 1].momento = 2;//"Sabado";
+        //                else if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Sunday || festivoActual.Festivo) tmp[tmp.Length - 1].momento = 3;
+        //                else tmp[tmp.Length - 1].momento = 0;
+
+        //            }
+        //            else if (myArrayFestivos == null)
+        //            {
+        //                if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Saturday) tmp[tmp.Length - 1].momento = 2;//"Sabado";
+        //                else if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Sunday) tmp[tmp.Length - 1].momento = 3;
+        //                else tmp[tmp.Length - 1].momento = 0;
+        //            }
+
+        //            tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //            tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //            tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+
+        //            //Parte nocturna (Tarde)
+        //            Array.Resize(ref tmp, tmp.Length + 1);
+        //            tmp[tmp.Length - 1] = new Linea();
+        //            tmp[tmp.Length - 1].idLinea = -2;
+        //            tmp[tmp.Length - 1].idOriginal = -2;
+        //            tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //            tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //            tmp[tmp.Length - 1].Inicio = new DateTime(lineas[i].Inicio.Year, lineas[i].Inicio.Month, lineas[i].Inicio.Day, 22, 0, 0);
+        //            tmp[tmp.Length - 1].Fin = lineas[i].Fin;
+
+        //            nocturnas = (tmp[tmp.Length - 1].Fin - tmp[tmp.Length - 1].Inicio).TotalHours;
+
+
+        //            if (lineas[i].Horas == 0)
+        //            {
+        //                tmp[tmp.Length - 1].HorasViaje = (decimal)nocturnas;
+        //            }
+        //            else if (lineas[i].HorasViaje == 0)
+        //            {
+        //                tmp[tmp.Length - 1].Horas = (decimal)nocturnas;
+        //            }
+        //            tmp[tmp.Length - 1].momento = 1; //Nocturna
+
+        //            tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //            tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //            tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+
+        //        }
+        //        #endregion
+
+        //        #region Inicio >= 6:00 && Fin <= 22:00 (OK)
+        //        else if (lineas[i].Inicio.TimeOfDay >= new TimeSpan(6, 0, 0) && lineas[i].Inicio.TimeOfDay <= new TimeSpan(22, 0, 0) && lineas[i].Fin.TimeOfDay <= new TimeSpan(22, 0, 0))
+        //        {
+        //            tmp[tmp.Length - 1].Inicio = lineas[i].Inicio;
+        //            tmp[tmp.Length - 1].Fin = lineas[i].Fin;
+        //            tmp[tmp.Length - 1].idLinea = lineas[i].idLinea;
+        //            tmp[tmp.Length - 1].idOriginal = lineas[i].idOriginal;
+        //            tmp[tmp.Length - 1].idOt = lineas[i].idOt;
+        //            tmp[tmp.Length - 1].idpreslin = lineas[i].idpreslin;
+        //            tmp[tmp.Length - 1].Horas = lineas[i].Horas;
+        //            tmp[tmp.Length - 1].HorasViaje = lineas[i].HorasViaje;
+
+
+        //            if (myArrayFestivos != null)
+        //            {
+        //                if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Saturday) tmp[tmp.Length - 1].momento = 2;//"Sabado";
+        //                else if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Sunday || festivoActual.Festivo) tmp[tmp.Length - 1].momento = 3;
+        //                else tmp[tmp.Length - 1].momento = 0;
+
+        //            }
+        //            else if (myArrayFestivos == null)
+        //            {
+        //                if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Saturday) tmp[tmp.Length - 1].momento = 2;//"Sabado";
+        //                else if (lineas[i].Inicio.DayOfWeek == DayOfWeek.Sunday) tmp[tmp.Length - 1].momento = 3;
+        //                else tmp[tmp.Length - 1].momento = 0;
+        //            }
+        //            tmp[tmp.Length - 1].Pernocta = lineas[i].Pernocta;
+        //            tmp[tmp.Length - 1].NParteFirmado = lineas[i].NParteFirmado;
+        //            tmp[tmp.Length - 1].Observaciones = lineas[i].Observaciones.ToUpper();
+
+        //        }
+        //        #endregion
+        //    }
+        //    #endregion
+
+        //    return iReturn;
+        //}
 
         //public FileResult PruebaArchivos()
         //{
@@ -1535,8 +2963,10 @@ namespace AppPartes.Logic
                                     }
                                     else
                                     {
+                                        //bien
                                         var temp = substring[3].Replace('.', ',');
-                                        var gasto = (float)(Convert.ToDouble(temp));
+                                        //var gasto = (float)(Convert.ToDouble(temp));
+                                        float gasto = Convert.ToSingle(temp, CultureInfo.CreateSpecificCulture("es-ES"));
                                         lGastos.Add(new Gastos
                                         {
                                             Pagador = Convert.ToInt32(substring[1]),

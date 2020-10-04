@@ -27,6 +27,10 @@ namespace AppPartes.Logic
         Task<List<Ots>> ListValidationOtsAsync(int idAldakinUser, int iEntity = 0);
         Task<string> NewValidationUsersAsync(int idAldakinUser, string strUsers, string strWorker);
         Task<string> NewValidationOtAsync(int idAldakinUser, string strOts, string strWorker);
+        Task<List<Excel>> ReviewHourTypeHourAsync(int iCodEnt, DateTime dtSelected);
+        Task<List<Excel>> ReviewHourMonthAsync(int iCodEnt, DateTime dtSelected);
+        Task<string> GetUserNameAsync(int iUser);
+
     }
 }
 

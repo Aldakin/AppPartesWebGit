@@ -407,6 +407,12 @@ namespace AppPartes.Logic
             }
             return oReturn;
         }
+        public async Task<ReportsViewLogic> LoadReportsAsync(int idAldakinUser)
+        {
+            ReportsViewLogic oReturn = new ReportsViewLogic();
+            oReturn.lEntidad = await aldakinDbContext.Entidad.ToListAsync();
+            return oReturn;
+        }
         public async Task<UdObraPresuViewLogic> LoadUdObraPresuAsync(int idAldakinUser)
         {
             UdObraPresuViewLogic oReturn = new UdObraPresuViewLogic();
