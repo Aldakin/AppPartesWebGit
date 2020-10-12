@@ -280,4 +280,15 @@ namespace AppPartes.Logic
         public string str15 { set; get; }
         public string str16 { set; get; }
     }
+    public class ListExcel1
+    {
+        public string nombre { set; get; }
+        public List<ExcelFormat> Datos { set; get; }
+    }
+    public class ExcelFormat
+    {
+        public DateTime dia { set; get; }
+        public double horas { set; get; }
+        public string color { set; get; }
+    }
 }

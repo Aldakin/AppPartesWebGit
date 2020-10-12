@@ -1207,24 +1207,75 @@ namespace AppPartes.Logic
             public int idPreslin;
         };
 
-        public async Task<List<Excel>> ReviewHourMonthAsync(int iCodEnt, DateTime dtSelected)
+        public async Task<List<ListExcel1>> ReviewHourMonthAsync(int iCodEnt, DateTime dtSelected)
         {
 
-            List<Excel> lReturn = new List<Excel>();
+            List<ListExcel1> lReturn = new List<ListExcel1>();
             var lLineas = await aldakinDbContext.Lineas.Where(x => x.CodEnt == iCodEnt && x.Inicio.Month == dtSelected.Month && x.Inicio.Year == dtSelected.Year).ToListAsync();
             var lUsuarios = lLineas.Select(o => o.Idusuario).Distinct().ToList();
+            var min = lLineas.Min(x => x.Inicio.Date);
+            var max = lLineas.Max(x => x.Inicio.Date);
+            var estadoDias= await aldakinDbContext.Estadodias.Where(x => x.Dia.Date >= min.Date && x.Dia.Date <= max.Date).ToListAsync();
             foreach (int u in lUsuarios)
             {
+                ListExcel1 o = new ListExcel1();
                 var usuario = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == u);
                 var lUserLines = lLineas.Where(x => x.Idusuario == u).ToList();
-                var lDateUserLines = lUserLines.Select(x => x.Inicio.Date).Distinct().OrderBy(x => x.Date).ToList();
-                foreach (DateTime dt in lDateUserLines)
+                //var lDateUserLines = lUserLines.Select(x => x.Inicio.Date).Distinct().OrderBy(x => x.Date).ToList();
+                var dtMin = lUserLines.Min(x => x.Inicio);
+                var dtMax = lUserLines.Max(x => x.Inicio);
+                o.nombre = usuario.Nombrecompleto;
+                List<ExcelFormat> dato = new List<ExcelFormat>();
+                List<DateTime> dia = new List<DateTime>();
+                List<double> horas = new List<double>();
+                for (DateTime dt = dtMin; dt < dtMax; dt = dt.AddDays(1.0))
                 {
-                    var lPartsDay = lUserLines.Where(x => x.Inicio.Date == dt).ToList();
-
-                    var horas = lPartsDay.Sum(x => x.Horas);
-                    lReturn.Add(new Excel { str1 = usuario.Nombrecompleto, str2 = dt.ToString(), str3 = horas.ToString() });
+                //    foreach (DateTime dt in lDateUserLines)
+                //{
+                    float horasSuma;
+                    string color="#FFFFFF";
+                    var lPartsDay = lUserLines.Where(x => x.Inicio.Date == dt.Date).ToList();
+                    if(lPartsDay.Count==0)
+                    {
+                        horasSuma = 0;
+                    }
+                    else
+                    {
+                        horasSuma = lPartsDay.Sum(x => x.Horas);
+                        var x = lPartsDay.Count;
+                        var iValidated = Convert.ToInt32(lPartsDay.Sum(x => x.Validado));
+                        var iGenerated = Convert.ToInt32(lPartsDay.Sum(x => x.Registrado));
+                        var status = estadoDias.FirstOrDefault(x => x.Dia.Day == dt.Day && x.Dia.Month == dt.Month && x.Dia.Year == dt.Year && x.Idusuario == u); // await aldakinDbContext.Estadodias.FirstOrDefaultAsync(x => x.Dia.Day == dt.Day && x.Dia.Month == dt.Month && x.Dia.Year == dt.Year && x.Idusuario == u);
+                        //bool status = false;
+                        var iStatus = 0;//no cerrada blanco
+                        if (status is null)
+                        {
+                            iStatus = 0;//no cerrada blanco
+                        }
+                        else
+                        {
+                            if (status.Estado == 2)
+                            {
+                                iStatus = 2;//cerrada amarillo
+                            }
+                            else
+                            {
+                                iStatus = 4;//generada azul
+                            }
+                        }
+                        color = await DayStatusColour(lPartsDay.Count, iGenerated, iValidated, dt, iStatus, usuario.CodEnt);
+                    }
+                    dato.Add(new ExcelFormat
+                    {
+                        dia = dt.Date,
+                        horas = horasSuma,
+                        color= color
+                    }); ;
                 }
+                o.Datos=dato;
+                //o.Datos.dia= dia;
+                //o.horas = horas;
+                lReturn.Add(o);
             }
             return lReturn;
         }

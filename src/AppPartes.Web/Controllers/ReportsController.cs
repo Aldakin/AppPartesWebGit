@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
 
 //https://www.talkingdotnet.com/import-export-xlsx-asp-net-core/
 
@@ -214,7 +216,7 @@ namespace AppPartes.Web.Controllers
                     file.Delete();
                     file = new FileInfo(Path.Combine(sWebRootFolder, sFileName));
                 }
-                List<Excel> lExcel = await _iWorkPartInformation.ReviewHourMonthAsync(iCodEnt, dtSelected);
+                var lExcel = await _iWorkPartInformation.ReviewHourMonthAsync(iCodEnt, dtSelected);
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 using (ExcelPackage package = new ExcelPackage(file))
                 {
@@ -225,19 +227,57 @@ namespace AppPartes.Web.Controllers
                     worksheet.Cells[1, 2].Value = "Creado:" + DateTime.Now.Date.ToString();
                     iRow = iRow + 1;
                     worksheet.Cells[iRow, 1].Value = "TRABAJADOR:";
-                    worksheet.Cells[iRow, 2].Value = "FECHA:";
-                    worksheet.Cells[iRow, 3].Value = "HORAS:";
+                    int count = 0;
+                    int i = 0;
                     //Add values
-                    foreach (Excel e in lExcel)
+                    foreach (ListExcel1 e in lExcel)
                     {
                         iRow++;
-                        worksheet.Cells[iRow, 1].Value = e.str1;
-                        worksheet.Cells[iRow, 2].Value = e.str2;
-                        worksheet.Cells[iRow, 3].Value = e.str3;
+                        worksheet.Cells[iRow, 1].Value = e.nombre;
+                        count = 0;
+                        foreach(ExcelFormat f in e.Datos)
+                        {
+                            if (i == 0)
+                            {
+                                worksheet.Cells[iRow - 1, 2 + count].Value = "Dia:" + f.dia.Day;
+                            }
+                            worksheet.Cells[iRow, 2 + count].Value = f.horas;
+                            Color color;
+                            switch (f.color)
+                            {
+                                case "#FFFFFF":
+                                    color = Color.White;
+                                    break;
+                                case "#0000FF":
+                                    color =Color.Blue;
+                                    break;
+                                case "#006400":
+                                    color = Color.Green;
+                                    break;
+                                case "#FFFF00":
+                                    color =Color.Yellow;
+                                    break;
+                                case "#D3D3D3":
+                                    color = Color.Gray;
+                                    break;
+                                case "#FF8C00":
+                                    color =Color.Orange;
+                                    break;
+                                case "#F0FFF0":
+                                    color = Color.Pink;
+                                    break;
+                                default:
+                                    color = Color.White;
+                                    break;
+                            }
+                            worksheet.Cells[iRow, 2 + count].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                            worksheet.Cells[iRow, 2 + count].Style.Fill.BackgroundColor.SetColor(color);
+                            //worksheet.Cells[iRow, 2 + count].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
+                            count++;
+                        }
+                        i++;
+
                     }
-
-
-
                     ////worksheet.Cells["A2"].Value = 1000;
                     ////worksheet.Cells["B2"].Value = "Jon";
                     ////worksheet.Cells["C2"].Value = "M";
