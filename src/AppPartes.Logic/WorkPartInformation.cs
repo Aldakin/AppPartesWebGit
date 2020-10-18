@@ -6,6 +6,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Mail;
+using System.Runtime.Serialization.Formatters;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 namespace AppPartes.Logic
 {
@@ -1022,34 +1024,56 @@ namespace AppPartes.Logic
                         oLinea.Idlinea = idOriginal;
                         if (oLinea.CodEnt != iUserCodEnt)
                         {
-                            string Salida = iNumOt.ToString(), Primerdigito, Resto;
-                            var Cero = Convert.ToChar("0"); ;
-                            Primerdigito = iNumOt.ToString().Substring(0, 1);
-                            Resto = iNumOt.ToString().Substring(2, iNumOt.ToString().Length - 2);
-                            Resto = Resto.TrimStart(Cero);
-                            Salida = string.Format("{0}|{1}", Primerdigito, Resto);
-                            var observaciones = Salida + " " + oLinea.Observaciones;
-
-                            //from ots where cierre is null and year(apertura) = year(iinicio) and  cod_ent = icod_ent and cod_ent_d = (select cod_ent from lineas where idlinea = iidoriginal)
-                            var ot = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Cierre == null && x.Apertura.Year == oLinea.Inicio.Year && x.CodEnt == iUserCodEnt && x.CodEntD == aldakinDbContext.Lineas.FirstOrDefault(y => y.Idlinea == oLinea.Idlinea).CodEnt);
-                            var iOt = ot.Idots;
-                            var oLineaSecundaria = new Lineas();
-                            oLineaSecundaria = oLinea;
-                            oLineaSecundaria.Idot = iOt;
-                            oLineaSecundaria.Idpreslin = null;
-                            oLineaSecundaria.Observaciones = observaciones.ToUpper();
-                            oLineaSecundaria.CodEnt = iUserCodEnt;
-                            oLineaSecundaria.Idoriginal = oLinea.Idlinea;
-                            oLineaSecundaria.Validado = oLinea.Validado;
-                            var iCopy = await _iWriteDataBase.InsertWorkerLineAsync(oLineaSecundaria);
-                            if (iCopy == 0)
+                            try
                             {
-                                //si devuelve string es que algo ha ido mal
-                                strReturn = "Ha ocurrido un error al insertar la linea Secundaria";
-                                return strReturn;
+                                string Salida = iNumOt.ToString(), Primerdigito, Resto;
+
+                                var Cero = Convert.ToChar("0");
+                                Primerdigito = iNumOt.ToString().Substring(0, 1);
+                                if (iNumOt > 9)
+                                {
+                                    Resto = iNumOt.ToString().Substring(2, iNumOt.ToString().Length - 2);
+                                    Resto = Resto.TrimStart(Cero);
+                                }
+                                else
+                                {
+                                    Resto = "0";
+                                }
+                                Salida = string.Format("{0}|{1}", Primerdigito, Resto);
+                                var observaciones = Salida + " " + oLinea.Observaciones;
+
+                                //from ots where cierre is null and year(apertura) = year(iinicio) and  cod_ent = icod_ent and cod_ent_d = (select cod_ent from lineas where idlinea = iidoriginal)
+                                var ot = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Cierre == null && x.Apertura.Year == oLinea.Inicio.Year && x.CodEnt == iUserCodEnt && x.CodEntD == aldakinDbContext.Lineas.FirstOrDefault(y => y.Idlinea == oLinea.Idlinea).CodEnt);
+                                var iOt = ot.Idots;
+                                var oLineaSecundaria = new Lineas();
+                                oLineaSecundaria = oLinea;
+                                oLineaSecundaria.Idot = iOt;
+                                oLineaSecundaria.Idpreslin = null;
+                                oLineaSecundaria.Observaciones = observaciones.ToUpper();
+                                oLineaSecundaria.CodEnt = iUserCodEnt;
+                                oLineaSecundaria.Idoriginal = oLinea.Idlinea;
+                                oLineaSecundaria.Validado = oLinea.Validado;
+                                var iCopy = await _iWriteDataBase.InsertWorkerLineAsync(oLineaSecundaria);
+                                if (iCopy == 0)
+                                {
+                                    //si devuelve string es que algo ha ido mal
+                                    strReturn = "Ha ocurrido un error al insertar la linea Secundaria";
+                                    return strReturn;
+                                }
+                            }
+                            catch(Exception ex)
+                            {
+                                var oReturn = await _iWriteDataBase.DeleteWorkerLineAsync(idOriginal, oLineOriginal.Idusuario, idAdminUser);
+                                if (oReturn.Count != 2)//if (oReturn.First().iValue==1)
+                                {
+                                    //si devuelve string es que algo ha ido mal
+                                    strReturn = "Ha ocurrido un error al borrar las lineas del parte original";
+                                    return strReturn;
+                                }
+                                strReturn = "Ha ocurrido un error al gestionar el trabajos para Hable con Administracion";
                             }
                         }
-                        if (lGastos.Count > 0)
+                        if ((lGastos.Count > 0) &&(string.IsNullOrEmpty(strReturn)))
                         {
                             strReturn = await _iWriteDataBase.InsertUserWorkExpensesAsync(lGastos, oLinea.Idlinea);
                             if (!(string.IsNullOrEmpty(strReturn)))
@@ -1201,12 +1225,30 @@ namespace AppPartes.Logic
             }
             return strReturn;
         }
-        struct idsComprobacion
+        //struct idsComprobacion
+        //{
+        //    public int idOt;
+        //    public int idPreslin;
+        //};
+        public async Task<List<ExcelWorkerReport>> WorkerReportAsync(int iIdUser, DateTime dtSelected)
         {
-            public int idOt;
-            public int idPreslin;
-        };
+            
+            List<ExcelWorkerReport> lReturn = new List<ExcelWorkerReport>();
+            var lLineas = await aldakinDbContext.Lineas.Where(x => x.Idusuario == iIdUser && x.Inicio.Month == dtSelected.Month && x.Inicio.Year == dtSelected.Year).OrderBy(x=>x.Inicio).ToListAsync();
+            var oUser = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == iIdUser);
+            foreach(Lineas l in lLineas)
+            {
+                lReturn.Add(new ExcelWorkerReport
+                {
+                    strEmpleado = oUser.Nombrecompleto+"["+ oUser.CodEmpl + "]",
+                    strFecha = l.Inicio.Date.ToString(),
+                    strIni=l.Inicio.Hour+":"+l.Inicio.Minute,
+                    strFin = l.Fin.Hour + ":" + l.Fin.Minute,
+                }); 
+            }
+            return lReturn;
 
+        }
         public async Task<List<ListExcel1>> ReviewHourMonthAsync(int iCodEnt, DateTime dtSelected)
         {
 
@@ -1295,15 +1337,14 @@ namespace AppPartes.Logic
             return strReturn;
         }
         
-        public async Task<List<Excel>> ReviewHourTypeHourAsync(int iCodEnt, DateTime dtSelected)
+        public async Task<List<ExcelTipoHora>> ReviewHourTypeHourAsync(int iCodEnt, DateTime dtSelected)
         {
-            List<Excel> lReturn = new List<Excel>();
+            List<ExcelTipoHora> lReturn = new List<ExcelTipoHora>();
             try
             {
                 //return lReturn;
                 int iTipoHora = 0, iMomento = 0; ;
                 float[] fMomentos = new float[4];
-                float fHoras = 0;
                 DateTime PrimerDia = new DateTime(dtSelected.Year, dtSelected.Month, 1, 0, 0, 0);
                 DateTime UltimoDia = PrimerDia.AddMonths(1).AddDays(-1);
                 //todos los partes del mes y de la delegacion
@@ -1315,9 +1356,7 @@ namespace AppPartes.Logic
                     var oUser = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == u);
                     var nombre = oUser.Nombrecompleto;
                     var codEmpl = oUser.CodEmpl;
-                    var oPresu = await aldakinDbContext.Presupuestos.FirstOrDefaultAsync(x => x.Idot == u);
-                    string strNumeroPresu = "";
-                    if (!(oPresu is null)) strNumeroPresu = oPresu.Numero.ToString();
+                    
 
                     //listar los partes de trabajos ese mes
                     List<Lineas> lTemp = lLineasAll.Where(x => x.Idusuario == u).ToList();
@@ -1325,13 +1364,13 @@ namespace AppPartes.Logic
                     var lOts = lTemp.Select(o => o.Idot).Distinct().ToList();
                     foreach (int o in lOts)
                     {
-                        if (o == 46582)
-                        {
-                            var y = 0;
-                        }
+                        var oPresu = await aldakinDbContext.Presupuestos.FirstOrDefaultAsync(x => x.Idot == o);
+                        string strNumeroPresu = "";
+                        if (!(oPresu is null)) strNumeroPresu = oPresu.Nombre.ToString();
+
                         string strNombreCapitulo = "";
-                        string strAnexo = "";
-                        string strVersion = "";
+                        int iAnexo = 0;
+                        int iVersion = 0;
                         var oOt = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == o);
                         var nombreOt = oOt.Nombre;
                         var numeroOt = oOt.Numero;
@@ -1355,43 +1394,44 @@ namespace AppPartes.Logic
                             for (int i = 0; i <= 3; i++)
                             {
                                 //0 = normal, 1 = noche, 2 = sabado, 3 = festivo
-                                string strHoras, strTipo;
+                                float fHoras;
+                                int iTipo;
                                 switch (i)
                                 {
                                     case 0:
-                                        strHoras = fMomentos[0].ToString();
-                                        strTipo = oTipoHora.Normal.ToString();
+                                        fHoras = fMomentos[0];
+                                        iTipo = oTipoHora.Normal;
                                         break;
                                     case 1:
-                                        strHoras = fMomentos[1].ToString();
-                                        strTipo = oTipoHora.Noche.ToString();
+                                        fHoras = fMomentos[1];
+                                        iTipo = oTipoHora.Noche;
                                         break;
                                     case 2:
-                                        strHoras = fMomentos[2].ToString();
-                                        strTipo = oTipoHora.Sabado.ToString();
+                                        fHoras = fMomentos[2];
+                                        iTipo = oTipoHora.Sabado;
                                         break;
                                     case 3:
-                                        strHoras = fMomentos[3].ToString();
-                                        strTipo = oTipoHora.Festivo.ToString();
+                                        fHoras = fMomentos[3];
+                                        iTipo = oTipoHora.Festivo;
                                         break;
                                     default:
-                                        strHoras = "0";
-                                        strTipo = "0";
+                                        fHoras = 0;
+                                        iTipo = 0;
                                         break;
                                 }
-                                lReturn.Add(new Excel
+                                lReturn.Add(new ExcelTipoHora
                                 {
-                                    str1 = nombre,
-                                    str2 = codEmpl.ToString(),
-                                    str3 = numeroOt.ToString(),
-                                    str4 = nombreOt,
-                                    str5 = strNumeroPresu,
-                                    str6 = "XX",
-                                    str7 = strNombreCapitulo,
-                                    str8 = strAnexo,
-                                    str9 = strVersion,
-                                    str10 = strHoras,
-                                    str11 = strTipo
+                                    strEmpleado = nombre,
+                                    iCodEmpleado = codEmpl,
+                                    iOT = numeroOt,
+                                    strOT = nombreOt,
+                                    strPresu = strNumeroPresu,
+                                    strCapitulo = "",
+                                    strNomCapitulo = strNombreCapitulo,
+                                    iAnexo = iAnexo,
+                                    iVersion = iVersion,
+                                    fHoras = fHoras,
+                                    iTipoHora = iTipo
                                 });
                             }
                         }
@@ -1406,43 +1446,45 @@ namespace AppPartes.Logic
                                     for (int i = 0; i <= 3; i++)
                                     {
                                         //0 = normal, 1 = noche, 2 = sabado, 3 = festivo
-                                        string strHoras, strTipo;
+                                        float fHoras;
+                                        int iTipo;
                                         switch (i)
                                         {
                                             case 0:
-                                                strHoras = fMomentos[0].ToString();
-                                                strTipo = oTipoHora.Normal.ToString();
+                                                fHoras = fMomentos[0];
+                                                iTipo = oTipoHora.Normal;
                                                 break;
                                             case 1:
-                                                strHoras = fMomentos[1].ToString();
-                                                strTipo = oTipoHora.Noche.ToString();
+                                                fHoras = fMomentos[1];
+                                                iTipo = oTipoHora.Noche;
                                                 break;
                                             case 2:
-                                                strHoras = fMomentos[2].ToString();
-                                                strTipo = oTipoHora.Sabado.ToString();
+                                                fHoras = fMomentos[2];
+                                                iTipo = oTipoHora.Sabado;
                                                 break;
                                             case 3:
-                                                strHoras = fMomentos[3].ToString();
-                                                strTipo = oTipoHora.Festivo.ToString();
+                                                fHoras = fMomentos[3];
+                                                iTipo = oTipoHora.Festivo;
                                                 break;
                                             default:
-                                                strHoras = "0";
-                                                strTipo = "0";
+                                                fHoras = 0;
+                                                iTipo = 0;
                                                 break;
                                         }
-                                        lReturn.Add(new Excel
+                                        lReturn.Add(new ExcelTipoHora
                                         {
-                                            str1 = nombre,
-                                            str2 = codEmpl.ToString(),
-                                            str3 = numeroOt.ToString(),
-                                            str4 = nombreOt,
-                                            str5 = strNumeroPresu,
-                                            str6 = "XX",
-                                            str7 = strNombreCapitulo,
-                                            str8 = strAnexo,
-                                            str9 = strVersion,
-                                            str10 = strHoras,
-                                            str11 = strTipo
+                                            strEmpleado = nombre,
+                                            iCodEmpleado = codEmpl,
+                                            iOT = numeroOt,
+                                            strOT = nombreOt,
+                                            strPresu = strNumeroPresu,
+                                            strCapitulo = "",
+                                            strNomCapitulo = strNombreCapitulo,
+                                            iAnexo = iAnexo,
+                                            iVersion = iVersion,
+                                            fHoras = fHoras,
+                                            iTipoHora = iTipo
+
                                         });
                                     }
                                 }
@@ -1450,51 +1492,53 @@ namespace AppPartes.Logic
                                 {
 
                                     var oPreslin = await aldakinDbContext.Preslin.FirstOrDefaultAsync(x => x.Idpreslin == p);
-                                    strAnexo = oPreslin.Anexo.ToString();
-                                    strVersion = oPreslin.Version.ToString();
+                                    iAnexo = oPreslin.Anexo ?? 0;
+                                    iVersion = oPreslin.Version ?? 0;
+                                    strNombreCapitulo = oPreslin.Nombre.ToString();
                                     List<Lineas> lLineasPres = lTemp.Where(x => x.Idpreslin == p).ToList();
-
+                                    string strChapter =await ReadChapter(oPreslin.Idpreslin);
                                     fMomentos = await WorkMomentDay(lLineasPres, oOt.CodEnt);
                                     for (int i = 0; i <= 3; i++)
                                     {
                                         //0 = normal, 1 = noche, 2 = sabado, 3 = festivo
-                                        string strHoras, strTipo;
+                                        float fHoras;
+                                        int iTipo;
                                         switch (i)
                                         {
                                             case 0:
-                                                strHoras = fMomentos[0].ToString();
-                                                strTipo = oTipoHora.Normal.ToString();
+                                                fHoras = fMomentos[0];
+                                                iTipo = oTipoHora.Normal;
                                                 break;
                                             case 1:
-                                                strHoras = fMomentos[1].ToString();
-                                                strTipo = oTipoHora.Noche.ToString();
+                                                fHoras = fMomentos[1];
+                                                iTipo = oTipoHora.Noche;
                                                 break;
                                             case 2:
-                                                strHoras = fMomentos[2].ToString();
-                                                strTipo = oTipoHora.Sabado.ToString();
+                                                fHoras = fMomentos[2];
+                                                iTipo = oTipoHora.Sabado;
                                                 break;
                                             case 3:
-                                                strHoras = fMomentos[3].ToString();
-                                                strTipo = oTipoHora.Festivo.ToString();
+                                                fHoras = fMomentos[3];
+                                                iTipo = oTipoHora.Festivo;
                                                 break;
                                             default:
-                                                strHoras = "0";
-                                                strTipo = "0";
+                                                fHoras = 0;
+                                                iTipo = 0;
                                                 break;
                                         }
-                                        lReturn.Add(new Excel
+                                        lReturn.Add(new ExcelTipoHora
                                         {
-                                            str1 = nombre,
-                                            str2 = codEmpl.ToString(),
-                                            str3 = numeroOt.ToString(),
-                                            str4 = nombreOt,
-                                            str5 = strNumeroPresu,
-                                            str6 = "XX",
-                                            str7 = strNombreCapitulo,
-                                            str8 = strAnexo,
-                                            str9 = strVersion,
-                                            str10 = strHoras,
-                                            str11 = strTipo
+                                            strEmpleado = nombre,
+                                            iCodEmpleado = codEmpl,
+                                            iOT = numeroOt,
+                                            strOT = nombreOt,
+                                            strPresu = strNumeroPresu,
+                                            strCapitulo = strChapter,
+                                            strNomCapitulo = strNombreCapitulo,
+                                            iAnexo = iAnexo,
+                                            iVersion = iVersion,
+                                            fHoras = fHoras,
+                                            iTipoHora = iTipo
                                         });
                                     }
                                 }
@@ -1510,7 +1554,37 @@ namespace AppPartes.Logic
             }
             return lReturn;
         }
-
+        private async Task<string> ReadChapter(int iIdPreslin)
+        {
+            string strReturn = string.Empty;
+            string[] strTemp = new string[8];
+            strTemp[0] = "0";
+            strTemp[1] = "0";
+            strTemp[2] = "0";
+            strTemp[3] = "0";
+            strTemp[4] = "0";
+            strTemp[5] = "0";
+            strTemp[6] = "0";
+            strTemp[7] = "0";
+            var pres = await aldakinDbContext.Preslin.FirstOrDefaultAsync(x=>x.Idpreslin==iIdPreslin);
+            if (!(pres is null))
+            {
+                var codp = pres.CodpPes ?? 0;
+                var t = pres.Numero ?? 0;
+                var x = pres.Nivel ?? 0;
+                strTemp[x] = t.ToString();
+                for (int i=x;i>0;i--)
+                {
+                    var level = await aldakinDbContext.Preslin.FirstOrDefaultAsync(x=>x.Idpresupuesto==pres.Idpresupuesto && x.CodhPes== codp && x.Anexo==pres.Anexo && x.Version == pres.Version);
+                    codp = level.CodpPes ?? 0;
+                    t = level.Numero ?? 0;
+                    x = level.Nivel ?? 0;
+                    strTemp[x] = t.ToString();
+                }
+            }
+            strReturn = strTemp[1] + strTemp[2] + strTemp[3] + strTemp[4] + strTemp[5] + strTemp[6] + strTemp[7];
+            return strReturn;
+        }
         private async Task<float[]> WorkMomentDay(List<Lineas> lLines, int iCodEnt)//, DateTime dtIni, DateTime dtEnd
         {
             //devuelve un array con las horas trabajadas entre la hora inicio y fin segun su momneto del dia

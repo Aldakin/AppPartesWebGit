@@ -108,10 +108,126 @@
                         </div>
                     </form>
                 </div>
+
+
+
+
+                <hr class="major" />
+
+
+
+
+
+                <h2 id="elements">Informe de horas trabajadas por un trabajador</h2>
+                <p>Seleccione Trabajador y fecha para ver las horas de los partes de ese trabajador</p>
+                <form asp-controller="Reports" asp-action="WorkerReport" method="POST">
+                    <div class="row gtr-uniform">
+                        <div class="col-12">
+                            <!--<h3>Seleccione un dia:</h3>-->
+                            <label for="start">* Seleccione un día:</label>
+
+                            <input type="date" id="CalendarioSelec" name="strCalendario"
+                                   value=""
+                                   min="@(DateTime.Now.Year-2)-01-01"
+                                   max="@(DateTime.Now.Year+2)-12-31" required>
+
+                        </div>
+                        <div class="col-12">
+                            <label for="start">Seleccione delegación:</label>
+                            <select id="EntityWorker" name="strEntity">
+                                <option value=""></option>
+                                @foreach (var dept in Model.lEntidad)
+                                {
+                                    <option value="@dept.CodEnt">
+                                        @dept.Nombre
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label id="lblWorker" for="start">* Trabajadores:</label>
+                            <select id="worker" name="strWorker">
+
+                                <option value="0"></option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <ul class="actions">
+                                <li><input type="submit" value="Exportar" class="primary" /></li>
+                            </ul>
+                        </div>
+                    </div>
+                </form>
+
+
+
+
+
+
+
             </section>
             <!--</div>-->
         </div>
     </div>
+
+    <script type="text/javascript">
+
+        const $worker = document.querySelector("#worker");
+        const $EntityWorker = document.querySelector("#EntityWorker");
+
+            const EntitySelected = () => {
+                //alert('1');
+                const indice = $EntityWorker.selectedIndex;
+                if (indice === -1) return; // Esto es cuando no hay elementos
+                const optionSelec = $EntityWorker.options[indice];
+                var url = "@Url.Action("GetWorker","SearchDataApi")";
+                var cantidad = optionSelec.value;
+                var data = { cantidad: cantidad };
+                $.post(url, data).done(function (data)
+                {
+                    if (data.length > 1)
+                    {
+                        const option = document.createElement('option');
+                        $worker.appendChild(option);
+                        for (let i = 0; i <= data.length - 1; i++)
+                        {
+                            const option = document.createElement('option');
+                            option.value = JSON.stringify(data[i].iValue);
+                            option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
+                            $worker.appendChild(option);
+                        }
+                    } else {
+                        if (data.length == 1)
+                        {
+                            const option = document.createElement('option');
+                            for (let i = 0; i <= data.length - 1; i++)
+                            {
+                                const option = document.createElement('option');
+                                option.value = JSON.stringify(data[i].iValue);
+                                option.text = JSON.stringify(data[i].strText).replace(/['"]+/g, '');
+                                $worker.appendChild(option);
+                            }
+                        }
+                        else
+                        {
+                        }
+                    }
+                }).fail(daError).always(function ()
+                {
+                //esto se ejecuta siempre
+                });
+
+            }
+        function daError(ex) {
+            console.log("Error");
+            alert("Ocurrio un error,recargue la pagina y vuelva a empezar." +ex);
+            }
+
+
+
+        $EntityWorker.addEventListener("change", EntitySelected);
+    </script>
+
 </body>
 
 

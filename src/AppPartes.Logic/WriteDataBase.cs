@@ -1451,19 +1451,26 @@ namespace AppPartes.Logic
                 foreach (var x in lLineas)
                 {
                     //if ((DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) = 0) || (DateTime.Compare(dtInicio, x.Fin) = 0 && DateTime.Compare(dtFin, x.Fin) > 0) || (DateTime.Compare(dtInicio, x.Fin) > 0 && DateTime.Compare(dtFin, x.Fin) > 0) || (DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) < 0))
-
-                    if ((DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) == 0) || (DateTime.Compare(dtInicio, x.Fin) == 0 && DateTime.Compare(dtFin, x.Fin) > 0) || (DateTime.Compare(dtInicio, x.Fin) > 0 && DateTime.Compare(dtFin, x.Fin) > 0) || (DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) < 0))
+                    if (x.Horas == 0)
                     {
+
                         bReturn = false;
-                        //rango ok
+                        //rango ok es solo gastos
                     }
                     else
                     {
-                        bReturn = true;
-                        strReturn = "Rango de Horas ya utilizado;";
-                        break;
+                        if (((DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) == 0) || (DateTime.Compare(dtInicio, x.Fin) == 0 && DateTime.Compare(dtFin, x.Fin) > 0) || (DateTime.Compare(dtInicio, x.Fin) > 0 && DateTime.Compare(dtFin, x.Fin) > 0) || (DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) < 0)))
+                        {
+                            bReturn = false;
+                            //rango ok
+                        }
+                        else
+                        {
+                            bReturn = true;
+                            strReturn = "Rango de Horas ya utilizado;";
+                            break;
+                        }
                     }
-
                     //if (DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) > 0)
                     //{
                     //    bReturn = true;
