@@ -1255,8 +1255,11 @@ namespace AppPartes.Logic
             List<ListExcel1> lReturn = new List<ListExcel1>();
             var lLineas = await aldakinDbContext.Lineas.Where(x => x.CodEnt == iCodEnt && x.Inicio.Month == dtSelected.Month && x.Inicio.Year == dtSelected.Year).ToListAsync();
             var lUsuarios = lLineas.Select(o => o.Idusuario).Distinct().ToList();
-            var min = lLineas.Min(x => x.Inicio.Date);
-            var max = lLineas.Max(x => x.Inicio.Date);
+
+            //var min = lLineas.Min(x => x.Inicio.Date);
+            //var max = lLineas.Max(x => x.Inicio.Date);
+            var min = new DateTime(dtSelected.Year, dtSelected.Month, 1);
+            var max = new DateTime(dtSelected.Year, dtSelected.Month + 1, 1).AddDays(-1);
             var estadoDias= await aldakinDbContext.Estadodias.Where(x => x.Dia.Date >= min.Date && x.Dia.Date <= max.Date).ToListAsync();
             foreach (int u in lUsuarios)
             {
@@ -1270,7 +1273,7 @@ namespace AppPartes.Logic
                 List<ExcelFormat> dato = new List<ExcelFormat>();
                 List<DateTime> dia = new List<DateTime>();
                 List<double> horas = new List<double>();
-                for (DateTime dt = dtMin; dt < dtMax; dt = dt.AddDays(1.0))
+                for (DateTime dt = dtMin; dt <= dtMax; dt = dt.AddDays(1.0))
                 {
                 //    foreach (DateTime dt in lDateUserLines)
                 //{
@@ -1284,6 +1287,11 @@ namespace AppPartes.Logic
                     else
                     {
                         horasSuma = lPartsDay.Sum(x => x.Horas);
+                        horasSuma = 0;
+                        foreach (Lineas l in lPartsDay)
+                        {
+                            horasSuma = horasSuma + Convert.ToSingle((l.Fin - l.Inicio).TotalHours);
+                        }
                         var x = lPartsDay.Count;
                         var iValidated = Convert.ToInt32(lPartsDay.Sum(x => x.Validado));
                         var iGenerated = Convert.ToInt32(lPartsDay.Sum(x => x.Registrado));

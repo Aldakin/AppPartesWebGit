@@ -1017,7 +1017,7 @@ namespace AppPartes.Logic
                         {
                             aldakinDbContext.Lineas.Update(line);
                             await aldakinDbContext.SaveChangesAsync();
-                            var lineCopy = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == line.Idoriginal);
+                            var lineCopy = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idoriginal == line.Idlinea);
                             if (!(lineCopy is null))
                             {
                                 lineCopy.Validado = sValue;
@@ -1026,6 +1026,7 @@ namespace AppPartes.Logic
                                 await aldakinDbContext.SaveChangesAsync();
                             }
                             await transaction.CommitAsync();
+                            
                         }
                         catch (Exception ex)
                         {
