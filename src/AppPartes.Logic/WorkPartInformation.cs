@@ -1267,26 +1267,30 @@ namespace AppPartes.Logic
                 var usuario = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == u);
                 var lUserLines = lLineas.Where(x => x.Idusuario == u).ToList();
                 //var lDateUserLines = lUserLines.Select(x => x.Inicio.Date).Distinct().OrderBy(x => x.Date).ToList();
-                var dtMin = lUserLines.Min(x => x.Inicio);
-                var dtMax = lUserLines.Max(x => x.Inicio);
+                //var dtMin = lUserLines.Min(x => x.Inicio);
+                //var dtMax = lUserLines.Max(x => x.Inicio);
                 o.nombre = usuario.Nombrecompleto;
                 List<ExcelFormat> dato = new List<ExcelFormat>();
                 List<DateTime> dia = new List<DateTime>();
                 List<double> horas = new List<double>();
-                for (DateTime dt = dtMin; dt <= dtMax; dt = dt.AddDays(1.0))
+                for (DateTime dt = min; dt <= max; dt = dt.AddDays(1.0))
                 {
                 //    foreach (DateTime dt in lDateUserLines)
                 //{
+                    if ((dt.Day==30)&&(u== 2079))
+                    {
+                        var t = 0;
+                    }    
                     float horasSuma;
                     string color="#FFFFFF";
                     var lPartsDay = lUserLines.Where(x => x.Inicio.Date == dt.Date).ToList();
-                    if(lPartsDay.Count==0)
+                    if((lPartsDay.Count==0)||(lPartsDay is null))
                     {
                         horasSuma = 0;
                     }
                     else
                     {
-                        horasSuma = lPartsDay.Sum(x => x.Horas);
+                        //horasSuma = lPartsDay.Sum(x => x.Horas);
                         horasSuma = 0;
                         foreach (Lineas l in lPartsDay)
                         {
@@ -1320,7 +1324,7 @@ namespace AppPartes.Logic
                         dia = dt.Date,
                         horas = horasSuma,
                         color= color
-                    }); ;
+                    }); 
                 }
                 o.Datos=dato;
                 //o.Datos.dia= dia;
@@ -1358,14 +1362,13 @@ namespace AppPartes.Logic
                 //todos los partes del mes y de la delegacion
                 List<Lineas> lLineasAll = await aldakinDbContext.Lineas.Where(x => x.Inicio.Month == dtSelected.Month && x.Inicio.Year == dtSelected.Year && x.Registrado == 1 && x.CodEnt == iCodEnt).ToListAsync();
                 //usuarios con parte
-                var lUsuarios = lLineasAll.Select(o => o.Idusuario).Distinct().ToList();
+                var user = await aldakinDbContext.Usuarios.Where(x => x.CodEnt == x.CodEntO && x.CodEnt == iCodEnt).ToListAsync();
+                var lUsuarios = lLineasAll.Select(o => o.Idusuario).Distinct().ToList(); 
                 foreach (int u in lUsuarios)
                 {
-                    var oUser = await aldakinDbContext.Usuarios.FirstOrDefaultAsync(x => x.Idusuario == u);
+                    var oUser = user.FirstOrDefault(x=>x.Idusuario==u);
                     var nombre = oUser.Nombrecompleto;
                     var codEmpl = oUser.CodEmpl;
-                    
-
                     //listar los partes de trabajos ese mes
                     List<Lineas> lTemp = lLineasAll.Where(x => x.Idusuario == u).ToList();
                     //distintas ots
@@ -1375,7 +1378,6 @@ namespace AppPartes.Logic
                         var oPresu = await aldakinDbContext.Presupuestos.FirstOrDefaultAsync(x => x.Idot == o);
                         string strNumeroPresu = "";
                         if (!(oPresu is null)) strNumeroPresu = oPresu.Nombre.ToString();
-
                         string strNombreCapitulo = "";
                         int iAnexo = 0;
                         int iVersion = 0;
@@ -1397,7 +1399,6 @@ namespace AppPartes.Logic
                         if (lpTemp is null)
                         {
                             //los partes que NO tienen preslin
-
                             fMomentos = await WorkMomentDay(lLineasOt, oOt.CodEnt);
                             for (int i = 0; i <= 3; i++)
                             {
@@ -1498,7 +1499,6 @@ namespace AppPartes.Logic
                                 }
                                 else
                                 {
-
                                     var oPreslin = await aldakinDbContext.Preslin.FirstOrDefaultAsync(x => x.Idpreslin == p);
                                     iAnexo = oPreslin.Anexo ?? 0;
                                     iVersion = oPreslin.Version ?? 0;
@@ -1552,13 +1552,12 @@ namespace AppPartes.Logic
                                 }
                             }
                         }
-
                     }
                 }
             }
             catch (Exception ex)
             {
-
+                var e = ex;
             }
             return lReturn;
         }
