@@ -110,6 +110,44 @@
                 </div>
 
 
+                <hr class="major" />
+
+
+                <div class="col-12">
+                    <p>Informe de gastos de cada dia trabajado por cada tipo de gasto.</p>
+                    <form asp-action="ExportExpensesTypeExpense" asp-controller="Reports" method="post">
+                        <div class="row gtr-uniform">
+                            <div class="col-12">
+                                <!--<h3>Seleccione un dia:</h3>-->
+                                <label for="start">* Seleccione un día:</label>
+
+                                <input type="date" id="CalendarioSelec" name="strCalendario"
+                                       value=""
+                                       min="@(DateTime.Now.Year-2)-01-01"
+                                       max="@(DateTime.Now.Year+2)-12-31" required>
+
+                            </div>
+
+                            <div class="col-12">
+                                <label for="start">Entidad:</label>
+                                <select id="entidadSelec" name="strEntidad" required>
+                                    <option value=""></option>
+                                    @foreach (var dept in Model.lEntidad)
+                                    {
+                                        <option value="@dept.CodEnt">
+                                            @dept.Nombre
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <ul class="actions">
+                                    <li><input type="submit" value="Exportar" class="primary" /></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </form>
+                </div>
 
 
                 <hr class="major" />

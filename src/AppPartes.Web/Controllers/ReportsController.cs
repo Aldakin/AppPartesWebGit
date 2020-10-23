@@ -322,7 +322,7 @@ namespace AppPartes.Web.Controllers
                         iRow++;
                         worksheet.Cells[iRow, 1].Value = e.nombre;
                         count = 0;
-                        foreach(ExcelFormat f in e.Datos)
+                        foreach (ExcelFormat f in e.Datos)
                         {
                             if (i == 0)
                             {
@@ -336,19 +336,19 @@ namespace AppPartes.Web.Controllers
                                     color = Color.White;
                                     break;
                                 case "#0000FF":
-                                    color =Color.Blue;
+                                    color = Color.Blue;
                                     break;
                                 case "#006400":
                                     color = Color.Green;
                                     break;
                                 case "#FFFF00":
-                                    color =Color.Yellow;
+                                    color = Color.Yellow;
                                     break;
                                 case "#D3D3D3":
                                     color = Color.Gray;
                                     break;
                                 case "#FF8C00":
-                                    color =Color.Orange;
+                                    color = Color.Orange;
                                     break;
                                 case "#F0FFF0":
                                     color = Color.Pink;
@@ -425,7 +425,7 @@ namespace AppPartes.Web.Controllers
                     //        //worksheet.Cells[1, 2].Value = "Name";
                     worksheet.Cells[iRow, 1].Value = "Nombre:";
                     worksheet.Cells[iRow, 2].Value = "Codigo Empleado:";
-                    worksheet.Cells[iRow, 3].Value = "OT"; 
+                    worksheet.Cells[iRow, 3].Value = "OT";
                     worksheet.Cells[iRow, 4].Value = "Desc. OT";
                     worksheet.Cells[iRow, 5].Value = "Presupuesto";
                     worksheet.Cells[iRow, 6].Value = "Capitulo";
@@ -487,6 +487,116 @@ namespace AppPartes.Web.Controllers
 
 
 
+        }
+
+        public async Task<IActionResult> ExportExpensesTypeExpense(string strCalendario = "", string strEntidad = "")
+        {
+            var oReturn = new ReportsViewLogic();
+            try
+            {
+                int iRow = 1, iCodEnt = 0;
+                DateTime dtSelected = DateTime.Now;
+                try
+                {
+                    dtSelected = Convert.ToDateTime(strCalendario);
+                    iCodEnt = Convert.ToInt32(strEntidad);
+                }
+                catch (Exception ex)
+                {
+
+                }
+                oReturn = await _iLoadIndexController.LoadReportsAsync(_idAldakinUser);
+                _idAldakinUser = await _iApplicationUserAldakin.GetIdUserAldakin(HttpContext.User);
+                string user = await _iWorkPartInformation.GetUserNameAsync(_idAldakinUser);
+                string sWebRootFolder = _hostingEnvironment.WebRootPath;
+                string sFileName = @"InformeGastos_" + _idAldakinUser + ".xlsx";
+                string URL = string.Format("{0}://{1}/{2}", Request.Scheme, Request.Host, sFileName);
+                FileInfo file = new FileInfo(Path.Combine(sWebRootFolder, sFileName));
+                if (file.Exists)
+                {
+                    file.Delete();
+                    file = new FileInfo(Path.Combine(sWebRootFolder, sFileName));
+                }
+                List<ExcelTipoGasto> lExcel = await _iWorkPartInformation.ReviewExpenseTypeExpenseAsync(iCodEnt, dtSelected);
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                using (ExcelPackage package = new ExcelPackage(file))
+                {
+                    // add a new worksheet to the empty workbook
+                    ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Horas");
+                    //First add the headers
+                    worksheet.Cells[1, 1].Value = user;
+                    worksheet.Cells[1, 2].Value = "Creado:" + DateTime.Now.Date.ToString();
+                    iRow = iRow + 1;
+                    //        //worksheet.Cells[1, 1].Value = "ID";
+                    //        //worksheet.Cells[1, 2].Value = "Name";
+
+
+                    worksheet.Cells[iRow, 1].Value = "Nombre:";
+                    worksheet.Cells[iRow, 2].Value = "Codigo Empleado:";
+                    worksheet.Cells[iRow, 3].Value = "OT";
+                    worksheet.Cells[iRow, 4].Value = "Desc. OT";
+                    worksheet.Cells[iRow, 5].Value = "Presupuesto";
+                    worksheet.Cells[iRow, 6].Value = "Capitulo";
+                    worksheet.Cells[iRow, 7].Value = "Desc. Capitulo";
+                    worksheet.Cells[iRow, 8].Value = "Anexo";
+                    worksheet.Cells[iRow, 9].Value = "Version";
+                    worksheet.Cells[iRow, 10].Value = "Articulo";
+                    worksheet.Cells[iRow, 11].Value = "Cantidad";
+                    worksheet.Cells[iRow, 12].Value = "Coste";
+
+
+
+                    //Add values
+                    foreach (ExcelTipoGasto e in lExcel)
+                    {
+                        iRow++;
+                        worksheet.Cells[iRow, 1].Value = e.strEmpleado;
+                        worksheet.Cells[iRow, 2].Value = e.iCodEmpleado;//e.str2;
+                        worksheet.Cells[iRow, 3].Value = e.iOT;
+                        worksheet.Cells[iRow, 4].Value = e.strOT;
+                        worksheet.Cells[iRow, 5].Value = e.strPresu;
+                        worksheet.Cells[iRow, 6].Value = e.strCapitulo;
+                        worksheet.Cells[iRow, 7].Value = e.strNomCapitulo;
+                        worksheet.Cells[iRow, 8].Value = e.iAnexo;
+                        worksheet.Cells[iRow, 9].Value = e.iVersion;
+                        worksheet.Cells[iRow, 10].Value = e.strArticulo;
+                        worksheet.Cells[iRow, 11].Value = e.fCantidad;
+                        worksheet.Cells[iRow, 12].Value = e.fCoste;
+                    }
+
+
+
+                    ////worksheet.Cells["A2"].Value = 1000;
+                    ////worksheet.Cells["B2"].Value = "Jon";
+                    ////worksheet.Cells["C2"].Value = "M";
+                    ////worksheet.Cells["D2"].Value = 5000;
+
+                    ////worksheet.Cells["A3"].Value = 1001;
+                    ////worksheet.Cells["B3"].Value = "Graham";
+                    ////worksheet.Cells["C3"].Value = "M";
+                    ////worksheet.Cells["D3"].Value = 10000;
+
+                    ////worksheet.Cells["A4"].Value = 1002;
+                    ////worksheet.Cells["B4"].Value = "Jenny";
+                    ////worksheet.Cells["C4"].Value = "F";
+                    ////worksheet.Cells["D4"].Value = 5000;
+
+                    package.Save(); //Save the workbook.
+                }
+                var result = PhysicalFile(Path.Combine(sWebRootFolder, sFileName), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+                Response.Headers["Content-Disposition"] = new ContentDispositionHeaderValue("attachment")
+                {
+                    FileName = file.Name
+                }.ToString();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return await Index("Reports");
         }
 
         //Ejemplo

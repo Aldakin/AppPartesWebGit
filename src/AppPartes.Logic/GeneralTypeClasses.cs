@@ -294,6 +294,22 @@ namespace AppPartes.Logic
         public float fHoras { set; get; }
         public int iTipoHora { set; get; }
     }
+
+    public class ExcelTipoGasto
+    {
+        public string strEmpleado { set; get; }
+        public int iCodEmpleado { set; get; }
+        public int iOT { set; get; }
+        public string strOT { set; get; }
+        public string strPresu { set; get; }
+        public string strCapitulo { set; get; }
+        public string strNomCapitulo { set; get; }
+        public int iAnexo { set; get; }
+        public int iVersion { set; get; }
+        public string strArticulo { set; get; }
+        public float fCantidad { set; get; }
+        public float fCoste { set; get; }
+    }
     public class ExcelWorkerReport
     {
         public string strEmpleado { set; get; }
