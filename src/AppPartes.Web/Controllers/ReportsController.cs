@@ -488,7 +488,6 @@ namespace AppPartes.Web.Controllers
 
 
         }
-
         public async Task<IActionResult> ExportExpensesTypeExpense(string strCalendario = "", string strEntidad = "")
         {
             var oReturn = new ReportsViewLogic();
