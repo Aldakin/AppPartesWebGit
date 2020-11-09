@@ -925,13 +925,15 @@ namespace AppPartes.Logic
                     }
                     var ootOrigen = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == lineaOriginal.Idot);
                     NombreOt = "[" + ootOrigen.Numero + "]" + ootOrigen.Nombre;
+                    NombreNivel = await aldakinDbContext.Preslin.FirstOrDefaultAsync(x => x.Idpreslin == lineaOriginal.Idpreslin);
+                    strPreslin = NombreNivel.Nombre;
                     var nombreCliente = await aldakinDbContext.Clientes.FirstOrDefaultAsync(x => x.Idclientes == aldakinDbContext.Ots.FirstOrDefault(o => o.Idots == lineaOriginal.Idot).Cliente);
                     NombreCliente = nombreCliente.Nombre;
                     oTemp = (new LineaVisual
                     {
                         iStatus = iStatus,
                         NombreUsuario = worker.Nombrecompleto,
-                        Idlinea = lineaOriginal.Idlinea,
+                        Idlinea = l.Idlinea,
                         Idot = lineaOriginal.Idot,
                         NombreOt = NombreOt,
                         NombreCliente = NombreCliente,
@@ -1017,7 +1019,7 @@ namespace AppPartes.Logic
                         {
                             aldakinDbContext.Lineas.Update(line);
                             await aldakinDbContext.SaveChangesAsync();
-                            var lineCopy = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idoriginal == line.Idlinea);
+                            var lineCopy = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == line.Idoriginal);
                             if (!(lineCopy is null))
                             {
                                 lineCopy.Validado = sValue;
