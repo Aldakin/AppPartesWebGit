@@ -978,11 +978,15 @@ namespace AppPartes.Logic
                     oLinea.Km = fKilometros;
                     oLinea.Dietas = fGastos;
                     //analiza si hay ot original trabajos para otras delegaciones
-                    strReturn = OriginalOT(oLinea.Idot, oLinea.Observaciones, out iOtOriginal);
+                    strReturn = OriginalOT(oLinea.Idot, oLinea.Observaciones, iUserCodEnt,oUser.Name, out iOtOriginal);
                     if (!(string.IsNullOrEmpty(strReturn)))
                     {
                         //si devuelve string es que algo ha ido mal
                         return strReturn;
+                    }
+                    if(iOtOriginal==0)
+                    {
+                        return "No estas dado de alta en la delegacion origen de la Ot";
                     }
                     oLinea.Idoriginal = 0;
                     //horas del parte
@@ -3392,11 +3396,10 @@ namespace AppPartes.Logic
 
             return strReturn;
         }
-        private string OriginalOT(int iOt, string strObservaciones, out int iOtOriginalOut)
+        private string OriginalOT(int iOt, string strObservaciones,int iUserCodEnt,string strUserName,  out int iOtOriginalOut)
         {
             string strReturn = string.Empty;
-            int iOtOriginal = 0;
-
+            iOtOriginalOut = iOt;
             //trabajos realizados
             var otSel = new Ots();
             try
@@ -3412,13 +3415,21 @@ namespace AppPartes.Logic
                 {
                     try
                     {
-                        iOtOriginal = Convert.ToInt32(strObservaciones.Substring(0, 1));
+                        iOtOriginalOut = Convert.ToInt32(strObservaciones.Substring(0, 1));
                     }
                     catch (Exception)
                     {
                         strReturn = "En las OTs de trabajos para otras delegaciones, lo primero que debe aparecer en las observaciones debe ser la OT de la delegacion de origen;";
                         iOtOriginalOut = 0;
                         return (strReturn);
+                    }
+                }
+                if(otSel.CodEnt!=iUserCodEnt)
+                {
+                    var userOt =  aldakinDbContext.Usuarios.FirstOrDefault(x => x.CodEnt == otSel.CodEnt && x.Name == strUserName);
+                    if (userOt is null)
+                    {
+                        iOtOriginalOut = 0;
                     }
                 }
             }
@@ -3428,7 +3439,6 @@ namespace AppPartes.Logic
                 iOtOriginalOut = 0;
                 return (strReturn);
             }
-            iOtOriginalOut = iOtOriginal;
             return strReturn;
         }
         private async Task<string> DayStatusColour(int iNumPart, int iGenerated, int iValidated, DateTime dtDay, int iStatus, int iCodEnt)

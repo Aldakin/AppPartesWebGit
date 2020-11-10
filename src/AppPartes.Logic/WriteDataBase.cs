@@ -562,7 +562,7 @@ namespace AppPartes.Logic
                 var linea = new Lineas();
                 linea = lSelect;
                 aldakinDbContext.Lineas.Remove(linea);
-                var lineaSecundaria = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idoriginal == lSelect.Idlinea);
+                var lineaSecundaria = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == lSelect.Idoriginal);
                 if (!(lineaSecundaria is null))
                 {
                     aldakinDbContext.Lineas.Remove(lineaSecundaria);
@@ -925,8 +925,15 @@ namespace AppPartes.Logic
                     }
                     var ootOrigen = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == lineaOriginal.Idot);
                     NombreOt = "[" + ootOrigen.Numero + "]" + ootOrigen.Nombre;
-                    NombreNivel = await aldakinDbContext.Preslin.FirstOrDefaultAsync(x => x.Idpreslin == lineaOriginal.Idpreslin);
-                    strPreslin = NombreNivel.Nombre;
+                    if (lineaOriginal.Idpreslin is null)
+                    {
+                        strPreslin = string.Empty;
+                    }
+                    else
+                    {
+                        NombreNivel = await aldakinDbContext.Preslin.FirstOrDefaultAsync(x => x.Idpreslin == lineaOriginal.Idpreslin);
+                        strPreslin = NombreNivel.Nombre;
+                    }
                     var nombreCliente = await aldakinDbContext.Clientes.FirstOrDefaultAsync(x => x.Idclientes == aldakinDbContext.Ots.FirstOrDefault(o => o.Idots == lineaOriginal.Idot).Cliente);
                     NombreCliente = nombreCliente.Nombre;
                     oTemp = (new LineaVisual
