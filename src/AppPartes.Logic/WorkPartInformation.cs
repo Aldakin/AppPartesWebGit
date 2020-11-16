@@ -306,7 +306,7 @@ namespace AppPartes.Logic
             catch (Exception ex)
             {
                 lReturn.Clear();
-                lReturn.Add(new SelectData { iValue = 0, strText = "Ha ocurrido un error,Recargue pagina", strValue = "Ha ocurrido un error,Recargue pagina" });
+                lReturn.Add(new SelectData { iValue = 0, strText = "Ha ocurrido un error,Pruebe a seleccionar de nuevo la ot ", strValue = "Ha ocurrido un error,Pruebe a seleccionar de nuevo la ot" });
             }
             return lReturn;
         }
@@ -728,6 +728,7 @@ namespace AppPartes.Logic
             }
             return lReturn;
         }
+        
         public async Task<string> StringWeekResumeAsync(int idAldakinUser, string strDate, string strOt, string strWorker, string strEntity)
         {
             string strReturn = string.Empty;
@@ -885,6 +886,7 @@ namespace AppPartes.Logic
             string strAdminName = string.Empty;
             var oLinea = new Lineas();
             var oLineOriginal = new Lineas();
+            var oLineSecundaria = new Lineas();
             var iPernoctacion = 0;
             var oOt = new Ots();
             DateTime dtInicio, dtFin;
@@ -906,6 +908,14 @@ namespace AppPartes.Logic
                     if (!(string.Equals(dataToInsertLine.strIdlineaAntigua, "0")))
                     {
                         oLineOriginal = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(dataToInsertLine.strIdlineaAntigua));
+                        //esto es caca
+                        //oLineSecundaria = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == oLineOriginal.Idoriginal);
+                        //if (!(oLineSecundaria is null))
+                        //{
+                        //    oOt = await aldakinDbContext.Ots.FirstOrDefaultAsync(x => x.Idots == oLineSecundaria.Idot);
+                        //    oLinea.CodEnt = oOt.CodEnt;
+                        //    iNumOt = oOt.Numero;
+                        //}
                     }
                     if ((string.IsNullOrEmpty(dataToInsertLine.strPreslin)) || (string.Equals(dataToInsertLine.strPreslin, "0")))
                     {
@@ -3224,6 +3234,7 @@ namespace AppPartes.Logic
         }
         private string AnalizeWorkLineDayAsync(WorkerLineData line, int iPartUser, int iUserAdmin, int idLineaOriginal, out DateTime dtIni, out DateTime dtEnd)
         {
+            //analiZar si la semana esta cerrada si es solo gastos, si las horas estan usadas, si las hora fin es anterior a hora incio
             string strReturn = string.Empty;
             var lLineas = new List<Lineas>();
             try
@@ -3238,7 +3249,7 @@ namespace AppPartes.Logic
                 dtIni = Convert.ToDateTime(line.strCalendario + " " + line.strHoraInicio + ":" + line.strMinutoInicio + ":00");
                 dtEnd = Convert.ToDateTime(line.strCalendario + " " + line.strHoraFin + ":" + line.strMinutoFin + ":00");
                 DateTime day = dtIni;
-                var lEstadoDia = aldakinDbContext.Estadodias.Where(x => x.Idusuario == iPartUser && DateTime.Compare(x.Dia, day.Date) == 0).ToList();//
+                var lEstadoDia =  aldakinDbContext.Estadodias.Where(x => x.Idusuario == iPartUser && DateTime.Compare(x.Dia, day.Date) == 0).ToList();//
                 if (!((iUserAdmin > 0) && (idLineaOriginal > 0)))
                 {
                     if (lEstadoDia.Count > 0)
@@ -3249,35 +3260,38 @@ namespace AppPartes.Logic
                         return (strReturn);
                     }
                 }
-                if (DateTime.Compare(dtIni, dtEnd) > 0)
+                if ((string.IsNullOrEmpty(line.bGastos)))
                 {
-                    DateTime dtTemp = Convert.ToDateTime(line.strCalendario + "  00 :00:00");
-                    if (DateTime.Compare(dtTemp, dtEnd) == 0)
+                    if (DateTime.Compare(dtIni, dtEnd) > 0)
                     {
-                        dtEnd = dtEnd.AddDays(1);
+                        DateTime dtTemp = Convert.ToDateTime(line.strCalendario + "  00 :00:00");
+                        if (DateTime.Compare(dtTemp, dtEnd) == 0)
+                        {
+                            dtEnd = dtEnd.AddDays(1);
+                        }
+                        else
+                        {
+                            strReturn = "Hora de Fin de Parte anterior a la Hora de inicio de Parte;";
+                            dtIni = new DateTime();
+                            dtEnd = new DateTime();
+                            return (strReturn);
+                        }
+                    }
+                    if ((iUserAdmin > 0) && (idLineaOriginal > 0))
+                    {
+                        lLineas =  aldakinDbContext.Lineas.Where(x => DateTime.Compare(x.Inicio.Date, day.Date) == 0 && x.Idlinea != idLineaOriginal && x.Idusuario == iPartUser && x.CodEnt== Convert.ToInt32(line.strEntidad)&& x.Idoriginal == 0 && x.Validado == 0 && x.Registrado == 0).ToList();
                     }
                     else
                     {
-                        strReturn = "Hora de Fin de Parte anterior a la Hora de inicio de Parte;";
+                        lLineas = aldakinDbContext.Lineas.Where(x => DateTime.Compare(x.Inicio.Date, day.Date) == 0 && x.Idusuario == iPartUser && x.CodEnt == Convert.ToInt32(line.strEntidad) && x.Validado == 0 && x.Registrado == 0).ToList();
+                    }
+                    if (WriteDataBase.RangeIsUsed(lLineas, dtEnd, dtIni, ref strReturn))
+                    {
+                        strReturn = "Rango de horas del parte ya utilizado";
                         dtIni = new DateTime();
                         dtEnd = new DateTime();
                         return (strReturn);
                     }
-                }
-                if ((iUserAdmin > 0) && (idLineaOriginal > 0))
-                {
-                    lLineas = aldakinDbContext.Lineas.Where(x => DateTime.Compare(x.Inicio.Date, day.Date) == 0 && x.Idlinea != idLineaOriginal && x.Idusuario == iPartUser && x.Idoriginal == 0 && x.Validado == 0 && x.Registrado == 0).ToList();
-                }
-                else
-                {
-                    lLineas = aldakinDbContext.Lineas.Where(x => DateTime.Compare(x.Inicio.Date, day.Date) == 0 && x.Idusuario == iPartUser && x.Validado == 0 && x.Registrado == 0).ToList();
-                }
-                if (WriteDataBase.RangeIsUsed(lLineas, dtEnd, dtIni, ref strReturn))
-                {
-                    strReturn = "Rango de horas del parte ya utilizado";
-                    dtIni = new DateTime();
-                    dtEnd = new DateTime();
-                    return (strReturn);
                 }
             }
             catch (Exception ex)
@@ -3290,6 +3304,7 @@ namespace AppPartes.Logic
         }
         private string CreateWorkExpenses(int iOt, string strGastos, out List<Gastos> lGastosOut, out float fGastosOut, out float fKilometrosOut)
         {
+            //crear los gastos segun lo que se ha introducido en el parte web
             var strReturn = string.Empty;
             var lGastos = new List<Gastos>();
             int iCodEntOt;

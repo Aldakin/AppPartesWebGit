@@ -373,6 +373,10 @@ namespace AppPartes.Logic
                                 break;
                             case "editLine":
                                 var lSelect = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(strLineId));
+                                if(lSelect.Idoriginal>0)
+                                {
+                                    lSelect = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x=>x.Idlinea==lSelect.Idoriginal);
+                                }
                                 oReturn.listSelect = await GetDayWorkerPartAsync(lSelect);
                                 oReturn.listPernocta = await GetAldakinNightAsync(lSelect);
                                 oReturn.Gastos = await GetWorkExpenses(lSelect.Idlinea, lSelect.CodEnt);
@@ -751,7 +755,6 @@ namespace AppPartes.Logic
             string strNivel5 = string.Empty;
             string strNivel6 = string.Empty;
             string strNivel7 = string.Empty;
-
             var strPreslin = string.Empty;
             int iOt = 0, iPresu = 0;
             var nombreCliente = await aldakinDbContext.Clientes.FirstOrDefaultAsync(x => x.Idclientes == aldakinDbContext.Ots.FirstOrDefault(o => o.Idots == lSelect.Idot).Cliente);

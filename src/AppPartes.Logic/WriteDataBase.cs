@@ -136,7 +136,7 @@ namespace AppPartes.Logic
                     Npartefirmado = oLinea.Npartefirmado,
                     CodEnt = oLinea.CodEnt,
                     Idoriginal = oLinea.Idoriginal,
-                    Validador = string.Empty,
+                    Validador = oLinea.Validador,
                     Validado = oLinea.Validado
                 };
                 aldakinDbContext.Lineas.Add(linea);
@@ -562,7 +562,7 @@ namespace AppPartes.Logic
                 var linea = new Lineas();
                 linea = lSelect;
                 aldakinDbContext.Lineas.Remove(linea);
-                var lineaSecundaria = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == lSelect.Idoriginal);
+                var lineaSecundaria = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idoriginal == lSelect.Idlinea);
                 if (!(lineaSecundaria is null))
                 {
                     aldakinDbContext.Lineas.Remove(lineaSecundaria);
@@ -1453,6 +1453,7 @@ namespace AppPartes.Logic
         }
         public static bool RangeIsUsed(List<Lineas> lLineas, DateTime dtFin, DateTime dtInicio, ref string strReturn)
         {
+            //analiza si el rango de horas de las lineas que se intorducen esta usado
             bool bReturn;
             strReturn = string.Empty;
             bReturn = false;//true==error
@@ -1461,7 +1462,7 @@ namespace AppPartes.Logic
                 foreach (var x in lLineas)
                 {
                     //if ((DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) = 0) || (DateTime.Compare(dtInicio, x.Fin) = 0 && DateTime.Compare(dtFin, x.Fin) > 0) || (DateTime.Compare(dtInicio, x.Fin) > 0 && DateTime.Compare(dtFin, x.Fin) > 0) || (DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) < 0))
-                    if (x.Horas == 0)
+                    if (x.Horas == 0 && x.Horasviaje==0)
                     {
 
                         bReturn = false;
@@ -1481,26 +1482,6 @@ namespace AppPartes.Logic
                             break;
                         }
                     }
-                    //if (DateTime.Compare(dtInicio, x.Inicio) < 0 && DateTime.Compare(dtFin, x.Inicio) > 0)
-                    //{
-                    //    bReturn = true;
-                    //    strReturn = "Rango de Horas ya utilizado;";
-                    //}
-                    //if (DateTime.Compare(dtFin, x.Inicio) > 0 && DateTime.Compare(dtFin, x.Fin) < 0)
-                    //{
-                    //    bReturn = true;
-                    //    strReturn = "Rango de Horas ya utilizado;";
-                    //}
-                    //if (DateTime.Compare(dtInicio, x.Inicio) > 0 && DateTime.Compare(dtInicio, x.Fin) < 0)
-                    //{
-                    //    bReturn = true;
-                    //    strReturn = "Rango de Horas ya utilizado;";
-                    //}
-                    //if (DateTime.Compare(dtInicio, x.Inicio) == 0 && DateTime.Compare(dtFin, x.Fin) == 0)
-                    //{
-                    //    bReturn = true;
-                    //    strReturn = "Rango de Horas ya utilizado;";
-                    //}
                 }
             }
             return bReturn;
@@ -1524,7 +1505,7 @@ namespace AppPartes.Logic
                 oReturn = null;
                 return oReturn;
             }
-            oReturn = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(iIdLinea));
+            oReturn = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == Convert.ToInt32(iIdLinea)  && x.Validado==0 && x.Registrado==0);
             DateTime day;
             if (oReturn is null)
             {
@@ -1533,23 +1514,25 @@ namespace AppPartes.Logic
             }
             day = oReturn.Inicio;
             var lEstadoDia = await aldakinDbContext.Estadodias.Where(x => x.Idusuario == idAldakinUser && DateTime.Compare(x.Dia, day.Date) == 0).ToListAsync();//
+
             if (idAdminUser != idAldakinUser)
             {
-                //si hay administardor la semana tiene que estar cerrada, 
+                //si un calidador es el que esta borrando tiene que estar cerrada es decir tiene que haber partes en estado dias
                 if (lEstadoDia.Count == 0)
                 {
                     oReturn = null;
                     return oReturn;
                 }
             }
-            else
-            {
-                if (lEstadoDia.Count > 0)
-                {
-                    oReturn = null;
-                    return oReturn;
-                }
-            }
+            //else
+            //{
+            //si el que borra es el propietario no tienen que estar validados o ref¡gitardos pero eso se ha visto antes
+            //    if (lEstadoDia.Count > 0)
+            //    {
+            //        oReturn = null;
+            //        return oReturn;
+            //    }
+            //}
             return oReturn;
         }
 
