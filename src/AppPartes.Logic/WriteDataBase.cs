@@ -567,10 +567,26 @@ namespace AppPartes.Logic
                 {
                     aldakinDbContext.Lineas.Remove(lineaSecundaria);
                 }
+                else
+                {
+                    lineaSecundaria = await aldakinDbContext.Lineas.FirstOrDefaultAsync(x => x.Idlinea == lSelect.Idoriginal);
+                    if (!(lineaSecundaria is null))
+                    {
+                        aldakinDbContext.Lineas.Remove(lineaSecundaria);
+                    }
+                }
                 var gasto = await aldakinDbContext.Gastos.Where(x => x.Idlinea == lSelect.Idlinea).ToListAsync();
                 if (!(gasto is null))
                 {
                     aldakinDbContext.Gastos.RemoveRange(gasto);
+                }
+                else
+                {
+                    gasto = await aldakinDbContext.Gastos.Where(x => x.Idlinea == lSelect.Idlinea).ToListAsync();
+                    if (!(gasto is null))
+                    {
+                        aldakinDbContext.Gastos.RemoveRange(gasto);
+                    }
                 }
                 await aldakinDbContext.SaveChangesAsync();
                 await transaction.CommitAsync();

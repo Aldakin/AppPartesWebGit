@@ -1008,7 +1008,7 @@ namespace AppPartes.Logic
                         strAdminName = admin.Nombrecompleto + "[" + DateTime.Now + "]";
                         oLinea.Validador = strAdminName;
                     }
-
+                    oLinea.Validador = strAdminName;
                     if ((!(string.IsNullOrEmpty(strAction))) && (string.Equals(strAction, "edit")))
                     {
 
